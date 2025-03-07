@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Liv-in-paris", "Liv-in-paris\Liv-in-paris.csproj", "{5286DE12-C7B1-4D0E-8190-C787E02B9DA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Liv-in-paris.Core", "Liv-in-paris.Core\Liv-in-paris.Core.csproj", "{7F773AD2-BB5E-4D3B-BF97-8D6ADC96B754}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Liv-in-paris.Tests", "Liv-in-paris.Tests\Liv-in-paris.Tests.csproj", "{A50307D6-5745-48D3-BABD-F8FD95CB05C8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5286DE12-C7B1-4D0E-8190-C787E02B9DA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5286DE12-C7B1-4D0E-8190-C787E02B9DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5286DE12-C7B1-4D0E-8190-C787E02B9DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5286DE12-C7B1-4D0E-8190-C787E02B9DA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F773AD2-BB5E-4D3B-BF97-8D6ADC96B754}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F773AD2-BB5E-4D3B-BF97-8D6ADC96B754}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F773AD2-BB5E-4D3B-BF97-8D6ADC96B754}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F773AD2-BB5E-4D3B-BF97-8D6ADC96B754}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A50307D6-5745-48D3-BABD-F8FD95CB05C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A50307D6-5745-48D3-BABD-F8FD95CB05C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A50307D6-5745-48D3-BABD-F8FD95CB05C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A50307D6-5745-48D3-BABD-F8FD95CB05C8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
