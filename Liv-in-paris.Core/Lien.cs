@@ -1,17 +1,25 @@
 ﻿namespace Liv_in_paris.Core;
 
-public class Lien
+public class Lien<T> where T : new()
 {
-    private Noeud noeud1;
-    private Noeud noeud2;
+    private readonly Noeud<T> _origine;
+    private readonly Noeud<T> _destination;
+    private readonly int _poids;
 
-    public Lien(Noeud noeud1, Noeud noeud2)
-    {
-        this.noeud1 = noeud1;
-        this.noeud2 = noeud2;
-    }
+    public Noeud<T> Origine => _origine;
+    public Noeud<T> Destination => _destination;
+    public int Poids => _poids;
     
-    public Noeud Noeud1 { get => noeud1;}
-    public Noeud Noeud2 { get => noeud2;}
+    public Lien(Noeud<T> origine, int poids, Noeud<T> destination)
+    {
+        _origine = origine;
+        _destination = destination;
+        _poids = poids;
+    }
+
+    public override string ToString()
+    {
+        return $"{_origine} --({_poids})--> {_destination}";
+    }
     
 }

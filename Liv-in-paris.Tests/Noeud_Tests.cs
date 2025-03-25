@@ -10,7 +10,9 @@ public class Tests
     public void Noeud_ShouldStoreIdCorrectly()
     {
         int expectedId = 42;
-        Noeud noeud = new Noeud(expectedId);
+        string expecteddata = "Nom";
+        Noeud<int> noeud = new Noeud<int>(expectedId, expecteddata);
         Assert.That(noeud.Id, Is.EqualTo(expectedId));
+        Assert.That(noeud.Data, Is.EqualTo(expecteddata));
     }
 }

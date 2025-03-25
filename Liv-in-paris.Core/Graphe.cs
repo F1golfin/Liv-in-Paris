@@ -1,131 +1,110 @@
-﻿namespace Rendu1;
+﻿namespace Liv_in_paris.Core;
 
-public class Graphe
+public class Graphe<T> where T : new()
 {
-    private Dictionary<int, List<int>> listeAdjacence = new();
-    private bool[,] matriceAdjacence;
-    private int nbSommets;
-
-    /// <summary>
-    /// Constructeur du graphe.
-    /// Initialise la matrice et la liste d'adjacence.
-    /// </summary>
-    /// <param name="nbSommets">Nombre de sommets du graphe</param>
-    public Graphe(int nbSommets)
+    
+    private Dictionary<int, Noeud<T>> _noeuds = new Dictionary<int, Noeud<T>>();
+    private Dictionary<int, Dictionary<int, int>> _matrice = new Dictionary<int, Dictionary<int, int>>();
+    
+    public Noeud<T> ajouterNoeud(Noeud<T> noeud)
     {
-        this.nbSommets = nbSommets;
-        matriceAdjacence = new bool[nbSommets, nbSommets];
+        if (_noeuds.ContainsKey(noeud.Id))
+            return _noeuds[noeud.Id];
+        _noeuds.Add(noeud.Id, noeud);
+        return noeud;
+    }
 
-        for (int i = 0; i < nbSommets; i++)
-        {
-            listeAdjacence[i] = new List<int>(); ///création d'une liste vide pour chaque sommet
-        }
+    public void ajouterLien(Lien<T> lien)
+    {
+        Console.WriteLine(lien.ToString());
         
+        Noeud<T> origine = lien.Origine;
+        Noeud<T> destination = lien.Destination;
+
+        if (!_noeuds.ContainsKey(origine.Id))
+            ajouterNoeud(origine);
+        if (!_noeuds.ContainsKey(destination.Id))
+            ajouterNoeud(destination);
+        if (!_matrice.ContainsKey(origine.Id))
+            _matrice.Add(origine.Id, new Dictionary<int, int>());
+        
+        if (_matrice[origine.Id].ContainsKey(destination.Id))
+            throw new Exception($"Le lien entre {origine.Id} et {destination.Id} existe déja");
+            
+        _matrice[origine.Id].Add(destination.Id,lien.Poids);
     }
     
-    /// <summary>
-    /// Obtient la liste d'adjacence du graphe.
-    /// </summary>
-    public Dictionary<int, List<int>> ListeAdjacence { get => listeAdjacence; }
-    /// <summary>
-    /// Obtient le nombre total de sommets dans le graphe.
-    /// </summary>
-    public int NbSommets { get => nbSommets; }
-    /// <summary>
-    /// Obtient la matrice d'adjacence du graphe.
-    /// </summary>
-    public bool[,] MatriceAdjacence { get => matriceAdjacence; }
-
-    /// <summary>
-    /// Ajoute une arête entre deux sommets dans la liste et la matrice d'adjacence.
-    /// </summary>
-    /// <param name="a">Premier sommet</param>
-    /// <param name="b">Deuxième sommet</param>
-    public void AjouterLien(int a, int b)
-    {
-        ///Pour la liste d'adjancence 
-        listeAdjacence[a].Add(b);
-        listeAdjacence[b].Add(a);
-        
-        ///Pour ne matrice d'adjacences 
-        matriceAdjacence[a, b] = true;
-        matriceAdjacence[b, a] = true;
-    }
-
-    /// <summary>
-    /// Affiche la liste d'adjacence du graphe.
-    /// </summary>
     public void AfficherListeAdjacence()
     {
-        foreach (var VARIABLE in listeAdjacence)
+        var keys = _noeuds.Keys;
+        foreach (int key in keys)
         {
-            Console.WriteLine($"{VARIABLE.Key} -> {string.Join(", ", VARIABLE.Value)}");
+            var liens = _matrice.ContainsKey(key) ? _matrice[key].Keys : new Dictionary<int, int>().Keys;
+            Console.WriteLine($"{key} -> {string.Join(",", liens)}");
         }
     }
-
-    /// <summary>
-    /// Affiche la matrice d'adjacence du graphe.
-    /// </summary>
+    
     public void AfficherMatriceAdjacence()
     {
-        Console.Write("   "); /// Espacement pour l'en-tête
-        for (int i = 0; i < nbSommets; i++)
-            Console.Write($"{i,2} "); /// Afficher les indices des colonnes
-        Console.WriteLine("\n  " + new string('-', nbSommets * 3));
-
-        for (int i = 0; i < nbSommets; i++)
+        var keys = _matrice.Keys;
+        
+        Console.Write("     ");
+        foreach (int colonne in keys)
         {
-            Console.Write($"{i,2} | "); /// Afficher l'indice du sommet
-            for (int j = 0; j < nbSommets; j++)
+            Console.Write($"{colonne:000} ");
+        }
+        Console.WriteLine();
+        
+        foreach (int ligne in keys)
+        {
+            Console.Write($"{ligne:000} :");
+            foreach (int colonne in keys)
             {
-                Console.Write(matriceAdjacence[i, j] ? "1 " : "0 "); 
+                if (_matrice.ContainsKey(ligne) && _matrice[ligne].ContainsKey(colonne))
+                {
+                    Console.Write($"{_matrice[ligne][colonne]:000} ");
+                }
+                else
+                {
+                    Console.Write("000 ");
+                }
             }
             Console.WriteLine();
         }
     }
     
-    /// <summary>
-    /// Parcours en profondeur récursif.
-    /// </summary>
-    /// <param name="sommet">Sommet de départ</param>
-    /// <param name="visite">Tableau des sommets visités</param>
-    public void ParcoursEnProfondeurRec(int sommet, bool[] visite)
+    public void ParcoursEnProfondeur(Noeud<T> noeud)
     {
-        Console.Write(sommet + " ");
-        visite[sommet] = true;
-        Stack<int> pile = new Stack<int>();
-        foreach(int voisin in listeAdjacence[sommet])
-        {
-            if (visite[voisin] == false)
-            {
-                ParcoursEnProfondeurRec(voisin, visite);
-            }
-        }
-    }
-    
-    /// <summary>
-    /// Lance un parcours en profondeur à partir d'un sommet donné.
-    /// </summary>
-    /// <param name="sommet">Sommet de départ</param>
-    public void ParcoursEnProfondeur(int sommet)
-    {
-        int max = nbSommets;
-        bool[] visite = new bool[max];
+        bool[] visite = new bool[_noeuds.Count];
         Console.WriteLine("Parcours en Profondeur : ");
         Console.Write("[");
-        ParcoursEnProfondeurRec(sommet, visite);
+        ParcoursEnProfondeurRec(noeud.Id, visite);
         Console.WriteLine("]");
     }
     
-    /// <summary>
-    /// Effectue un parcours en largeur (BFS) à partir d'un sommet donné.
-    /// </summary>
-    /// <param name="depart">Sommet de départ</param>
-    public void ParcoursEnLargeur(int depart)
+    private void ParcoursEnProfondeurRec(int id, bool[] visite)
     {
-        bool[] visited = new bool[nbSommets];
-        Queue<int> file = new Queue<int>(); 
-
+        Console.Write(id + " ");
+        visite[id] = true;
+        if(_matrice.ContainsKey(id))
+        {
+            foreach(int voisin in _matrice[id].Keys)
+            {
+                if (visite[voisin] == false)
+                {
+                    ParcoursEnProfondeurRec(voisin, visite);
+                }
+            }
+        }
+        
+    }
+    
+    public void ParcoursEnLargeur(Noeud<T> noeud)
+    {
+        bool[] visited = new bool[_noeuds.Count];
+        Queue<int> file = new Queue<int>();
+        int depart = noeud.Id;
+        
         file.Enqueue(depart);
         visited[depart] = true;
 
@@ -137,78 +116,33 @@ public class Graphe
             int sommet = file.Dequeue();
             Console.Write(sommet + " ");
 
-            foreach (int voisin in listeAdjacence[sommet])
+            if (_matrice.ContainsKey(sommet))
             {
-                if (visited[voisin]==false)
+                foreach (int voisin in _matrice[sommet].Keys)
                 {
-                    file.Enqueue(voisin);
-                    visited[voisin] = true;
+                    if (visited[voisin] == false)
+                    {
+                        file.Enqueue(voisin);
+                        visited[voisin] = true;
+                    }
                 }
             }
         }
         Console.WriteLine("]");
     }
-    
-    /// <summary>
-    /// Vérifie si le graphe est connexe (tous les sommets sont atteignables).
-    /// </summary>
-    /// <returns>True si connexe, False sinon</returns>
+
     public bool EstConnexe()
     {
-        bool[] visite = new bool[nbSommets];
-        int pointDepart = 0;
-        
-        ParcoursEnProfondeurRec(pointDepart, visite);
-        
-        for (int i = 0; i < nbSommets; i++)
-        {
-            if (!visite[i]) return false;
-        }
-        return true;
+        throw new NotImplementedException();
     }
-    
-    /// <summary>
-    /// Vérifie si le graphe contient un cycle.
-    /// </summary>
-    /// <returns>True si un cycle est détecté, False sinon</returns>
+
     public bool ContientCycle()
     {
-        bool[] visite = new bool[nbSommets];
-        
-        for (int sommet = 0; sommet < nbSommets; sommet++)
-        {
-            if (!visite[sommet])
-            {
-                if (DFSDetecterCycle(sommet, visite, -1))
-                    return true;
-            }
-        }
-        return false;
+        throw new NotImplementedException();
     }
-    
-    /// <summary>
-    /// Détection de cycle avec un parcours en profondeur (DFS).
-    /// </summary>
-    /// <param name="sommet">Sommet courant</param>
-    /// <param name="visite">Tableau des sommets visités</param>
-    /// <param name="parent">Sommet parent pour éviter de faux cycles</param>
-    /// <returns>True si un cycle est détecté, False sinon</returns>
-    private bool DFSDetecterCycle(int sommet, bool[] visite, int parent)
-    {
-        visite[sommet] = true;
 
-        foreach (int voisin in listeAdjacence[sommet])
-        {
-            if (!visite[voisin])
-            {
-                if (DFSDetecterCycle(voisin, visite, sommet))
-                    return true;
-            }
-            else if (voisin != parent)
-            {
-                return true;
-            }
-        }
-        return false;
+    private bool DFSDetecterCycle()
+    {
+        throw new NotImplementedException();
     }
 }
