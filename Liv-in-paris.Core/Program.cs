@@ -13,13 +13,12 @@ class Program
 
         using (StreamReader sr = new StreamReader(onglet_1))
         {
+            //TODO : Riques si pas le bon format 
             sr.ReadLine();
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                // Traiter chaque ligne
                 string[] values = line.Split(';');
-                
                 
                 int id = values[0] is "" ? 0 : int.Parse(values[0]);
                 if (id > 0)
@@ -44,10 +43,9 @@ class Program
         
         using (StreamReader reader = new StreamReader(onglet_2))
         {
-            // Lire et ignorer l'en-tête
-            //BUG : Riques si pas le bon format 
+            
+            //TODO : Riques si pas le bon format 
             reader.ReadLine();
-            // Lire chaque ligne du fichier
             string line;
             while ((line = reader.ReadLine()) != null)
             {
