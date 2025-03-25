@@ -31,7 +31,7 @@ public class Graphe<T> where T : new()
     /// <param name="lien">Le lien à ajouter.</param>
     public void ajouterLien(Lien<T> lien)
     {
-        Console.WriteLine(lien.ToString());
+        Console.WriteLine(lien.ToString()); //TODO : A enlever c'est pour débug
         
         Noeud<T> origine = lien.Origine;
         Noeud<T> destination = lien.Destination;
