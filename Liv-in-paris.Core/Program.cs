@@ -17,7 +17,7 @@ class Program
 
         Console.WriteLine("Graphe chargé !");
         graphe.AfficherListeAdjacence();
-        graphe.AfficherMatriceAdjacence();
+        //graphe.AfficherMatriceAdjacence();
     }
     
 }
