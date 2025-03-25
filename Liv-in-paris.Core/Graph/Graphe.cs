@@ -1,4 +1,4 @@
-﻿namespace Liv_in_paris.Core;
+﻿namespace Liv_in_paris.Core.Graph;
 
 public class Graphe<T> where T : new()
 {

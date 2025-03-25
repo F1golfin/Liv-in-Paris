@@ -1,4 +1,6 @@
-﻿namespace Liv_in_paris.Core;
+﻿using Liv_in_paris.Core.Graph;
+
+namespace Liv_in_paris.Core;
 
 class Program
 {

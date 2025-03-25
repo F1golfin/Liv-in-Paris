@@ -1,12 +1,12 @@
-﻿namespace Liv_in_paris.Core;
+﻿namespace Liv_in_paris.Core.Graph;
 
 public class Noeud<T> where T : new()
 {
     private readonly int _id;
     private T _data;
 
-    public int Id { get => _id; }
-    public T Data { get => _data; }
+    public int Id => _id;
+    public T Data => _data;
     
     public Noeud(int id)
     {
