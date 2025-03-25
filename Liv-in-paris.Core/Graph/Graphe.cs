@@ -1,11 +1,22 @@
 ﻿namespace Liv_in_paris.Core.Graph;
 
+/// <summary>
+/// Représente un graphe orienté et pondéré générique avec gestion des nœuds et des liens.
+/// </summary>
+/// <typeparam name="T">Le type de données contenues dans chaque nœud. Ce type doit avoir un constructeur par défaut.</typeparam>
 public class Graphe<T> where T : new()
 {
     
     private Dictionary<int, Noeud<T>> _noeuds = new Dictionary<int, Noeud<T>>();
     private Dictionary<int, Dictionary<int, int>> _matrice = new Dictionary<int, Dictionary<int, int>>();
+
+    #region Gestion des nœuds et des liens
     
+    /// <summary>
+    /// Ajoute un nœud au graphe s'il n'existe pas déjà.
+    /// </summary>
+    /// <param name="noeud">Le nœud à ajouter.</param>
+    /// <returns>Le nœud ajouté ou déjà existant.</returns>
     public Noeud<T> ajouterNoeud(Noeud<T> noeud)
     {
         if (_noeuds.ContainsKey(noeud.Id))
@@ -14,6 +25,10 @@ public class Graphe<T> where T : new()
         return noeud;
     }
 
+    /// <summary>
+    /// Ajoute un lien pondéré entre deux nœuds. Lève une exception si le lien existe déjà.
+    /// </summary>
+    /// <param name="lien">Le lien à ajouter.</param>
     public void ajouterLien(Lien<T> lien)
     {
         Console.WriteLine(lien.ToString());
@@ -33,46 +48,14 @@ public class Graphe<T> where T : new()
             
         _matrice[origine.Id].Add(destination.Id,lien.Poids);
     }
+    #endregion
     
-    public void AfficherListeAdjacence()
-    {
-        var keys = _noeuds.Keys;
-        foreach (int key in keys)
-        {
-            var liens = _matrice.ContainsKey(key) ? _matrice[key].Keys : new Dictionary<int, int>().Keys;
-            Console.WriteLine($"{key} -> {string.Join(",", liens)}");
-        }
-    }
+    #region Algorithmes de parcours
     
-    public void AfficherMatriceAdjacence()
-    {
-        var keys = _matrice.Keys;
-        
-        Console.Write("     ");
-        foreach (int colonne in keys)
-        {
-            Console.Write($"{colonne:000} ");
-        }
-        Console.WriteLine();
-        
-        foreach (int ligne in keys)
-        {
-            Console.Write($"{ligne:000} :");
-            foreach (int colonne in keys)
-            {
-                if (_matrice.ContainsKey(ligne) && _matrice[ligne].ContainsKey(colonne))
-                {
-                    Console.Write($"{_matrice[ligne][colonne]:000} ");
-                }
-                else
-                {
-                    Console.Write("000 ");
-                }
-            }
-            Console.WriteLine();
-        }
-    }
-    
+    /// <summary>
+    /// Affiche le parcours en profondeur à partir d’un nœud donné.
+    /// </summary>
+    /// <param name="noeud">Le nœud de départ.</param>
     public void ParcoursEnProfondeur(Noeud<T> noeud)
     {
         bool[] visite = new bool[_noeuds.Count];
@@ -99,6 +82,10 @@ public class Graphe<T> where T : new()
         
     }
     
+    /// <summary>
+    /// Affiche le parcours en largeur à partir d’un nœud donné.
+    /// </summary>
+    /// <param name="noeud">Le nœud de départ.</param>
     public void ParcoursEnLargeur(Noeud<T> noeud)
     {
         bool[] visited = new bool[_noeuds.Count];
@@ -130,12 +117,23 @@ public class Graphe<T> where T : new()
         }
         Console.WriteLine("]");
     }
+    #endregion
 
+    #region Analyse du graphe
+    
+    /// <summary>
+    /// Détermine si le graphe est connexe.
+    /// </summary>
+    /// <returns>True si connexe, sinon false.</returns>
     public bool EstConnexe()
     {
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Vérifie si le graphe contient un cycle.
+    /// </summary>
+    /// <returns>True si un cycle est détecté, sinon false.</returns>
     public bool ContientCycle()
     {
         throw new NotImplementedException();
@@ -145,4 +143,57 @@ public class Graphe<T> where T : new()
     {
         throw new NotImplementedException();
     }
+    #endregion
+    
+    #region Algorithmes de plus court chemin
+    //TODO: A implementer
+    #endregion
+    
+    #region Affichage
+    
+    /// <summary>
+    /// Affiche la liste d’adjacence du graphe.
+    /// </summary>
+    public void AfficherListeAdjacence()
+    {
+        var keys = _noeuds.Keys;
+        foreach (int key in keys)
+        {
+            var liens = _matrice.ContainsKey(key) ? _matrice[key].Keys : new Dictionary<int, int>().Keys;
+            Console.WriteLine($"{key} -> {string.Join(",", liens)}");
+        }
+    }
+    
+    /// <summary>
+    /// Affiche la matrice d’adjacence du graphe avec les poids.
+    /// </summary>
+    public void AfficherMatriceAdjacence()
+    {
+        var keys = _matrice.Keys;
+        
+        Console.Write("     ");
+        foreach (int colonne in keys)
+        {
+            Console.Write($"{colonne:000} "); //BUG: Revoir l'affichage de la matrice, noeud 1 avec le jeu de tests
+        }
+        Console.WriteLine();
+        
+        foreach (int ligne in keys)
+        {
+            Console.Write($"{ligne:000} :");
+            foreach (int colonne in keys)
+            {
+                if (_matrice.ContainsKey(ligne) && _matrice[ligne].ContainsKey(colonne))
+                {
+                    Console.Write($"{_matrice[ligne][colonne]:000} ");
+                }
+                else
+                {
+                    Console.Write("000 ");
+                }
+            }
+            Console.WriteLine();
+        }
+    }
+    #endregion
 }
