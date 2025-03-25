@@ -1,6 +1,6 @@
 ﻿using Liv_in_paris.Core.Graph;
 
-namespace Liv_in_paris.Tests;
+namespace Liv_in_paris.Tests.Graph;
 
 /// <summary T=".">
 /// Classe de tests unitaires pour la classe Graphe

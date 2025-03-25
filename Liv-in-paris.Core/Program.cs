@@ -1,4 +1,5 @@
 ﻿using Liv_in_paris.Core.Graph;
+using Liv_in_paris.Core.Entities;
 
 namespace Liv_in_paris.Core;
 
@@ -30,8 +31,8 @@ class Program
                     
                     station.Nom = values[2];
                     station.Ligne = values[1];
-                    station.Longitude = values[3] is "" ? 0 : float.Parse(values[3].Replace('.',','));
-                    station.Latitude = values[4] is "" ? 0 : float.Parse(values[4].Replace('.',','));
+                    station.Longitude = values[3] is "" ? 0 : double.Parse(values[3].Replace('.',','));
+                    station.Latitude = values[4] is "" ? 0 : double.Parse(values[4].Replace('.',','));
                     station.Commune = values[5];
                     station.Insee = values[6];
 
@@ -51,8 +52,6 @@ class Program
             string line;
             while ((line = reader.ReadLine()) != null)
             {
-                // Traiter chaque ligne
-                Console.WriteLine(line);
                 string[] values = line.Split(';');
                 
                 int id = int.Parse(values[0]);
@@ -95,14 +94,5 @@ class Program
         
         
     }
-
-    class Station
-    {
-        public string Nom { get; set; }
-        public string Ligne { get; set; }
-        public float Longitude { get; set; }
-        public float Latitude { get; set; }
-        public string Commune { get; set; }
-        public string Insee { get; set; }
-    }
+    
 }
