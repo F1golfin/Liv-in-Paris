@@ -1,14 +1,23 @@
-﻿namespace Liv_in_paris.Core;
+﻿using Liv_in_paris.Core.Entities;
+using Liv_in_paris.Core.Graph;
+using Liv_in_paris.Core.Services;
+
+namespace Liv_in_paris.Core;
 
 class Program
 {
     // Ici est éxécuté uniquement le projet .Core
     static void Main(string[] args)
     {
-        Noeud n = new Noeud(2);
-        Console.WriteLine(n);
+        string onglet_1 = "../../../../Files/MetroParis_test_onglet1.csv";
+        string onglet_2 = "../../../../Files/MetroParis_test_onglet2.csv";
         
-        Console.WriteLine("Hello, World!");
-        
+
+        Graphe<Station> graphe = GrapheMetroBuilder.ConstruireDepuisCSV(onglet_1, onglet_2);
+
+        Console.WriteLine("Graphe chargé !");
+        graphe.AfficherListeAdjacence();
+        graphe.AfficherMatriceAdjacence();
     }
+    
 }

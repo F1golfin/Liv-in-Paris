@@ -19,9 +19,6 @@ public partial class MainWindow : Window
 {
     public MainWindow()
     {
-        //Petit exemple pour utiliser les fonctions et classes de Core
-        Noeud n = new Noeud(1); // Voila
-        
         InitializeComponent();
     }
 }
