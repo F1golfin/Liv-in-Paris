@@ -37,6 +37,6 @@ public class Station
     /// </summary>
     public override string ToString()
     {
-        return $"{Nom} (Ligne {Ligne}) - {Commune} [{Latitude}, {Longitude}]";
+        return $"{Nom} (Ligne {Ligne})";  //- {Commune} [{Latitude}, {Longitude}]
     }
 }

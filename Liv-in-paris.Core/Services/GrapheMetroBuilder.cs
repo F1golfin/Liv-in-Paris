@@ -59,19 +59,20 @@ public class GrapheMetroBuilder
         
         using (StreamReader reader = new StreamReader(cheminOnglet2))
         {
-            
-            //TODO : Riques si pas le bon format 
-            reader.ReadLine();
-            string line;
-            while ((line = reader.ReadLine()) != null)
+            string first_line;
+            string second_line;
+            first_line = reader.ReadLine();
+            while ((second_line = reader.ReadLine()) != null)
             {
-                string[] values = line.Split(';');
+                string[] first_line_values = first_line.Split(';');
+                string[] second_line_values = second_line.Split(';');
                 
-                int id = int.Parse(values[0]);
-                int precedent = values[2] is "" ? 0 : int.Parse(values[2]);
-                int suivant = values[3] is "" ? 0 : int.Parse(values[3]);
-                int temps = int.Parse(values[4]);
-                int changement = values[5] is "" ? 0 : int.Parse(values[5]);
+                int id = int.Parse(second_line_values[0]);
+                int precedent = second_line_values[2] is "" ? 0 : int.Parse(second_line_values[2]);
+                int suivant = second_line_values[3] is "" ? 0 : int.Parse(second_line_values[3]);
+                int temps_precedent = precedent is 0 ? 0 : int.Parse(first_line_values[4]);
+                int temps_suivant = suivant is 0 ? 0 : int.Parse(second_line_values[4]);
+                int changement = second_line_values[5] is "" ? 0 : int.Parse(second_line_values[5]);
 
                 Noeud<Station> noeud = graphe.ajouterNoeud(new Noeud<Station>(id));
 
@@ -88,14 +89,16 @@ public class GrapheMetroBuilder
                 if (suivant > 0)
                 {
                     Noeud<Station> noeud_suivant = graphe.ajouterNoeud(new Noeud<Station>(suivant));
-                    graphe.ajouterLien(new Lien<Station>(noeud,temps,noeud_suivant));
+                    graphe.ajouterLien(new Lien<Station>(noeud,temps_suivant,noeud_suivant));
                 }
 
                 if (precedent > 0)
                 {
                     Noeud<Station> noeud_precedent = graphe.ajouterNoeud(new Noeud<Station>(precedent));
-                    graphe.ajouterLien(new Lien<Station>(noeud,temps,noeud_precedent));
+                    graphe.ajouterLien(new Lien<Station>(noeud,temps_precedent,noeud_precedent));
                 }
+                
+                first_line = second_line;
                 
             }
         }
