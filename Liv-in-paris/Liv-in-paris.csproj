@@ -13,4 +13,8 @@
       <ProjectReference Include="..\Liv-in-paris.Core\Liv-in-paris.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="MySql.Data" Version="9.2.0" />
+    </ItemGroup>
+
 </Project>
