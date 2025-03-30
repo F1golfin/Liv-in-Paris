@@ -21,7 +21,7 @@ class Program
         graphe.AfficherListeAdjacence();
         //graphe.AfficherMatriceAdjacence();
 
-        /**
+        
         //Test lien bdd et code
         var dbPath = "C:\\Users\\chris\\RiderProjects\\Liv-in-Paris\\identifier.sqlite";
         var db = new DatabaseManager(dbPath);
@@ -32,6 +32,6 @@ class Program
         {
             Console.WriteLine($"{row["Nom"]} - {row["Email"]} - {row["Prenom"]}");
         }
-        **/
+        
     }
 }
