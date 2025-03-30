@@ -20,16 +20,16 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private readonly AccueilViewModel _accueilVM = new();
-    private readonly MetroGraphViewModel _metroVM = new();
+    private readonly AccueilView _accueilView = new();
+    private readonly MetroGraphView _metroView = new();
 
     public MainViewModel()
     {
-        ShowAccueilCommand = new RelayCommand(() => CurrentView = _accueilVM);
-        ShowMetroCommand = new RelayCommand(() => CurrentView = _metroVM);
+        ShowAccueilCommand = new RelayCommand(() => CurrentView = _accueilView);
+        ShowMetroCommand = new RelayCommand(() => CurrentView = _metroView);
 
         // Vue affichée par défaut
-        CurrentView = _accueilVM;
+        CurrentView = _accueilView;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

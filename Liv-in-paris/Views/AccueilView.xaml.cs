@@ -8,5 +8,6 @@ public partial class AccueilView : UserControl
     public AccueilView()
     {
         InitializeComponent();
+        DataContext = new MetroGraphViewModel();
     }
 }
