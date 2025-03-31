@@ -3,11 +3,11 @@ using System.Windows.Controls;
 
 namespace Liv_in_paris;
 
-public partial class AccueilView : UserControl
+public partial class AppView : UserControl
 {
-    public AccueilView()
+    public AppView()
     {
         InitializeComponent();
-        DataContext = new AccueilViewModel();
+        DataContext = new AppViewModel();
     }
 }

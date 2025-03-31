@@ -73,7 +73,7 @@ public class MetroGraphViewModel : ViewModelBase
         // Liste des algos disponibles
         Algorithmes = new ObservableCollection<string>
         {
-            "Dijkstra", "Bellman-Ford", "Floyd-Warshall"
+            "Bellman-Ford", "Dijkstra", "Floyd-Warshall"
         };
 
         // Commande bouton "Calculer"
@@ -100,6 +100,10 @@ public class MetroGraphViewModel : ViewModelBase
     /// </summary>
     private void CalculerChemin()
     {
+        Console.WriteLine("Calculer chemin");
+        Console.WriteLine(_stationDepart);
+        Console.WriteLine(_stationArrivee);
+        Console.WriteLine(_algoSelectionne);
         // TODO : Implémenter l'appel à l'algo et déclencher le rendu du chemin
     }
 }

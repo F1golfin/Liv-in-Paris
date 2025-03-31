@@ -8,6 +8,7 @@ public class MainViewModel : INotifyPropertyChanged
 {
     public ICommand ShowAccueilCommand { get; }
     public ICommand ShowMetroCommand { get; }
+    public ICommand ShowAppCommand { get; }
 
     private object _currentView;
     public object CurrentView
@@ -22,11 +23,13 @@ public class MainViewModel : INotifyPropertyChanged
 
     private readonly AccueilView _accueilView = new();
     private readonly MetroGraphView _metroView = new();
+    private readonly AppView _appView = new();
 
     public MainViewModel()
     {
         ShowAccueilCommand = new RelayCommand(() => CurrentView = _accueilView);
         ShowMetroCommand = new RelayCommand(() => CurrentView = _metroView);
+        ShowAppCommand = new RelayCommand(() => CurrentView = _appView);
 
         // Vue affichée par défaut
         CurrentView = _accueilView;

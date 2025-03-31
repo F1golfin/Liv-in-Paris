@@ -1,7 +1,13 @@
 ﻿<UserControl x:Class="Liv_in_paris.AccueilView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <Grid>
-        <TextBlock Text="Bienvenue dans Liv'in Paris !" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        
+        <TextBlock Grid.Row="0" Text="Bienvenue dans Liv'in Paris !" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Text="Amandine Baranger - Guillaume Blain - Maxime Rousseau" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
     </Grid>
 </UserControl>

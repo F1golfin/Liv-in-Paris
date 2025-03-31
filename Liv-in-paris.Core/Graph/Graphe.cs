@@ -10,6 +10,9 @@ public class Graphe<T> where T : new()
     private Dictionary<int, Noeud<T>> _noeuds = new Dictionary<int, Noeud<T>>();
     private Dictionary<int, Dictionary<int, int>> _matrice = new Dictionary<int, Dictionary<int, int>>();
 
+    public Dictionary<int, Noeud<T>> Noeuds => _noeuds;
+    
+
     #region Gestion des nœuds et des liens
     
     /// <summary>
