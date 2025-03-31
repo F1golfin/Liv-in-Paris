@@ -24,6 +24,7 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly AccueilView _accueilView = new();
     private readonly MetroGraphView _metroView = new();
     private readonly AppView _appView = new();
+    
 
     public MainViewModel()
     {
