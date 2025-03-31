@@ -1,4 +1,6 @@
-﻿namespace Liv_in_paris.Core.Graph;
+﻿using Liv_in_paris.Core.Entities;
+
+namespace Liv_in_paris.Core.Graph;
 
 /// <summary>
 /// Représente un graphe orienté et pondéré générique avec gestion des nœuds et des liens.
@@ -56,31 +58,20 @@ public class Graphe<T> where T : new()
     /// Affiche le parcours en profondeur à partir d’un nœud donné.
     /// </summary>
     /// <param name="noeud">Le nœud de départ.</param>
-    public void ParcoursEnProfondeur(Noeud<T> noeud)
+    public List<int> ParcoursEnProfondeur(int noeud, bool[] visites, List<int> chemin)
     {
-        bool[] visite = new bool[_noeuds.Count];
-        Console.WriteLine("Parcours en Profondeur : ");
-        Console.Write("[");
-        ParcoursEnProfondeurRec(noeud.Id, visite);
-        Console.WriteLine("]");
-    }
-    
-    private void ParcoursEnProfondeurRec(int id, bool[] visite)
-    {
-        Console.Write(id + " ");
-        visite[id] = true;
-        if(_matrice.ContainsKey(id))
+        visites[noeud] = true;
+        chemin.Add(noeud);
+        foreach(var voisin in _matrice[noeud].Keys)
         {
-            foreach(int voisin in _matrice[id].Keys)
+            if (!visites[voisin])
             {
-                if (visite[voisin] == false)
-                {
-                    ParcoursEnProfondeurRec(voisin, visite);
-                }
+                ParcoursEnProfondeur(voisin, visites, chemin);
             }
         }
-        
+        return chemin;
     }
+
     
     /// <summary>
     /// Affiche le parcours en largeur à partir d’un nœud donné.
@@ -117,6 +108,14 @@ public class Graphe<T> where T : new()
         }
         Console.WriteLine("]");
     }
+
+    public void AfficheListe(List<int> list)
+    {
+        foreach(int n in list)
+        {
+            Console.Write(n + " ");
+        }
+    }
     #endregion
 
     #region Analyse du graphe
@@ -125,9 +124,46 @@ public class Graphe<T> where T : new()
     /// Détermine si le graphe est connexe.
     /// </summary>
     /// <returns>True si connexe, sinon false.</returns>
-    public bool EstConnexe()
+    public bool EstFaiblementConnexe()
     {
+        bool FaConnexe = true;
+        if(!(ParcoursEnProfondeur(0, new bool[_noeuds.Count], new List<int>()).Count==_noeuds.Count))
+        {
+            FaConnexe = false;
+        }
+        return FaConnexe;
+        
         throw new NotImplementedException();
+    }
+    public bool EstFortementConnexe()
+    {
+
+    }
+    public Graphe<T> Inverser()
+    {
+        Graphe<T> g = new Graphe<T>();
+        g._noeuds = _noeuds;
+        Dictionary<int, List<int>> dico = new Dictionary<int, List<int>>();
+        for (int i =0; i<_noeuds.Count; i++)
+        {
+            foreach(var n in _matrice[i].Keys)
+            {
+                if (!dico.ContainsKey(n))
+                {
+                    dico.Add(n, new List<int>());
+                }
+                dico[n].Add(i);
+            }
+        }
+        foreach(int i in dico.Keys)
+        {
+            Dictionary<int,int> succ = new Dictionary<int,int>();
+            foreach(int j in dico[i])
+            {
+                succ.Add(j, _matrice[j][i]);
+            }
+            g._matrice.Add(i, succ);
+        }
     }
 
     /// <summary>
