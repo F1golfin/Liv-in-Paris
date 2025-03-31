@@ -64,6 +64,7 @@ public class MetroGraphViewModel : ViewModelBase
     /// Représente le graphe du métro (chargé à partir des fichiers CSV).
     /// </summary>
     private readonly Graphe<Station> _graphe;
+    public Graphe<Station> Graphe => _graphe;
 
     /// <summary>
     /// Initialise le ViewModel : charge le graphe, les stations, et configure la commande.

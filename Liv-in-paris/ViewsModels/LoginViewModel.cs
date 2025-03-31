@@ -7,6 +7,7 @@ public class LoginViewModel : ViewModelBase
 
     public string Username { get; set; }
     public string Password { get; set; }
+    public string MessageErreur { get; set; }
 
     public ICommand LoginCommand { get; }
     public ICommand GoToRegisterCommand { get; }
@@ -20,12 +21,22 @@ public class LoginViewModel : ViewModelBase
 
     private void Login()
     {
+        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
+        {
+            MessageErreur = "Veuillez remplir tous les champs.";
+            OnPropertyChanged(nameof(MessageErreur));
+            return;
+        }
+        
         if (Username == "chef" && Password == "1234")
             _parent.NaviguerVersAccueil("Cuisinier");
         else if (Username == "client" && Password == "abcd")
             _parent.NaviguerVersAccueil("Client");
         else
-            Console.WriteLine("Login échoué !" + Username + "," + Password);
+        {
+            MessageErreur = "Nom d'utilisateur ou mot de passe incorrect ";
+            OnPropertyChanged(nameof(MessageErreur));
+        }
     }
 }
 

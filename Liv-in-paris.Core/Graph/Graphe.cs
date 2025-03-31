@@ -12,6 +12,29 @@ public class Graphe<T> where T : new()
 
     public Dictionary<int, Noeud<T>> Noeuds => _noeuds;
     
+    /// <summary>
+    /// Liste de tous les liens du graphe (calculée à partir de la matrice).
+    /// </summary>
+    public List<Lien<T>> Liens
+    {
+        get
+        {
+            var liens = new List<Lien<T>>();
+            foreach (var origine in _matrice)
+            {
+                foreach (var destination in origine.Value)
+                {
+                    var noeudDepart = _noeuds[origine.Key];
+                    var noeudArrivee = _noeuds[destination.Key];
+                    int poids = destination.Value;
+
+                    liens.Add(new Lien<T>(noeudDepart, poids, noeudArrivee));
+                }
+            }
+            return liens;
+        }
+    }
+    
 
     #region Gestion des nœuds et des liens
     

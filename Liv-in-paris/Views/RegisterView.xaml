@@ -19,7 +19,7 @@
 
             <TextBlock Text="Confirmer le mot de passe"/>
             <PasswordBox x:Name="ConfirmBox" Margin="0 5"/>
-
+            <TextBlock Text="{Binding MessageErreur}" Foreground="Red" Margin="0 5"/>   
             <Button Content="S'inscrire"
                     Margin="0 15 0 5"
                     Command="{Binding RegisterCommand}" />

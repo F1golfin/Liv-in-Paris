@@ -6,7 +6,12 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <TextBlock Text="Le Client est ICI" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Button Content="Se déconnecter" Command="{Binding DeconnexionCommand}" HorizontalAlignment="Right" Margin="10"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Client ici"/>
+        <Button Grid.Row="1" Content="Se déconnecter" Command="{Binding DeconnexionCommand}" />
     </Grid>
+    
 </UserControl>

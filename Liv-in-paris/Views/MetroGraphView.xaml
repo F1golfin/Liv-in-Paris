@@ -16,6 +16,12 @@
             <ComboBox Width="200" ItemsSource="{Binding Stations}" SelectedItem="{Binding StationArrivee}" DisplayMemberPath="Nom"/>
             <ComboBox Width="200" ItemsSource="{Binding Algorithmes}" SelectedItem="{Binding AlgoSelectionne}"/>
             <Button Content="Calculer" Command="{Binding CalculerCheminCommand}" />
+            <Button Content="Réinitialiser la vue"
+                    Click="ReinitialiserVue_Click"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Margin="10"
+                    Width="150" />
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Vertical" Margin="10">
             <TextBlock FontWeight="Bold" Margin="0 0 0 5" Text="Sélection actuelle :" />
@@ -24,6 +30,11 @@
         </StackPanel>
         
         <!-- Zone de dessin du graphe -->
-        <skia:SKElement Grid.Row="2" PaintSurface="OnPaintSurface" />
+        <skia:SKElement Grid.Row="2" x:Name="skElement"
+                        PaintSurface="OnPaintSurface"
+                        MouseWheel="SKElement_OnMouseWheel"
+                        MouseDown="SKElement_OnMouseDown"
+                        MouseMove="SKElement_OnMouseMove"
+                        MouseUp="SKElement_OnMouseUp" />
     </Grid>
 </UserControl>
