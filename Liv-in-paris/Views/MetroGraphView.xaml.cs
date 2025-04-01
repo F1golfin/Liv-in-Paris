@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Liv_in_paris.Core.Entities;
@@ -24,6 +25,20 @@ public partial class MetroGraphView : UserControl
         _viewModel = new MetroGraphViewModel();
         DataContext = _viewModel;
     }
+    
+    private readonly SKPaint textPaint = new SKPaint
+    {
+        Color = SKColors.Black,
+        TextSize = 12,
+        IsAntialias = true,
+        Typeface = SKTypeface.Default
+    };
+    
+    private readonly SKPaint stationPaint = new SKPaint
+    {
+        Color = SKColors.Black,
+        IsAntialias = true
+    };
     
     private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
     {
@@ -126,20 +141,6 @@ public partial class MetroGraphView : UserControl
                 canvas.DrawLine(p1Decale, p2Decale, paint);
             }
         }
-
-        // Dessine les stations
-        using var stationPaint = new SKPaint
-        {
-            Color = SKColors.Black,
-            IsAntialias = true
-        };
-        using var textPaint = new SKPaint
-        {
-            Color = SKColors.Black,
-            TextSize = 12,
-            IsAntialias = true,
-            Typeface = SKTypeface.Default
-        };
 
         foreach (var station in stations)
         {
