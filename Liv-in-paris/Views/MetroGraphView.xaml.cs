@@ -2,7 +2,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Liv_in_paris.Core.Entities;
+using Liv_in_paris.Core.Graph;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 using SkiaSharp.Views.WPF;
@@ -18,6 +20,10 @@ public partial class MetroGraphView : UserControl
     private SKPoint _offset = new(0, 0);
     private SKPoint _lastTouch;
     private bool _isDragging = false;
+    
+    private int _trajetStep = 0;
+    private List<Noeud<Station>> _trajet = new();
+    private DispatcherTimer _animationTimer;
     
     public MetroGraphView()
     {
@@ -149,6 +155,24 @@ public partial class MetroGraphView : UserControl
             
             canvas.DrawText(station.Nom, point.X + 6, point.Y - 6, textPaint);
         }
+        
+        if (_trajet != null && _trajet.Count > 1)
+        {
+            using var trajetPaint = new SKPaint
+            {
+                Color = SKColors.Red,
+                StrokeWidth = 5,
+                IsAntialias = true
+            };
+
+            for (int i = 0; i < Math.Min(_trajetStep, _trajet.Count - 1); i++)
+            {
+                var p1 = ConvertirCoord(_trajet[i].Data);
+                var p2 = ConvertirCoord(_trajet[i + 1].Data);
+
+                canvas.DrawLine(p1, p2, trajetPaint);
+            }
+        }
     }
     
     // Gérer la molette de la souris
@@ -168,7 +192,7 @@ public partial class MetroGraphView : UserControl
             (position.X - _offset.X) - (position.X - _offset.X) * (_scale / oldScale) + _offset.X,
             (position.Y - _offset.Y) - (position.Y - _offset.Y) * (_scale / oldScale) + _offset.Y
         );
-
+        LimiterOffset((int)skElement.ActualWidth, (int)skElement.ActualHeight);
         skElement.InvalidateVisual();
     }
     
@@ -185,7 +209,9 @@ public partial class MetroGraphView : UserControl
             var current = e.GetPosition((IInputElement)sender).ToSKPoint();
             _offset += current - _lastTouch;
             _lastTouch = current;
-            ((SKElement)sender).InvalidateVisual();
+
+            LimiterOffset((int)skElement.ActualWidth, (int)skElement.ActualHeight);
+            skElement.InvalidateVisual();
         }
     }
 
@@ -198,6 +224,65 @@ public partial class MetroGraphView : UserControl
     {
         _scale = 0.9f; 
         _offset = new SKPoint(0, 0); 
+        skElement.InvalidateVisual();
+    }
+    
+    private void LimiterOffset(int canvasWidth, int canvasHeight)
+    {
+        float marge = 600f;
+
+        float minX = -canvasWidth * (_scale - 1) - marge;
+        float maxX = canvasWidth - marge;
+
+        float minY = -canvasHeight * (_scale - 1) - marge;
+        float maxY = canvasHeight - marge;
+
+        _offset = new SKPoint(
+            Math.Clamp(_offset.X, minX, maxX),
+            Math.Clamp(_offset.Y, minY, maxY)
+        );
+    }
+    
+    private void AfficherTrajet_Click(object sender, RoutedEventArgs e)
+    {
+        var graphe = _viewModel.Graphe;
+        
+        var ids = new List<int> { 1, 2, 3, 4,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+
+        var chemin = ids
+            .Where(id => graphe.Noeuds.ContainsKey(id))
+            .Select(id => graphe.Noeuds[id])
+            .ToList();
+
+        if (chemin.Count >= 2)
+            LancerAnimationTrajet(chemin);
+    }
+    
+    private void LancerAnimationTrajet(List<Noeud<Station>> chemin)
+    {
+        _trajet = chemin;
+        _trajetStep = 1;
+
+        _animationTimer = new DispatcherTimer();
+        _animationTimer.Interval = TimeSpan.FromMilliseconds(300); // vitesse animation
+        _animationTimer.Tick += (s, e) =>
+        {
+            _trajetStep++;
+
+            if (_trajetStep >= _trajet.Count)
+                _animationTimer.Stop();
+
+            skElement.InvalidateVisual();
+        };
+
+        _animationTimer.Start();
+    }
+    
+    private void ReinitialiserTrajet_Click(object sender, RoutedEventArgs e)
+    {
+        _trajet.Clear();
+        _trajetStep = 0;
+        _animationTimer?.Stop();
         skElement.InvalidateVisual();
     }
 }
