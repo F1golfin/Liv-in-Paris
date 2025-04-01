@@ -14,7 +14,17 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="SkiaSharp" Version="3.116.1" />
+      <PackageReference Include="SkiaSharp.Views.WPF" Version="3.116.1" />
       <PackageReference Include="MySql.Data" Version="9.2.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Page Update="Views\AppView.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
     </ItemGroup>
 
 </Project>
