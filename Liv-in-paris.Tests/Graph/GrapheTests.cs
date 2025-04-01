@@ -116,10 +116,59 @@ public class GrapheTests
         _graphe.ajouterLien(new Lien<DonneeFictive>(n1, 1, n2));
         _graphe.ajouterLien(new Lien<DonneeFictive>(n2, 1, n3));
 
-        _graphe.ParcoursEnProfondeur();
+        _graphe.InitParcoursEnProfondeur(0);
 
         string result = output.ToString();
-        Assert.IsTrue(result.Contains("[0 1 2"));
+        Assert.IsTrue(result.Contains("[0 1 2]"));
+    }
+    [Test]
+    public void Dijkstra_Trouve_Chemin_Correct()
+    {
+        // Arrange : Création du graphe
+        Graphe<int> graphe = new Graphe<int>();
+
+        // Création des nœuds
+        Noeud<int> noeudA = new Noeud<int>(1);
+        Noeud<int> noeudB = new Noeud<int>(2);
+        Noeud<int> noeudC = new Noeud<int>(3);
+        Noeud<int> noeudD = new Noeud<int>(4);
+
+        // Ajout des nœuds au graphe
+        graphe.ajouterNoeud(noeudA);
+        graphe.ajouterNoeud(noeudB);
+        graphe.ajouterNoeud(noeudC);
+        graphe.ajouterNoeud(noeudD);
+
+        // Ajout des liens pondérés
+        graphe.ajouterLien(new Lien<int>(noeudA, 1, noeudB)); // A -> B (1)
+        graphe.ajouterLien(new Lien<int>(noeudB, 2, noeudC)); // B -> C (2)
+        graphe.ajouterLien(new Lien<int>(noeudA, 4, noeudC)); // A -> C (4)
+        graphe.ajouterLien(new Lien<int>(noeudC, 1, noeudD)); // C -> D (1)
+
+        // Act : Exécuter Dijkstra de A vers D
+        List<int> chemin = graphe.Dijkstra(1, 4);
+
+        // Assert : Vérification du chemin le plus court attendu
+        List<int> cheminAttendu = new List<int> { 1, 2, 3, 4 };
+        Assert.AreEqual(cheminAttendu, chemin);
+    }
+    [Test]
+
+    public void Dijkstra_Aucun_Chemin_Disponible()
+    {
+        // Arrange : Création d'un graphe avec des nœuds non connectés
+        Graphe<int> graphe = new Graphe<int>();
+        Noeud<int> noeudA = new Noeud<int>(1);
+        Noeud<int> noeudB = new Noeud<int>(2);
+
+        graphe.ajouterNoeud(noeudA);
+        graphe.ajouterNoeud(noeudB);
+
+        // Act : Rechercher un chemin entre A et B (inexistant)
+        List<int> chemin = graphe.Dijkstra(1, 2);
+
+        // Assert : Vérifier que le chemin est vide
+        Assert.IsEmpty  (chemin);
     }
 
     /// <summary>
