@@ -32,6 +32,27 @@ public partial class MetroGraphView : UserControl
         DataContext = _viewModel;
     }
     
+    private List<Station> GetStationsUniques()
+    {
+        return _viewModel.Graphe.Noeuds
+            .Values
+            .Select(n => n.Data)
+            .GroupBy(s => (s.Nom, s.Latitude, s.Longitude))
+            .Select(g => g.First())
+            .ToList();
+    }
+    
+    private Dictionary<(string nom, double lat, double lon), HashSet<string>> GetLignesParStation()
+    {
+        return _viewModel.Graphe.Noeuds
+            .Values
+            .GroupBy(n => (n.Data.Nom, n.Data.Latitude, n.Data.Longitude))
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(n => n.Data.Ligne).ToHashSet()
+            );
+    }
+    
     private readonly SKPaint textPaint = new SKPaint
     {
         Color = SKColors.Black,
@@ -78,13 +99,8 @@ public partial class MetroGraphView : UserControl
         var hauteur = e.Info.Height;
 
         var graphe = _viewModel.Graphe;
-
-        // Récupère les stations avec coordonnées valides
-        var stations = graphe.Noeuds.Values
-            .Select(n => n.Data)
-            .Where(s => s.Latitude != 0 && s.Longitude != 0)
-            .ToList();
-
+        var stations = GetStationsUniques();
+        
         // Trouve les limites géographiques
         double minLat = stations.Min(s => s.Latitude);
         double maxLat = stations.Max(s => s.Latitude);
@@ -148,12 +164,21 @@ public partial class MetroGraphView : UserControl
             }
         }
 
+        var lignesParStation = GetLignesParStation();
         foreach (var station in stations)
         {
             var point = ConvertirCoord(station);
             canvas.DrawCircle(point, 6, stationPaint);
             
             canvas.DrawText(station.Nom, point.X + 6, point.Y - 6, textPaint);
+            
+            // Affiche les lignes associées (L1, L4, L7...)
+            var key = (station.Nom, station.Latitude, station.Longitude);
+            if (lignesParStation.ContainsKey(key))
+            {
+                var lignes = string.Join(", ", lignesParStation[key]);
+                canvas.DrawText($"({lignes})", point.X + 8, point.Y + 10, textPaint);
+            }
         }
         
         if (_trajet != null && _trajet.Count > 1)
