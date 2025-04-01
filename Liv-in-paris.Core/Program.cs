@@ -8,16 +8,15 @@ namespace Liv_in_paris.Core;
 
 class Program
 {
-    // Ici est éxécuté uniquement le projet .Core
-    static void Main(string[] args)
+    static void test()
     {
         string onglet_1 = "../../../../Files/MetroParis_onglet1.csv";
-        string onglet_2 = "../../../../Files/MetroParis_onglet2.csv";
+    string onglet_2 = "../../../../Files/MetroParis_onglet2.csv";
 
 
-        Graphe<Station> graphe = GrapheMetroBuilder.ConstruireDepuisCSV(onglet_1, onglet_2);
+    Graphe<Station> graphe = GrapheMetroBuilder.ConstruireDepuisCSV(onglet_1, onglet_2);
 
-        Console.WriteLine("Graphe chargé !");
+    Console.WriteLine("Graphe chargé !");
         graphe.AfficherListeAdjacence();
         //graphe.AfficherMatriceAdjacence();
 
@@ -37,5 +36,14 @@ class Program
 
         Console.WriteLine("Appuie sur Entrée pour quitter.");
         Console.ReadLine();
+    }
+// Ici est éxécuté uniquement le projet .Core
+static void Main(string[] args)
+    {
+        int[] tab = new int[5];
+        foreach (int i in tab)
+        {
+            Console.Write(i);
+        }
     }
 }
