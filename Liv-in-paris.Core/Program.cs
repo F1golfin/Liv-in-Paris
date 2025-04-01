@@ -21,17 +21,21 @@ class Program
         graphe.AfficherListeAdjacence();
         //graphe.AfficherMatriceAdjacence();
 
-        
-        //Test lien bdd et code
-        var dbPath = "C:\\Users\\chris\\RiderProjects\\Liv-in-Paris\\identifier.sqlite";
-        var db = new DatabaseManager(dbPath);
-        
-        var clients = db.ExecuteQuery("SELECT * FROM Clients");
+        DatabaseManager.CreateDatabase("localhost", "root", "amandine", "livin_paris");
+        var db = new DatabaseManager("localhost", "livin_paris", "root", "amandine"); // ou livin_user / livin_pass
 
-        foreach (System.Data.DataRow row in clients.Rows )
+        try
         {
-            Console.WriteLine($"{row["Nom"]} - {row["Email"]} - {row["Prenom"]}");
+            db.TesterConnexion();
+            db.CreateTablesIfNotExists();
+            Console.WriteLine("🚀 Base prête !");
         }
-        
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Erreur : " + ex.Message);
+        }
+
+        Console.WriteLine("Appuie sur Entrée pour quitter.");
+        Console.ReadLine();
     }
 }
