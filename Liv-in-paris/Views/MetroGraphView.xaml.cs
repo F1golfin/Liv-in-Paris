@@ -25,11 +25,19 @@ public partial class MetroGraphView : UserControl
     private List<Noeud<Station>> _trajet = new();
     private DispatcherTimer _animationTimer;
     
+    
     public MetroGraphView()
     {
         InitializeComponent();
         _viewModel = new MetroGraphViewModel();
         DataContext = _viewModel;
+        
+        _viewModel.OnCheminCalcule = cheminIds =>
+        {
+            var chemin = ConvertirEnCheminNoeuds(cheminIds);
+            if (chemin.Count >= 2)
+                LancerAnimationTrajet(chemin);
+        };
     }
     
     private List<Station> GetStationsUniques()
@@ -39,6 +47,14 @@ public partial class MetroGraphView : UserControl
             .Select(n => n.Data)
             .GroupBy(s => (s.Nom, s.Latitude, s.Longitude))
             .Select(g => g.First())
+            .ToList();
+    }
+    
+    private List<Noeud<Station>> ConvertirEnCheminNoeuds(List<int> ids)
+    {
+        return ids
+            .Where(id => _viewModel.Graphe.Noeuds.ContainsKey(id))
+            .Select(id => _viewModel.Graphe.Noeuds[id])
             .ToList();
     }
     
@@ -268,20 +284,6 @@ public partial class MetroGraphView : UserControl
         );
     }
     
-    private void AfficherTrajet_Click(object sender, RoutedEventArgs e)
-    {
-        var graphe = _viewModel.Graphe;
-        
-        var ids = new List<int> { 1, 2, 3, 4,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-
-        var chemin = ids
-            .Where(id => graphe.Noeuds.ContainsKey(id))
-            .Select(id => graphe.Noeuds[id])
-            .ToList();
-
-        if (chemin.Count >= 2)
-            LancerAnimationTrajet(chemin);
-    }
     
     private void LancerAnimationTrajet(List<Noeud<Station>> chemin)
     {

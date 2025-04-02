@@ -11,12 +11,12 @@ class Program
     static void test()
     {
         string onglet_1 = "../../../../Files/MetroParis_onglet1.csv";
-    string onglet_2 = "../../../../Files/MetroParis_onglet2.csv";
+        string onglet_2 = "../../../../Files/MetroParis_onglet2.csv";
 
 
-    Graphe<Station> graphe = GrapheMetroBuilder.ConstruireDepuisCSV(onglet_1, onglet_2);
+        Graphe<Station> graphe = GrapheMetroBuilder.ConstruireDepuisCSV(onglet_1, onglet_2);
 
-    Console.WriteLine("Graphe chargé !");
+        Console.WriteLine("Graphe chargé !");
         graphe.AfficherListeAdjacence();
         //graphe.AfficherMatriceAdjacence();
 

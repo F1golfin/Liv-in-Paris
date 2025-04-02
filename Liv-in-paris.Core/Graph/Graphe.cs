@@ -228,89 +228,59 @@ public class Graphe<T> where T : new()
     #endregion
 
     #region Algorithmes de plus court chemin
+    
     public List<int> Dijkstra(int debut, int fin)
     {
-        int itération = 1;
-        int[,] dist = new int[_noeuds.Count + 1, _noeuds.Count + 1];
-        for (int i = 1; i <= _noeuds.Count; i++)  
+        var dist = new Dictionary<int, int>();   // Distance minimale depuis debut
+        var pred = new Dictionary<int, int>();   // Stocke les prédécesseurs pour reconstruire le chemin
+        var visite = new HashSet<int>();         // Garde une trace des nœuds visités
+        var pq = new PriorityQueue<int, int>();  // File de priorité (min-heap)
+
+        // Initialisation
+        foreach (var noeud in _noeuds.Keys)
         {
-            for (int j = 1; j <= _noeuds.Count; j++)
-            {
-                dist[i, j] = int.MaxValue; 
-            }
-        }
-        for (int i = 1; i <= _noeuds.Count; i++)
-        {
-            dist[i, i] = 0; 
+            dist[noeud] = int.MaxValue;
+            pred[noeud] = -1;  // Aucun prédécesseur au départ
         }
 
-        int[,] pred = new int[_noeuds.Count + 1, _noeuds.Count + 1];
-        for (int i = 1; i <= _noeuds.Count; i++) 
-        {
-            pred[1, i] = -1;
-        }
-        return DijkstraRec(debut, fin, itération+1, new List<int>(), dist, pred);
+        dist[debut] = 0;
+        pq.Enqueue(debut, 0);
 
+        while (pq.Count > 0)
+        {
+            int noeud = pq.Dequeue(); // Récupère le nœud avec la plus petite distance
+            if (noeud == fin) break;  // Si on atteint fin, on arrête
 
-    }
-    public List<int> DijkstraRec(int noeud, int fin, int itération, List<int> list, int[,] dist, int[,] pred)
-    {
-        list.Add(noeud);
-        if (noeud == fin)
-        {
-            return list;
-        }
-        if (list.Count > 0 && noeud == list[0] && !_matrice.ContainsKey(noeud))
-        {
-            return new List<int>(); 
-        }
-        for (int i = 1; i <= _noeuds.Count; i++)
-        {
-            if (list.Contains(i))
+            if (!visite.Add(noeud)) continue; // Si déjà visité, on ignore
+
+            if (!_matrice.ContainsKey(noeud)) continue; // Pas de voisins
+
+            foreach (var voisin in _matrice[noeud])
             {
-                dist[itération, i] = int.MaxValue;
-            }
-            else if (_matrice[noeud].Keys.Contains(i))
-            {
-                if (dist[itération - 1, noeud] + _matrice[noeud][i] < dist[itération - 1, i] || dist[itération - 1, i] == int.MaxValue)
+                int voisinId = voisin.Key;
+                int poids = voisin.Value;
+                int nouvelleDist = dist[noeud] + poids;
+
+                if (nouvelleDist < dist[voisinId])
                 {
-                    dist[itération, i] = dist[itération - 1, noeud] + _matrice[noeud][i];
-                    pred[itération, i] = noeud;
-                }
-                else
-                {
-                    dist[itération, i] = dist[itération - 1, i];
-                    pred[itération, i] = pred[itération - 1, i];
+                    dist[voisinId] = nouvelleDist;
+                    pred[voisinId] = noeud;
+                    pq.Enqueue(voisinId, nouvelleDist);
                 }
             }
-            else
-            {
-                dist[itération, i] = dist[itération - 1, i];
-                pred[itération, i] = pred[itération - 1, i];
-            }
-        }
-        int min = int.MaxValue;
-        int it = -1;
-
-        for (int i = 1; i <= _noeuds.Count; i++)  
-        {
-            if (dist[itération, i] < min && !list.Contains(i))
-            {
-                min = dist[itération, i];
-                it = i;
-            }
         }
 
-        if (it == -1) 
-        {
-            Console.WriteLine("Aucun chemin trouvé !");
-            return new List<int>();
-        }
-        else
-        {
-            return DijkstraRec(it, fin, itération+1, list, dist, pred);
+        // Reconstruire le chemin si possible
+        if (dist[fin] == int.MaxValue)
+            return new List<int>(); // Aucun chemin trouvé
 
+        List<int> chemin = new();
+        for (int at = fin; at != -1; at = pred[at])
+        {
+            chemin.Add(at);
         }
+        chemin.Reverse();
+        return chemin;
     }
 
     public List<int> BellmanFord(int source, int destination)

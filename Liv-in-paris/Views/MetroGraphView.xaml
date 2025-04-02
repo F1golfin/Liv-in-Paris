@@ -22,9 +22,6 @@
                     VerticalAlignment="Top"
                     Margin="10"
                     Width="150" />
-            <Button Content="Afficher le chemin"
-                    Click="AfficherTrajet_Click"
-                    Margin="10" Width="150"/>
             <Button Content="Réinitialiser le trajet"
                     Click="ReinitialiserTrajet_Click"
                     Margin="10" Width="150"/>
