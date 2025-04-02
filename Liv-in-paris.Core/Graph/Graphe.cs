@@ -8,12 +8,12 @@ namespace Liv_in_paris.Core.Graph;
 /// <typeparam name="T">Le type de données contenues dans chaque nœud. Ce type doit avoir un constructeur par défaut.</typeparam>
 public class Graphe<T> where T : new()
 {
-    
+
     private Dictionary<int, Noeud<T>> _noeuds = new Dictionary<int, Noeud<T>>();
     private Dictionary<int, Dictionary<int, int>> _matrice = new Dictionary<int, Dictionary<int, int>>();
 
     public Dictionary<int, Noeud<T>> Noeuds => _noeuds;
-    
+
     /// <summary>
     /// Liste de tous les liens du graphe (calculée à partir de la matrice).
     /// </summary>
@@ -33,13 +33,14 @@ public class Graphe<T> where T : new()
                     liens.Add(new Lien<T>(noeudDepart, poids, noeudArrivee));
                 }
             }
+
             return liens;
         }
     }
-    
+
 
     #region Gestion des nœuds et des liens
-    
+
     /// <summary>
     /// Ajoute un nœud au graphe s'il n'existe pas déjà.
     /// </summary>
@@ -60,7 +61,7 @@ public class Graphe<T> where T : new()
     public void ajouterLien(Lien<T> lien)
     {
         Console.WriteLine(lien.ToString()); //TODO : A enlever c'est pour débug
-        
+
         Noeud<T> origine = lien.Origine;
         Noeud<T> destination = lien.Destination;
 
@@ -70,16 +71,17 @@ public class Graphe<T> where T : new()
             ajouterNoeud(destination);
         if (!_matrice.ContainsKey(origine.Id))
             _matrice.Add(origine.Id, new Dictionary<int, int>());
-        
+
         if (_matrice[origine.Id].ContainsKey(destination.Id))
             throw new Exception($"Le lien entre {origine.Id} et {destination.Id} existe déja");
-            
-        _matrice[origine.Id].Add(destination.Id,lien.Poids);
+
+        _matrice[origine.Id].Add(destination.Id, lien.Poids);
     }
+
     #endregion
-    
+
     #region Algorithmes de parcours
-    
+
     /// <summary>
     /// Affiche le parcours en profondeur à partir d’un nœud donné.
     /// </summary>
@@ -88,15 +90,17 @@ public class Graphe<T> where T : new()
     {
         visites[noeud] = true;
         chemin.Add(noeud);
-        foreach(var voisin in _matrice[noeud].Keys)
+        foreach (var voisin in _matrice[noeud].Keys)
         {
             if (!visites[voisin])
             {
                 ParcoursEnProfondeur(voisin, visites, chemin);
             }
         }
+
         return chemin;
     }
+
     public List<int> InitParcoursEnProfondeur(int noeud)
     {
         bool[] visites = new bool[_noeuds.Count];
@@ -104,7 +108,7 @@ public class Graphe<T> where T : new()
         return ParcoursEnProfondeur(noeud, visites, chemin);
     }
 
-    
+
     /// <summary>
     /// Affiche le parcours en largeur à partir d’un nœud donné.
     /// </summary>
@@ -114,7 +118,7 @@ public class Graphe<T> where T : new()
         bool[] visited = new bool[_noeuds.Count];
         Queue<int> file = new Queue<int>();
         int depart = noeud.Id;
-        
+
         file.Enqueue(depart);
         visited[depart] = true;
 
@@ -138,20 +142,22 @@ public class Graphe<T> where T : new()
                 }
             }
         }
+
         Console.WriteLine("]");
     }
 
     public void AfficheListe(List<int> list)
     {
-        foreach(int n in list)
+        foreach (int n in list)
         {
             Console.Write(n + " ");
         }
     }
+
     #endregion
 
     #region Analyse du graphe
-    
+
     /// <summary>
     /// Détermine si le graphe est connexe.
     /// </summary>
@@ -159,56 +165,65 @@ public class Graphe<T> where T : new()
     public bool EstFaiblementConnexe()
     {
         bool FaConnexe = true;
-        if(!(ParcoursEnProfondeur(1, new bool[_noeuds.Count], new List<int>()).Count==_noeuds.Count))
+        if (!(ParcoursEnProfondeur(1, new bool[_noeuds.Count], new List<int>()).Count == _noeuds.Count))
         {
             FaConnexe = false;
         }
+
         return FaConnexe;
-        
+
         throw new NotImplementedException();
     }
+
     public bool EstFortementConnexe()
     {
         bool[] visite = new bool[_noeuds.Count];
         ParcoursEnProfondeur(1, visite, new List<int>());
-        if(Array.Exists(visite, v => false))
+        if (Array.Exists(visite, v => false))
         {
             return false;
         }
+
         Graphe<T> g = Inverser();
         Array.Fill(visite, false);
         g.ParcoursEnProfondeur(1, visite, new List<int>());
-        if(Array.Exists(visite, v=> false))
+        if (Array.Exists(visite, v => false))
         {
             return false;
         }
+
         return true;
     }
+
     public Graphe<T> Inverser()
     {
         Graphe<T> g = new Graphe<T>();
         g._noeuds = _noeuds;
         Dictionary<int, List<int>> dico = new Dictionary<int, List<int>>();
-        for (int i =0; i<_noeuds.Count; i++)
+        for (int i = 0; i < _noeuds.Count; i++)
         {
-            foreach(var n in _matrice[i].Keys)
+            foreach (var n in _matrice[i].Keys)
             {
                 if (!dico.ContainsKey(n))
                 {
                     dico.Add(n, new List<int>());
                 }
+
                 dico[n].Add(i);
             }
         }
-        foreach(int i in dico.Keys)
+
+        foreach (int i in dico.Keys)
         {
-            Dictionary<int,int> succ = new Dictionary<int,int>();
-            foreach(int j in dico[i])
+            Dictionary<int, int> succ = new Dictionary<int, int>();
+            foreach (int j in dico[i])
             {
                 succ.Add(j, _matrice[j][i]);
             }
+
             g._matrice.Add(i, succ);
         }
+
         return g;
     }
 
@@ -225,22 +240,23 @@ public class Graphe<T> where T : new()
     {
         throw new NotImplementedException();
     }
+
     #endregion
 
     #region Algorithmes de plus court chemin
-    
+
     public List<int> Dijkstra(int debut, int fin)
     {
-        var dist = new Dictionary<int, int>();   // Distance minimale depuis debut
-        var pred = new Dictionary<int, int>();   // Stocke les prédécesseurs pour reconstruire le chemin
-        var visite = new HashSet<int>();         // Garde une trace des nœuds visités
-        var pq = new PriorityQueue<int, int>();  // File de priorité (min-heap)
+        var dist = new Dictionary<int, int>(); // Distance minimale depuis debut
+        var pred = new Dictionary<int, int>(); // Stocke les prédécesseurs pour reconstruire le chemin
+        var visite = new HashSet<int>(); // Garde une trace des nœuds visités
+        var pq = new PriorityQueue<int, int>(); // File de priorité (min-heap)
 
         // Initialisation
         foreach (var noeud in _noeuds.Keys)
         {
             dist[noeud] = int.MaxValue;
-            pred[noeud] = -1;  // Aucun prédécesseur au départ
+            pred[noeud] = -1; // Aucun prédécesseur au départ
         }
 
         dist[debut] = 0;
@@ -249,7 +265,7 @@ public class Graphe<T> where T : new()
         while (pq.Count > 0)
         {
             int noeud = pq.Dequeue(); // Récupère le nœud avec la plus petite distance
-            if (noeud == fin) break;  // Si on atteint fin, on arrête
+            if (noeud == fin) break; // Si on atteint fin, on arrête
 
             if (!visite.Add(noeud)) continue; // Si déjà visité, on ignore
 
@@ -279,6 +295,7 @@ public class Graphe<T> where T : new()
         {
             chemin.Add(at);
         }
+
         chemin.Reverse();
         return chemin;
     }
@@ -289,12 +306,13 @@ public class Graphe<T> where T : new()
         var predecesseurs = new Dictionary<int, int>();
         foreach (var noeud in _noeuds.Values)
         {
-            distances[noeud.Id] = int.MaxValue; 
+            distances[noeud.Id] = int.MaxValue;
             predecesseurs[noeud.Id] = -1;
         }
-        distances[source] = 0; 
 
-        for (int i = 1; i < _noeuds.Count; i++)  
+        distances[source] = 0;
+
+        for (int i = 1; i < _noeuds.Count; i++)
         {
             foreach (var origine in _matrice)
             {
@@ -324,7 +342,7 @@ public class Graphe<T> where T : new()
                 if (distances[u] != int.MaxValue && distances[u] + poids < distances[v])
                 {
                     Console.WriteLine("Le graphe contient un cycle négatif.");
-                    return null; 
+                    return null;
                 }
             }
         }
@@ -335,7 +353,7 @@ public class Graphe<T> where T : new()
             chemin.Add(v);
         }
 
-        chemin.Reverse();  
+        chemin.Reverse();
         if (chemin[0] != source)
         {
             Console.WriteLine("Aucun chemin trouvé entre la source et la destination.");
@@ -345,7 +363,7 @@ public class Graphe<T> where T : new()
         return chemin;
     }
 
-    public Dictionary<int, Dictionary<int, int>> FloydWarshall()
+    public (Dictionary<int, Dictionary<int, int>>, Dictionary<int, Dictionary<int, int>>) FloydWarshall()
     {
         var dist = new Dictionary<int, Dictionary<int, int>>();
         var pred = new Dictionary<int, Dictionary<int, int>>();
@@ -354,16 +372,17 @@ public class Graphe<T> where T : new()
         {
             dist[noeud] = new Dictionary<int, int>();
             pred[noeud] = new Dictionary<int, int>();
+
             foreach (var autreNoeud in _noeuds.Keys)
             {
                 if (noeud == autreNoeud)
                 {
-                    dist[noeud][autreNoeud] = 0; 
+                    dist[noeud][autreNoeud] = 0;
                     pred[noeud][autreNoeud] = -1;
                 }
                 else if (_matrice.ContainsKey(noeud) && _matrice[noeud].ContainsKey(autreNoeud))
                 {
-                    dist[noeud][autreNoeud] = _matrice[noeud][autreNoeud]; 
+                    dist[noeud][autreNoeud] = _matrice[noeud][autreNoeud];
                     pred[noeud][autreNoeud] = noeud;
                 }
                 else
@@ -374,42 +393,34 @@ public class Graphe<T> where T : new()
             }
         }
 
-        foreach (var k in _noeuds.Keys) 
+        foreach (var k in _noeuds.Keys)
         {
-            foreach (var i in _noeuds.Keys) 
+            foreach (var i in _noeuds.Keys)
             {
-                foreach (var j in _noeuds.Keys) 
+                foreach (var j in _noeuds.Keys)
                 {
-                    if (dist[i][k] != int.MaxValue && dist[k][j] != int.MaxValue && dist[i][j] > dist[i][k] + dist[k][j])
+                    if (dist[i][k] != int.MaxValue && dist[k][j] != int.MaxValue &&
+                        dist[i][j] > dist[i][k] + dist[k][j])
                     {
                         dist[i][j] = dist[i][k] + dist[k][j];
-                        pred[i][j] = pred[k][j]; 
+                        pred[i][j] = pred[k][j]; // Correction ici : on met à jour le prédécesseur
                     }
                 }
             }
         }
 
-        return dist; 
+        return (dist, pred);
+
     }
 
     public List<int> CheminLePlusCourt(int source, int destination)
     {
-        var dist = FloydWarshall();
-        var pred = new Dictionary<int, Dictionary<int, int>>();
-
-        foreach (var noeud in _noeuds.Keys)
-        {
-            pred[noeud] = new Dictionary<int, int>();
-            foreach (var autreNoeud in _noeuds.Keys)
-            {
-                pred[noeud][autreNoeud] = -1;
-            }
-        }
+        var (dist, pred) = FloydWarshall();
 
         if (dist[source][destination] == int.MaxValue)
         {
             Console.WriteLine("Aucun chemin disponible entre la source et la destination.");
-            return new List<int>(); 
+            return new List<int>();
         }
 
         List<int> chemin = new List<int>();
@@ -417,13 +428,14 @@ public class Graphe<T> where T : new()
 
         while (courant != source)
         {
-            chemin.Add(courant);
-            courant = pred[source][courant]; 
-            if (courant == -1) 
+            if (courant == -1)
             {
                 Console.WriteLine("Aucun chemin trouvé.");
-                return new List<int>(); 
+                return new List<int>();
             }
+
+            chemin.Add(courant);
+            courant = pred[source][courant];
         }
 
         chemin.Add(source);
@@ -431,6 +443,8 @@ public class Graphe<T> where T : new()
 
         return chemin;
     }
+
+
     #endregion
 
     #region Affichage

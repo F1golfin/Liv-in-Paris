@@ -106,7 +106,7 @@ public class MetroGraphViewModel : ViewModelBase
     /// </summary>
     private void CalculerChemin()
     {
-        if (StationDepart == null || StationArrivee == null || string.IsNullOrWhiteSpace(AlgoSelectionne))
+        if (string.IsNullOrWhiteSpace(AlgoSelectionne))
             return;
 
         // Trouve les IDs associés aux stations sélectionnées
