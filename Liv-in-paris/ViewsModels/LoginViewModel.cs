@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Liv_in_paris;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Views;
 
 public class LoginViewModel : ViewModelBase
 {
@@ -22,6 +23,7 @@ public class LoginViewModel : ViewModelBase
 
     private void Login()
     {
+        
         if (string.IsNullOrWhiteSpace(UserPrenom) || string.IsNullOrWhiteSpace(Password))
         {
             MessageErreur = "Veuillez remplir tous les champs.";
@@ -37,13 +39,23 @@ public class LoginViewModel : ViewModelBase
 
             if (table.Rows.Count == 1)
             {
+                string rolesFromDb = table.Rows[0]["role"].ToString(); // ex: "Client,Cuisinier"
+                var allRoles = rolesFromDb.Split(','); // => ["Client", "Cuisinier"]
+
                 // Authentification réussie
                 var row = table.Rows[0];
-                string nom = row["nom"].ToString();
-                Console.WriteLine($"✅ Bienvenue, {nom} !");
-            
-                // Redirection ou changement de vue
-                _parent.NaviguerVersAccueil("Client"); // ou ce que tu veux
+                string role = row["role"].ToString();
+                Console.WriteLine($"✅ Connexion réussie en tant que {role}");
+                if (allRoles.Length > 1)
+                {
+                    // Fenêtre ou menu de sélection
+                    var selectedRole = ShowRoleSelectionPopup(allRoles); 
+                    RedirectUser(selectedRole);
+                }
+                else
+                {
+                    RedirectUser(allRoles[0]);
+                }
             }
             else
             {
@@ -66,5 +78,24 @@ public class LoginViewModel : ViewModelBase
             OnPropertyChanged(nameof(MessageErreur));
         }*/
     }
+    private string ShowRoleSelectionPopup(string[] allRoles)
+    {
+        var popup = new RoleSelectionPopup(allRoles);
+        bool? result = popup.ShowDialog();
+
+        if (result == true)
+            return popup.SelectedRole;
+        else
+            return null;
+    }
+
+    void RedirectUser(string role)
+    {
+        if (role == "Client")
+            _parent.CurrentSubView = new ClientView();
+        else if (role == "Cuisinier")
+            _parent.CurrentSubView = new CuisinierView();
+    }
+
 }
 
