@@ -7,7 +7,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel Margin="50">
         <TextBlock Text="Connexion" FontSize="24" FontWeight="Bold" Margin="0 0 0 20"/>
-        <TextBox Text="{Binding Username}" Margin="0 5"/>
+        <TextBox Text="{Binding UserPrenom}" Margin="0 5"/>
         <PasswordBox x:Name="PasswordBox" Margin="0 5"/>
         <TextBlock Text="{Binding MessageErreur}" Foreground="Red" Margin="0 5"/>
         <Button Content="Se connecter" Click="SeConnecter_Click" Margin="0 10"/>

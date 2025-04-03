@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <Grid Background="#F9F9F9">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="50" VerticalAlignment="Center" HorizontalAlignment="Center" Width="300">
             
             <TextBlock Text="Créer un compte"
@@ -11,18 +12,48 @@
                        Margin="0 0 0 20"
                        HorizontalAlignment="Center"/>
 
-            <TextBlock Text="Nom d'utilisateur"/>
-            <TextBox Text="{Binding NewUsername}" Margin="0 5"/>
+            <TextBlock Text="Nom"/>
+            <TextBox Text="{Binding NewNom}" Margin="0 5"/>
+            
+            <TextBlock Text="Prénom"/>
+            <TextBox Text="{Binding NewPrenom}" Margin="0 5"/>
+            
+            <TextBlock Text="Email"/>
+            <TextBox Text="{Binding NewEmail}" Margin="0 5"/>
 
             <TextBlock Text="Mot de passe"/>
             <PasswordBox x:Name="PasswordBox" Margin="0 5"/>
 
             <TextBlock Text="Confirmer le mot de passe"/>
             <PasswordBox x:Name="ConfirmBox" Margin="0 5"/>
+            
+            <TextBlock Text="Téléphone"/>
+            <TextBox Text="{Binding NewTelephone}" Margin="0 5"/>
+            
+            <TextBlock Text="Adresse"/>
+            <TextBox Text="{Binding NewAdresse}" Margin="0 5"/>
+
+            <TextBlock Text="Type"/>
+            <ComboBox SelectedValue="{Binding SelectedType}" SelectedValuePath="Content" Margin="0 5">
+                <ComboBoxItem Content="Particulier"/>
+                <ComboBoxItem Content="Entreprise"/>
+            </ComboBox>
+            
+            <TextBlock Text="Nom de l'entreprise"/>
+            <TextBox Text="{Binding NewEntreprise}" Margin="0 5"/>
+            
+            <TextBlock Text="Role"/>
+            <ComboBox SelectedValue="{Binding SelectedRole}" SelectedValuePath="Content" Margin="0 5">
+                <ComboBoxItem Content="Client"/>
+                <ComboBoxItem Content="Cuisinier"/>
+            </ComboBox>
+
+            
             <TextBlock Text="{Binding MessageErreur}" Foreground="Red" Margin="0 5"/>   
+           
             <Button Content="S'inscrire"
                     Margin="0 15 0 5"
-                    Command="{Binding RegisterCommand}" />
+                    Click="RegisterButton_Click" />
 
             <Button Content="Déjà inscrit ? Se connecter"
                     Command="{Binding GoToLoginCommand}"
@@ -32,5 +63,6 @@
                     FontSize="12"
                     HorizontalAlignment="Center"/>
         </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

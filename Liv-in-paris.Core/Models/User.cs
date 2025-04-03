@@ -14,14 +14,34 @@ public class User
     public string Telephone { get; set; }
     public string? Entreprise { get; set; }
 
-    public void CreerUser(DatabaseManager database)
+    public void CreerUser(DatabaseManager db)
     {
         string query = $@"
-            INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise)
-            VALUES ('{Password}', '{Role}', '{Type}', '{Email}', '{Nom}', '{Prenom}', '{Adresse}', '{Telephone}', {(Entreprise != null ? $"'{Entreprise}'" : "NULL")});
-        ";
-        database.ExecuteNonQuery(query);
+        INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise)
+        VALUES (
+            '{Password}',
+            '{Role}',
+            '{Type}',
+            '{Email}',
+            '{Nom}',
+            '{Prenom}',
+            '{Adresse}',
+            '{Telephone}',
+            {(Entreprise != null ? $"'{Entreprise}'" : "NULL")}
+        );";
+
+        try
+        {
+            Console.WriteLine("Requête SQL : " + query);
+            db.ExecuteNonQuery(query);
+            Console.WriteLine("✅ Utilisateur inséré !");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("❌ Erreur d'insertion utilisateur : " + ex.Message);
+        }
     }
+
 
     public void ModifierUser(DatabaseManager database)
     {
