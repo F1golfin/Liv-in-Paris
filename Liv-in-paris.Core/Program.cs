@@ -20,8 +20,8 @@ class Program
         graphe.AfficherListeAdjacence();
         //graphe.AfficherMatriceAdjacence();
 
-        DatabaseManager.CreateDatabase("localhost", "root", "amandine", "livin_paris");
-        var db = new DatabaseManager("localhost", "livin_paris", "root", "amandine"); // ou livin_user / livin_pass
+        DatabaseManager.CreateDatabase("localhost", "root", "root", "livin_paris");
+        var db = new DatabaseManager("localhost", "livin_paris", "root", "root"); //à modifier en fonction de chancun
 
         try
         {
