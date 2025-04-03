@@ -45,6 +45,14 @@ public class MetroGraphViewModel : ViewModelBase
     }
 
     private string _algoSelectionne;
+    
+    private string _resumeTrajet;
+
+    public string ResumeTrajet
+    {
+        get => _resumeTrajet;
+        set { _resumeTrajet = value; OnPropertyChanged(); }
+    }
 
     /// <summary>
     /// Algorithme de plus court chemin sélectionné.
@@ -93,7 +101,7 @@ public class MetroGraphViewModel : ViewModelBase
         // Remplissage de la liste de stations à afficher
         var stationsTriees = _graphe.Noeuds.Values
             .Select(n => n.Data)
-            //.DistinctBy(s => s.Nom)
+            .DistinctBy(s => s.Nom)
             .OrderBy(s => s.Nom);
 
         foreach (var station in stationsTriees)
@@ -112,30 +120,57 @@ public class MetroGraphViewModel : ViewModelBase
         // Trouve les IDs associés aux stations sélectionnées
         var idsDepart = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationDepart.Nom).Select(n => n.Id).ToList();
         var idsArrivee = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationArrivee.Nom).Select(n => n.Id).ToList();
-
-        if (!idsDepart.Any() || !idsArrivee.Any()) 
-            return;
-
-        int idDep = idsDepart.First();
-        int idArr = idsArrivee.First();
+        
+        List<int> meilleurChemin = new();
+        int meilleurPoids = int.MaxValue;
 
         List<int> chemin = new List<int>();
 
-        switch (_algoSelectionne)
+        foreach (var dep in idsDepart)
         {
-            case "Dijkstra":
-                chemin = _graphe.Dijkstra(idDep, idArr);
-                break;
-            case "Bellman-Ford":
-                chemin = _graphe.BellmanFord(idDep, idArr);
-                break;
-            case "Floyd-Warshall":
-                chemin = _graphe.CheminLePlusCourt(idDep, idArr);
-                break;
-        }
+            foreach (var arr in idsArrivee)
+            {
 
+                switch (_algoSelectionne)
+                {
+                    case "Dijkstra":
+                        chemin = _graphe.Dijkstra(dep, arr);
+                        break;
+                    case "Bellman-Ford":
+                        chemin = _graphe.BellmanFord(dep, arr);
+                        break;
+                    case "Floyd-Warshall":
+                        chemin = _graphe.CheminLePlusCourt(dep, arr);
+                        break;
+                }
+                
+                int poids = _graphe.CalculerPoids(chemin);
+
+                if (chemin.Count > 0 && poids < meilleurPoids)
+                {
+                    meilleurPoids = poids;
+                    meilleurChemin = chemin;
+                }
+            }
+        }
+        
         // Envoie le chemin à la vue
         OnCheminCalcule?.Invoke(chemin);
+        
+        if (meilleurChemin.Count > 0)
+        {
+            var stations = meilleurChemin
+                .Select(id => _graphe.Noeuds[id].Data.ToString())
+                .ToList();
+
+            int poidsTotal = _graphe.CalculerPoids(meilleurChemin);
+
+            ResumeTrajet = $"Trajet : " + string.Join(" → ", stations) + $"\n\nTemps total estimé : {poidsTotal} minutes";
+        }
+        else
+        {
+            ResumeTrajet = "Aucun chemin trouvé.";
+        }
         
     }
 }

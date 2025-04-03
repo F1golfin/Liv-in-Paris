@@ -226,7 +226,7 @@ public partial class MetroGraphView : UserControl
         float zoomFactor = (e.Delta > 0) ? 1.1f : 0.9f;
 
         _scale *= zoomFactor;
-        _scale = Math.Clamp(_scale, 0.9f, 5f);
+        _scale = Math.Clamp(_scale, 0.9f, 3f);
 
         // Ajustement de l'offset pour centrer le zoom autour de la souris
         _offset = new SKPoint(
@@ -270,7 +270,7 @@ public partial class MetroGraphView : UserControl
     
     private void LimiterOffset(int canvasWidth, int canvasHeight)
     {
-        float marge = 600f;
+        float marge = 1200f;
 
         float minX = -canvasWidth * (_scale - 1) - marge;
         float maxX = canvasWidth - marge;
@@ -291,7 +291,7 @@ public partial class MetroGraphView : UserControl
         _trajetStep = 1;
 
         _animationTimer = new DispatcherTimer();
-        _animationTimer.Interval = TimeSpan.FromMilliseconds(300); // vitesse animation
+        _animationTimer.Interval = TimeSpan.FromMilliseconds(500); // vitesse animation
         _animationTimer.Tick += (s, e) =>
         {
             _trajetStep++;

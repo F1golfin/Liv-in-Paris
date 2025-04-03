@@ -38,6 +38,17 @@ public class Graphe<T> where T : new()
         }
     }
 
+    public int CalculerPoids(List<int> chemin)
+    {
+        int total = 0;
+        for (int i = 0; i < chemin.Count - 1; i++)
+        {
+            int a = chemin[i], b = chemin[i + 1];
+            if (_matrice.ContainsKey(a) && _matrice[a].ContainsKey(b))
+                total += _matrice[a][b];
+        }
+        return total;
+    }
 
     #region Gestion des nœuds et des liens
 
