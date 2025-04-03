@@ -92,9 +92,18 @@ public class LoginViewModel : ViewModelBase
     void RedirectUser(string role)
     {
         if (role == "Client")
-            _parent.CurrentSubView = new ClientView();
+        {
+            var vue = new ClientView();
+            vue.DataContext = new ClientViewModel(_parent); // important
+            _parent.CurrentSubView = vue;
+        }
         else if (role == "Cuisinier")
-            _parent.CurrentSubView = new CuisinierView();
+        {
+            var vue = new CuisinierView();
+            vue.DataContext = new CuisinierViewModel(_parent); // important
+            _parent.CurrentSubView = vue;
+        }
+
     }
 
 }

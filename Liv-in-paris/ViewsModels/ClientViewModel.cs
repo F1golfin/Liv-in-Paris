@@ -14,4 +14,6 @@ public class ClientViewModel
         DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
     }
     
+    
+    
 }
