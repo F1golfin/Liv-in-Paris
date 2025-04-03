@@ -42,11 +42,12 @@
             <TextBlock Text="Nom de l'entreprise"/>
             <TextBox Text="{Binding NewEntreprise}" Margin="0 5"/>
             
-            <TextBlock Text="Role"/>
-            <ComboBox SelectedValue="{Binding SelectedRole}" SelectedValuePath="Content" Margin="0 5">
-                <ComboBoxItem Content="Client"/>
-                <ComboBoxItem Content="Cuisinier"/>
-            </ComboBox>
+            <TextBlock Text="Rôles"/>
+            <ListBox x:Name="RoleListBox" SelectionMode="Multiple" Height="60">
+                <ListBoxItem Content="Client" />
+                <ListBoxItem Content="Cuisinier" />
+            </ListBox>
+
 
             
             <TextBlock Text="{Binding MessageErreur}" Foreground="Red" Margin="0 5"/>   

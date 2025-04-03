@@ -57,9 +57,10 @@ namespace Liv_in_paris
                 CurrentSubView = vue;
             }
         }
-        
+
         public void Deconnexion()
         {
+            // Redirection vers la page de connexion
             NavigateToLogin();
         }
 

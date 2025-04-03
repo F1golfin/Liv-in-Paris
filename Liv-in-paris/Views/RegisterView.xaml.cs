@@ -16,6 +16,10 @@ public partial class RegisterView : UserControl
         {
             vm.NewPassword = PasswordBox.Password;
             vm.ConfirmPassword = ConfirmBox.Password;
+            var roles = RoleListBox.SelectedItems
+                .Cast<ListBoxItem>()
+                .Select(item => item.Content.ToString());
+            vm.SelectedRole = string.Join(",", roles);
             vm.Register(); // Appelle la méthode dans ton ViewModel
         }
     }
