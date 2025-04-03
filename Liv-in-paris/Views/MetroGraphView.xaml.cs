@@ -25,11 +25,48 @@ public partial class MetroGraphView : UserControl
     private List<Noeud<Station>> _trajet = new();
     private DispatcherTimer _animationTimer;
     
+    
     public MetroGraphView()
     {
         InitializeComponent();
         _viewModel = new MetroGraphViewModel();
         DataContext = _viewModel;
+        
+        _viewModel.OnCheminCalcule = cheminIds =>
+        {
+            var chemin = ConvertirEnCheminNoeuds(cheminIds);
+            if (chemin.Count >= 2)
+                LancerAnimationTrajet(chemin);
+        };
+    }
+    
+    private List<Station> GetStationsUniques()
+    {
+        return _viewModel.Graphe.Noeuds
+            .Values
+            .Select(n => n.Data)
+            .GroupBy(s => (s.Nom, s.Latitude, s.Longitude))
+            .Select(g => g.First())
+            .ToList();
+    }
+    
+    private List<Noeud<Station>> ConvertirEnCheminNoeuds(List<int> ids)
+    {
+        return ids
+            .Where(id => _viewModel.Graphe.Noeuds.ContainsKey(id))
+            .Select(id => _viewModel.Graphe.Noeuds[id])
+            .ToList();
+    }
+    
+    private Dictionary<(string nom, double lat, double lon), HashSet<string>> GetLignesParStation()
+    {
+        return _viewModel.Graphe.Noeuds
+            .Values
+            .GroupBy(n => (n.Data.Nom, n.Data.Latitude, n.Data.Longitude))
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(n => n.Data.Ligne).ToHashSet()
+            );
     }
     
     private readonly SKPaint textPaint = new SKPaint
@@ -78,13 +115,8 @@ public partial class MetroGraphView : UserControl
         var hauteur = e.Info.Height;
 
         var graphe = _viewModel.Graphe;
-
-        // Récupère les stations avec coordonnées valides
-        var stations = graphe.Noeuds.Values
-            .Select(n => n.Data)
-            .Where(s => s.Latitude != 0 && s.Longitude != 0)
-            .ToList();
-
+        var stations = GetStationsUniques();
+        
         // Trouve les limites géographiques
         double minLat = stations.Min(s => s.Latitude);
         double maxLat = stations.Max(s => s.Latitude);
@@ -148,12 +180,21 @@ public partial class MetroGraphView : UserControl
             }
         }
 
+        var lignesParStation = GetLignesParStation();
         foreach (var station in stations)
         {
             var point = ConvertirCoord(station);
             canvas.DrawCircle(point, 6, stationPaint);
             
             canvas.DrawText(station.Nom, point.X + 6, point.Y - 6, textPaint);
+            
+            // Affiche les lignes associées (L1, L4, L7...)
+            var key = (station.Nom, station.Latitude, station.Longitude);
+            if (lignesParStation.ContainsKey(key))
+            {
+                var lignes = string.Join(", ", lignesParStation[key]);
+                canvas.DrawText($"({lignes})", point.X + 8, point.Y + 10, textPaint);
+            }
         }
         
         if (_trajet != null && _trajet.Count > 1)
@@ -243,20 +284,6 @@ public partial class MetroGraphView : UserControl
         );
     }
     
-    private void AfficherTrajet_Click(object sender, RoutedEventArgs e)
-    {
-        var graphe = _viewModel.Graphe;
-        
-        var ids = new List<int> { 1, 2, 3, 4,5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
-
-        var chemin = ids
-            .Where(id => graphe.Noeuds.ContainsKey(id))
-            .Select(id => graphe.Noeuds[id])
-            .ToList();
-
-        if (chemin.Count >= 2)
-            LancerAnimationTrajet(chemin);
-    }
     
     private void LancerAnimationTrajet(List<Noeud<Station>> chemin)
     {

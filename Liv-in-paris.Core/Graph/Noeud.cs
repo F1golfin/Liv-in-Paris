@@ -35,13 +35,6 @@ public class Noeud<T> where T : new()
     /// <returns>Une chaîne représentant le nœud sous la forme "id [data]" ou simplement "id" si les données ne sont pas disponibles.</returns>
     public override string ToString()
     {
-        if (typeof(T).GetMethod("ToString") != null && _data != null)
-        {
-            return $"{_id} [{_data.ToString()}]";
-        }
-        else
-        {
-            return $"{_id}";
-        }
+        return _data != null ? $"{_id} [{_data}]" : $"{_id}";
     }
 }

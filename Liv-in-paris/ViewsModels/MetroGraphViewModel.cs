@@ -54,6 +54,11 @@ public class MetroGraphViewModel : ViewModelBase
         get => _algoSelectionne;
         set { _algoSelectionne = value; OnPropertyChanged(); }
     }
+    
+    /// <summary>
+    /// Action appelée une fois le chemin calculé, pour l'affichage (liaison avec la vue).
+    /// </summary>
+    public Action<List<int>>? OnCheminCalcule { get; set; }
 
     /// <summary>
     /// Commande déclenchée lorsqu'on clique sur "Calculer" (détermine le plus court chemin).
@@ -88,7 +93,7 @@ public class MetroGraphViewModel : ViewModelBase
         // Remplissage de la liste de stations à afficher
         var stationsTriees = _graphe.Noeuds.Values
             .Select(n => n.Data)
-            .DistinctBy(s => s.Nom)
+            //.DistinctBy(s => s.Nom)
             .OrderBy(s => s.Nom);
 
         foreach (var station in stationsTriees)
@@ -101,10 +106,36 @@ public class MetroGraphViewModel : ViewModelBase
     /// </summary>
     private void CalculerChemin()
     {
-        Console.WriteLine("Calculer chemin");
-        Console.WriteLine(_stationDepart);
-        Console.WriteLine(_stationArrivee);
-        Console.WriteLine(_algoSelectionne);
-        // TODO : Implémenter l'appel à l'algo et déclencher le rendu du chemin
+        if (string.IsNullOrWhiteSpace(AlgoSelectionne))
+            return;
+
+        // Trouve les IDs associés aux stations sélectionnées
+        var idsDepart = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationDepart.Nom).Select(n => n.Id).ToList();
+        var idsArrivee = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationArrivee.Nom).Select(n => n.Id).ToList();
+
+        if (!idsDepart.Any() || !idsArrivee.Any()) 
+            return;
+
+        int idDep = idsDepart.First();
+        int idArr = idsArrivee.First();
+
+        List<int> chemin = new List<int>();
+
+        switch (_algoSelectionne)
+        {
+            case "Dijkstra":
+                chemin = _graphe.Dijkstra(idDep, idArr);
+                break;
+            case "Bellman-Ford":
+                chemin = _graphe.BellmanFord(idDep, idArr);
+                break;
+            case "Floyd-Warshall":
+                chemin = _graphe.CheminLePlusCourt(idDep, idArr);
+                break;
+        }
+
+        // Envoie le chemin à la vue
+        OnCheminCalcule?.Invoke(chemin);
+        
     }
 }
