@@ -26,6 +26,7 @@ public class Recette
         );
     ";
         database.ExecuteNonQuery(query);
+        
     }
 
     public void ModifierRecette(DatabaseManager database)
@@ -70,6 +71,26 @@ public class Recette
         return recettes;
     }
 
-    
+    public static Recette GetById(DatabaseManager db, ulong id)
+    {
+        var table = db.ExecuteQuery($"SELECT * FROM recettes WHERE recette_id = {id} LIMIT 1");
+
+        if (table.Rows.Count == 0)
+            return null;
+
+        var row = table.Rows[0];
+
+        return new Recette
+        {
+            RecetteId = Convert.ToUInt64(row["recette_id"]),
+            NomRecette = row["nom_recette"].ToString(),
+            Type = row["type"].ToString(),
+            Ingredients = row["ingredients"].ToString(),
+            StyleCuisine = Convert.ToInt32(row["style_cuisine"]),
+            RegimeAlimentaire = row["regime_alimentaire"]?.ToString(),
+            ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"])
+        };
+    }
+
 
 }

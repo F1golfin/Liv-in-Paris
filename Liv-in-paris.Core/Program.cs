@@ -43,7 +43,7 @@ static void Main(string[] args)
         int[] tab = new int[5];
         foreach (int i in tab)
         {
-            Console.Write(i);
+            Console.Write(i);   
         }
     }
 }

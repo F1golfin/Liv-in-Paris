@@ -67,5 +67,31 @@ public class Evaluation
 
         return evaluations;
     }
+    
+    
+    public static List<Evaluation> GetByCuisinier(DatabaseManager db, ulong cuisinierId)
+    {
+        var evaluations = new List<Evaluation>();
+        var table = db.ExecuteQuery($@"
+        SELECT * FROM evaluation
+        WHERE cuisinier_id = {cuisinierId};
+    ");
+
+        foreach (DataRow row in table.Rows)
+        {
+            evaluations.Add(new Evaluation
+            {
+                ClientId = Convert.ToUInt64(row["client_id"]),
+                CuisinierId = cuisinierId,
+                Note = Convert.ToInt32(row["note"]),
+                Commentaire = row["commentaire"]?.ToString(),
+                DateEvaluation = Convert.ToDateTime(row["date_evaluation"])
+            });
+        }
+
+        return evaluations;
+    }
+
+
 
 }

@@ -9,6 +9,7 @@ public class DatabaseManager
 
     public DatabaseManager(string server, string database, string user, string password)
     {
+        Console.WriteLine("🔐 Connexion string → " + $"Server={server};Database={database};Uid={user};Pwd={password};");
         connectionString = $"Server={server};Database={database};Uid={user};Pwd={password};";
     }
     

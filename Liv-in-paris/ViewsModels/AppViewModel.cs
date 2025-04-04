@@ -43,7 +43,7 @@ namespace Liv_in_paris
             CurrentSubView = vue;
         }
 
-        public void NaviguerVersAccueil(string role, User user)
+        public void NaviguerVersAccueil(User user, string role)
         {
             if (role == "Client")
             {
@@ -53,11 +53,11 @@ namespace Liv_in_paris
             }
             else if (role == "Cuisinier")
             {
-                var vue = new CuisinierView();
-                vue.DataContext = new CuisinierViewModel(this);
+                var vue = new CuisinierView(user, this);
                 CurrentSubView = vue;
             }
         }
+
 
         public void Deconnexion()
         {
