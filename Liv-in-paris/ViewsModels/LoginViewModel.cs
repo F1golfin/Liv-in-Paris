@@ -76,15 +76,6 @@ public class LoginViewModel : ViewModelBase
             MessageErreur = "Erreur lors de la connexion : " + ex.Message;
             OnPropertyChanged(nameof(MessageErreur));
         }
-        /*if (UserPrenom == "chef" && Password == "1234")
-            _parent.NaviguerVersAccueil("Cuisinier");
-        else if (UserPrenom == "client" && Password == "abcd")
-            _parent.NaviguerVersAccueil("Client");
-        else
-        {
-            MessageErreur = "Nom d'utilisateur ou mot de passe incorrect ";
-            OnPropertyChanged(nameof(MessageErreur));
-        }*/
     }
     private string ShowRoleSelectionPopup(string[] allRoles)
     {
