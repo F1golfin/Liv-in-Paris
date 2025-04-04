@@ -56,6 +56,21 @@ public class CommandesViewModel : ViewModelBase
                 // Pas encore de plats ni de statut
                 CuisinierNom = "Inconnu"
             };
+            
+            var platsTable = db.ExecuteQuery($"SELECT * FROM plats WHERE commande_id = {commande.CommandeId}");
+
+            foreach (DataRow platRow in platsTable.Rows)
+            {
+                var plat = new Plat
+                {
+                    PlatId = Convert.ToUInt64(platRow["plat_id"]),
+                    NomPlat = platRow["nom_plat"].ToString(),
+                    NbParts = Convert.ToInt32(platRow["nb_parts"]),
+                    PrixParPersonne = Convert.ToDecimal(platRow["prix_par_personne"])
+                };
+
+                wrapper.Plats.Add(plat);
+            }
 
             CommandesClient.Add(wrapper);
         }
