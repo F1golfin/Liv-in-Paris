@@ -9,10 +9,14 @@
                         <StackPanel Orientation="Horizontal">
                             <!-- <Image Source="{Binding Photo}" Width="100" Height="100" Margin="0,0,10,0"/>  -->
                             <StackPanel>
-                                <TextBlock Text="{Binding Nom}" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="{Binding NomPlat}" FontWeight="Bold" FontSize="16"/>
                                 <TextBlock Text="{Binding PrixParPersonne, StringFormat='Prix : {0} €'}"/>
                                 <TextBlock Text="{Binding NbParts, StringFormat='Parts : {0}'}"/>
-                                <Button Content="Ajouter au panier" Width="150" Margin="0,5,0,0"/>
+                                <Button Content="Ajouter au panier"
+                                        Width="150"
+                                        Margin="0,5,0,0"
+                                        Command="{Binding DataContext.AjouterAuPanierCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}" />
                             </StackPanel>
                         </StackPanel>
                     </Border>

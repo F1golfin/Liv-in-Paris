@@ -30,7 +30,13 @@
                 <StackPanel Background="#f8f8f8" Grid.Column="0">
                     <TextBlock Text="Menu client" FontWeight="Bold" Margin="0 0 0 10"/>
                     <Button Content="Voir les plats" Command="{Binding VoirPlatsCommand}" Margin="0 5"/>
-                    <Button Content="Mon panier" Command="{Binding VoirPanierCommand}" Margin="0 5"/>
+                    <Button Command="{Binding VoirPanierCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Mon panier (" />
+                            <TextBlock Text="{Binding Panier.Count}" />
+                            <TextBlock Text=")" />
+                        </StackPanel>
+                    </Button>
                     <Button Content="Mes commandes" Command="{Binding VoirCommandesCommand}" Margin="0 5"/>
                 </StackPanel>
 

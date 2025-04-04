@@ -1,10 +1,18 @@
 ﻿using Liv_in_paris;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 using Liv_in_paris.Core.Models;
 
 public class PlatsViewModel : ViewModelBase
 {
     public ObservableCollection<Plat> Plats { get; set; } = new();
+    
+    private readonly ClientViewModel _clientVM;
+    
+    public ICommand AjouterAuPanierCommand => new RelayCommand<Plat>(plat =>
+    {
+        _clientVM.AjouterAuPanier(plat);
+    });
 
     public PlatsViewModel()
     {
@@ -27,6 +35,13 @@ public class PlatsViewModel : ViewModelBase
                 //Photo = row["photo"].ToString() // lien d'image locale ou en ligne
             };
             Plats.Add(plat);
+            Console.WriteLine(plat.NomPlat);
         }
+    }
+    
+    public PlatsViewModel(ClientViewModel clientVM)
+    {
+        _clientVM = clientVM;
+        ChargerPlatsDepuisBDD();
     }
 }
