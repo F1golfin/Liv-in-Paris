@@ -60,23 +60,16 @@ public class LoginViewModel : ViewModelBase
                 };
                 string role = row["role"].ToString();
                 
-                var utilisateur = new User
-                {
-                    UserId = Convert.ToUInt64(row["user_id"]),
-                    Prenom = row["prenom"].ToString(),
-                    Role = row["role"].ToString()
-                };
-                
                 Console.WriteLine($"✅ Connexion réussie en tant que {role}");
                 if (allRoles.Length > 1)
                 {
                     // Fenêtre ou menu de sélection
                     var selectedRole = ShowRoleSelectionPopup(allRoles); 
-                    RedirectUser(selectedRole,utilisateur);
+                    RedirectUser(utilisateur,selectedRole);
                 }
                 else
                 {
-                    RedirectUser(allRoles[0],utilisateur);
+                    RedirectUser(utilisateur,allRoles[0]);
                 }
             }
             else
