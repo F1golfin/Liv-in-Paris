@@ -1,5 +1,4 @@
-﻿using Liv_in_paris.Core.Entities;
-
+﻿
 namespace Liv_in_paris.Core.Graph;
 
 /// <summary>
@@ -38,6 +37,11 @@ public class Graphe<T> where T : new()
         }
     }
 
+    /// <summary>
+    /// Calcule la somme des poids d’un chemin donné.
+    /// </summary>
+    /// <param name="chemin">Liste des identifiants des nœuds à suivre.</param>
+    /// <returns>Poids total du chemin.</returns>
     public int CalculerPoids(List<int> chemin)
     {
         int total = 0;
@@ -94,9 +98,12 @@ public class Graphe<T> where T : new()
     #region Algorithmes de parcours
 
     /// <summary>
-    /// Affiche le parcours en profondeur à partir d’un nœud donné.
+    /// Lance un parcours en profondeur à partir d’un nœud donné.
     /// </summary>
-    /// <param name="noeud">Le nœud de départ.</param>
+    /// <param name="noeud">Identifiant du nœud de départ.</param>
+    /// <param name="visites">Tableau des nœuds visités.</param>
+    /// <param name="chemin">Chemin en cours de construction.</param>
+    /// <returns>Liste des identifiants des nœuds visités.</returns>
     public List<int> ParcoursEnProfondeur(int noeud, bool[] visites, List<int> chemin)
     {
         visites[noeud] = true;
@@ -112,6 +119,11 @@ public class Graphe<T> where T : new()
         return chemin;
     }
 
+    /// <summary>
+    /// Initialise un parcours en profondeur à partir d’un nœud donné.
+    /// </summary>
+    /// <param name="noeud">Identifiant du nœud de départ.</param>
+    /// <returns>Liste des identifiants des nœuds visités.</returns>
     public List<int> InitParcoursEnProfondeur(int noeud)
     {
         bool[] visites = new bool[_noeuds.Count];
@@ -157,6 +169,10 @@ public class Graphe<T> where T : new()
         Console.WriteLine("]");
     }
 
+    /// <summary>
+    /// Affiche dans la console une liste d’identifiants de nœuds.
+    /// </summary>
+    /// <param name="list">Liste à afficher.</param>
     public void AfficheListe(List<int> list)
     {
         foreach (int n in list)
@@ -170,9 +186,9 @@ public class Graphe<T> where T : new()
     #region Analyse du graphe
 
     /// <summary>
-    /// Détermine si le graphe est connexe.
+    /// Détermine si le graphe est faiblement connexe (tous les nœuds atteignables sans tenir compte du sens des arcs).
     /// </summary>
-    /// <returns>True si connexe, sinon false.</returns>
+    /// <returns>True si le graphe est faiblement connexe, sinon false.</returns>
     public bool EstFaiblementConnexe()
     {
         bool FaConnexe = true;
@@ -186,6 +202,10 @@ public class Graphe<T> where T : new()
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Détermine si le graphe est fortement connexe (tous les nœuds atteignables dans les deux sens).
+    /// </summary>
+    /// <returns>True si fortement connexe, sinon false.</returns>
     public bool EstFortementConnexe()
     {
         bool[] visite = new bool[_noeuds.Count];
@@ -205,7 +225,11 @@ public class Graphe<T> where T : new()
 
         return true;
     }
-
+    
+    /// <summary>
+    /// Crée un graphe avec tous les liens inversés.
+    /// </summary>
+    /// <returns>Le graphe inversé.</returns>
     public Graphe<T> Inverser()
     {
         Graphe<T> g = new Graphe<T>();
@@ -237,25 +261,16 @@ public class Graphe<T> where T : new()
 
         return g;
     }
-
-    /// <summary>
-    /// Vérifie si le graphe contient un cycle.
-    /// </summary>
-    /// <returns>True si un cycle est détecté, sinon false.</returns>
-    public bool ContientCycle()
-    {
-        throw new NotImplementedException();
-    }
-
-    private bool DFSDetecterCycle()
-    {
-        throw new NotImplementedException();
-    }
-
     #endregion
 
     #region Algorithmes de plus court chemin
 
+    /// <summary>
+    /// Applique l’algorithme de Dijkstra pour trouver le plus court chemin entre deux nœuds.
+    /// </summary>
+    /// <param name="debut">Identifiant du nœud de départ.</param>
+    /// <param name="fin">Identifiant du nœud d’arrivée.</param>
+    /// <returns>Liste des identifiants de nœuds représentant le plus court chemin.</returns>
     public List<int> Dijkstra(int debut, int fin)
     {
         var dist = new Dictionary<int, int>(); // Distance minimale depuis debut
@@ -311,6 +326,13 @@ public class Graphe<T> where T : new()
         return chemin;
     }
 
+    /// <summary>
+    /// Applique l’algorithme de Bellman-Ford pour trouver le plus court chemin.
+    /// Gère les poids négatifs mais pas les cycles négatifs.
+    /// </summary>
+    /// <param name="source">Nœud de départ.</param>
+    /// <param name="destination">Nœud d’arrivée.</param>
+    /// <returns>Liste des identifiants du chemin, ou null s’il y a un cycle négatif.</returns>
     public List<int> BellmanFord(int source, int destination)
     {
         var distances = new Dictionary<int, int>();
@@ -374,6 +396,14 @@ public class Graphe<T> where T : new()
         return chemin;
     }
 
+    /// <summary>
+    /// Applique l’algorithme de Floyd-Warshall pour calculer toutes les plus courtes distances entre tous les couples de nœuds.
+    /// </summary>
+    /// <returns>
+    /// Une paire de dictionnaires :
+    /// - dist[source][destination] donne la distance minimale.
+    /// - pred[source][destination] donne le prédécesseur dans le chemin.
+    /// </returns>
     public (Dictionary<int, Dictionary<int, int>>, Dictionary<int, Dictionary<int, int>>) FloydWarshall()
     {
         var dist = new Dictionary<int, Dictionary<int, int>>();
@@ -423,7 +453,13 @@ public class Graphe<T> where T : new()
         return (dist, pred);
 
     }
-
+    
+    /// <summary>
+    /// Renvoie le plus court chemin entre deux nœuds en utilisant Floyd-Warshall.
+    /// </summary>
+    /// <param name="source">Identifiant du nœud source.</param>
+    /// <param name="destination">Identifiant du nœud destination.</param>
+    /// <returns>Liste des identifiants du plus court chemin, ou une liste vide si aucun chemin n’existe.</returns>
     public List<int> CheminLePlusCourt(int source, int destination)
     {
         var (dist, pred) = FloydWarshall();
@@ -461,7 +497,7 @@ public class Graphe<T> where T : new()
     #region Affichage
 
     /// <summary>
-    /// Affiche la liste d’adjacence du graphe.
+    /// Affiche la liste d’adjacence du graphe dans la console.
     /// </summary>
     public void AfficherListeAdjacence()
     {
@@ -474,8 +510,11 @@ public class Graphe<T> where T : new()
     }
     
     /// <summary>
-    /// Affiche la matrice d’adjacence du graphe avec les poids.
+    /// Affiche la matrice d’adjacence pondérée du graphe dans la console.
     /// </summary>
+    /// <remarks>
+    /// L’affichage doit être revu si certains identifiants ne sont pas consécutifs ou commencent à un index élevé.
+    /// </remarks>
     public void AfficherMatriceAdjacence()
     {
         var keys = _matrice.Keys;
