@@ -45,16 +45,24 @@ public class LoginViewModel : ViewModelBase
                 // Authentification réussie
                 var row = table.Rows[0];
                 string role = row["role"].ToString();
+                
+                var utilisateur = new User
+                {
+                    UserId = Convert.ToUInt64(row["user_id"]),
+                    Prenom = row["prenom"].ToString(),
+                    Role = row["role"].ToString()
+                };
+                
                 Console.WriteLine($"✅ Connexion réussie en tant que {role}");
                 if (allRoles.Length > 1)
                 {
                     // Fenêtre ou menu de sélection
                     var selectedRole = ShowRoleSelectionPopup(allRoles); 
-                    RedirectUser(selectedRole);
+                    RedirectUser(selectedRole,utilisateur);
                 }
                 else
                 {
-                    RedirectUser(allRoles[0]);
+                    RedirectUser(allRoles[0],utilisateur);
                 }
             }
             else
@@ -89,12 +97,12 @@ public class LoginViewModel : ViewModelBase
             return null;
     }
 
-    void RedirectUser(string role)
+    void RedirectUser(string role, User user)
     {
         if (role == "Client")
         {
             var vue = new ClientView();
-            vue.DataContext = new ClientViewModel(_parent); // important
+            vue.DataContext = new ClientViewModel(_parent,user); // important
             _parent.CurrentSubView = vue;
         }
         else if (role == "Cuisinier")
