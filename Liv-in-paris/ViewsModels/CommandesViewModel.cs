@@ -12,6 +12,7 @@ public class CommandesViewModel : ViewModelBase
     private readonly User _utilisateur;
 
     public ObservableCollection<CommandeAvecPlats> CommandesClient { get; } = new();
+    public ICommand SupprimerCommandeCommand => new RelayCommand<CommandeAvecPlats>(SupprimerCommande);
 
     public ICommand NoterCuisinierCommand { get; }
 
@@ -83,5 +84,34 @@ public class CommandesViewModel : ViewModelBase
     {
         // Ouvrir une boîte de dialogue ou naviguer vers une vue de notation
         MessageBox.Show($"Tu veux noter {commande.CuisinierNom} pour la commande {commande.Commande.CommandeId}");
+    }
+    
+    private void SupprimerCommande(CommandeAvecPlats commandeAvecPlats)
+    {
+        if (commandeAvecPlats == null) return;
+
+        var result = MessageBox.Show("Voulez-vous vraiment supprimer cette commande ?", "Confirmation", MessageBoxButton.YesNo);
+        if (result != MessageBoxResult.Yes) return;
+
+        try
+        {
+            var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
+            
+            string updatePlats = $"UPDATE plats SET commande_id = NULL WHERE commande_id = {commandeAvecPlats.Commande.CommandeId}";
+            db.ExecuteNonQuery(updatePlats);
+            
+            string deleteLigne = $"DELETE FROM lignes_commandes WHERE commande_id = {commandeAvecPlats.Commande.CommandeId}";
+            db.ExecuteNonQuery(deleteLigne);
+            
+            string deleteCommande = $"DELETE FROM commandes WHERE commande_id = {commandeAvecPlats.Commande.CommandeId}";
+            db.ExecuteNonQuery(deleteCommande);
+            CommandesClient.Remove(commandeAvecPlats);
+
+            MessageBox.Show("✅ Commande supprimée !");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("❌ Erreur lors de la suppression : " + ex.Message);
+        }
     }
 }

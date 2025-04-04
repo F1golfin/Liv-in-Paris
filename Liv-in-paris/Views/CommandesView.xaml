@@ -29,6 +29,12 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+                                <Button Content="🗑 Supprimer la commande"
+                                        Background="Tomato"
+                                        Foreground="White"
+                                        Margin="0 10 0 0"
+                                        Command="{Binding DataContext.SupprimerCommandeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>
