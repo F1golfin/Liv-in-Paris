@@ -6,12 +6,48 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="Client ici"/>
-        <Button Grid.Row="1" Content="Se déconnecter" Command="{Binding DeconnexionCommand}" />
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>  <!-- Toolbar -->
+                <RowDefinition Height="*"/>     <!-- Corps -->
+                <RowDefinition Height="Auto"/>  <!-- Footer -->
+            </Grid.RowDefinitions>
+
+            <!-- Toolbar -->
+            <DockPanel Grid.Row="0" Background="#eee">
+                <TextBlock Text="{Binding UtilisateurLabel}" FontWeight="Bold" />
+                <Button Content="Déconnexion" DockPanel.Dock="Right" Margin="10 0" Command="{Binding DeconnexionCommand}" />
+            </DockPanel>
+
+            <!-- Corps -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/> <!-- Menu -->
+                    <ColumnDefinition Width="*"/>   <!-- Vue dynamique -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Menu -->
+                <StackPanel Background="#f8f8f8" Grid.Column="0">
+                    <TextBlock Text="Menu client" FontWeight="Bold" Margin="0 0 0 10"/>
+                    <Button Content="Voir les plats" Command="{Binding VoirPlatsCommand}" Margin="0 5"/>
+                    <Button Command="{Binding VoirPanierCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Mon panier (" />
+                            <TextBlock Text="{Binding Panier.Count}" />
+                            <TextBlock Text=")" />
+                        </StackPanel>
+                    </Button>
+                    <Button Content="Mes commandes" Command="{Binding VoirCommandesCommand}" Margin="0 5"/>
+                </StackPanel>
+
+                <!-- Vue dynamique (contenu principal) -->
+                <ContentControl Grid.Column="1" Content="{Binding VueActive}" />
+            </Grid>
+
+            <!-- Footer -->
+            <TextBlock Grid.Row="2" Text="© Liv'in Paris - Client" HorizontalAlignment="Center" FontSize="10" Margin="10"/>
+        </Grid>
+        
     </Grid>
     
 </UserControl>

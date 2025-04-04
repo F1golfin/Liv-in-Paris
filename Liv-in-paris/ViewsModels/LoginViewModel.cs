@@ -59,16 +59,24 @@ public class LoginViewModel : ViewModelBase
                     Entreprise = row["entreprise"]?.ToString()
                 };
                 string role = row["role"].ToString();
+                
+                var utilisateur = new User
+                {
+                    UserId = Convert.ToUInt64(row["user_id"]),
+                    Prenom = row["prenom"].ToString(),
+                    Role = row["role"].ToString()
+                };
+                
                 Console.WriteLine($"✅ Connexion réussie en tant que {role}");
                 if (allRoles.Length > 1)
                 {
                     // Fenêtre ou menu de sélection
                     var selectedRole = ShowRoleSelectionPopup(allRoles); 
-                    RedirectUser(utilisateur, selectedRole);
+                    RedirectUser(selectedRole,utilisateur);
                 }
                 else
                 {
-                    RedirectUser(utilisateur, allRoles[0]);
+                    RedirectUser(allRoles[0],utilisateur);
                 }
             }
             else
@@ -82,15 +90,6 @@ public class LoginViewModel : ViewModelBase
             MessageErreur = "Erreur lors de la connexion : " + ex.Message;
             OnPropertyChanged(nameof(MessageErreur));
         }
-        /*if (UserPrenom == "chef" && Password == "1234")
-            _parent.NaviguerVersAccueil("Cuisinier");
-        else if (UserPrenom == "client" && Password == "abcd")
-            _parent.NaviguerVersAccueil("Client");
-        else
-        {
-            MessageErreur = "Nom d'utilisateur ou mot de passe incorrect ";
-            OnPropertyChanged(nameof(MessageErreur));
-        }*/
     }
     private string ShowRoleSelectionPopup(string[] allRoles)
     {

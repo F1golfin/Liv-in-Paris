@@ -4,6 +4,6 @@
               xmlns:local="clr-namespace:Liv_in_paris"
               StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <local:StatutToVisibilityConverter x:Key="StatutToVisibilityConverter"/>
     </Application.Resources>
 </Application>

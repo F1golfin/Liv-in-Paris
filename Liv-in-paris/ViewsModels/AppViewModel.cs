@@ -43,17 +43,17 @@ namespace Liv_in_paris
             CurrentSubView = vue;
         }
 
-        public void NaviguerVersAccueil(User utilisateur, string role)
+        public void NaviguerVersAccueil(User user, string role)
         {
             if (role == "Client")
             {
                 var vue = new ClientView();
-                vue.DataContext = new ClientViewModel(this);
+                vue.DataContext = new ClientViewModel(this,user);
                 CurrentSubView = vue;
             }
             else if (role == "Cuisinier")
             {
-                var vue = new CuisinierView(utilisateur, this);
+                var vue = new CuisinierView(user, this);
                 CurrentSubView = vue;
             }
         }
@@ -61,7 +61,6 @@ namespace Liv_in_paris
 
         public void Deconnexion()
         {
-            // Redirection vers la page de connexion
             NavigateToLogin();
         }
 
