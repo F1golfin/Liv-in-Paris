@@ -12,6 +12,9 @@ public class Plat
     public byte[]? Photo { get; set; } // optionnel
     public ulong CuisinierId { get; set; }
     public ulong RecetteId { get; set; }
+    
+    public Recette Recette { get; set; }
+
     public ulong? CommandeId { get; set; }
 
     public void AjouterPlat(DatabaseManager database)
@@ -67,6 +70,8 @@ public class Plat
 
         foreach (DataRow row in table.Rows)
         {
+            Recette recette = Recette.GetById(db, Convert.ToUInt64(row["recette_id"]));
+
             plats.Add(new Plat
             {
                 PlatId = Convert.ToUInt64(row["plat_id"]),
@@ -78,11 +83,42 @@ public class Plat
                 Photo = row["photo"] == DBNull.Value ? null : (byte[])row["photo"],
                 CuisinierId = Convert.ToUInt64(row["cuisinier_id"]),
                 RecetteId = Convert.ToUInt64(row["recette_id"]),
-                CommandeId = row["commande_id"] == DBNull.Value ? null : Convert.ToUInt64(row["commande_id"])
+                CommandeId = row["commande_id"] == DBNull.Value ? null : Convert.ToUInt64(row["commande_id"]),
+                Recette = recette
+            });
+
+        }
+
+        return plats;
+    }
+    
+    public static List<Plat> GetAllByCuisinier(DatabaseManager db, ulong cuisinierId)
+    {
+        var plats = new List<Plat>();
+        var table = db.ExecuteQuery($"SELECT * FROM plats WHERE cuisinier_id = {cuisinierId};");
+
+        foreach (DataRow row in table.Rows)
+        {
+            Recette recette = Recette.GetById(db, Convert.ToUInt64(row["recette_id"]));
+
+            plats.Add(new Plat
+            {
+                PlatId = Convert.ToUInt64(row["plat_id"]),
+                NomPlat = row["nom_plat"].ToString(),
+                NbParts = Convert.ToInt32(row["nb_parts"]),
+                DateFabrication = Convert.ToDateTime(row["date_fabrication"]),
+                DatePeremption = Convert.ToDateTime(row["date_peremption"]),
+                PrixParPersonne = Convert.ToDecimal(row["prix_par_personne"]),
+                Photo = row["photo"] == DBNull.Value ? null : (byte[])row["photo"],
+                CuisinierId = Convert.ToUInt64(row["cuisinier_id"]),
+                RecetteId = Convert.ToUInt64(row["recette_id"]),
+                CommandeId = row["commande_id"] == DBNull.Value ? null : Convert.ToUInt64(row["commande_id"]),
+                Recette = recette
             });
         }
 
         return plats;
     }
+
 
 }

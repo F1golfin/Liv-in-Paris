@@ -32,6 +32,7 @@ public class LoginViewModel : ViewModelBase
         }
         try
         {
+            Console.WriteLine("🧪 Je vais me connecter avec le mot de passe : " + "root");
             var db = new DatabaseManager("localhost", "livin_paris", "root", "root"); // adapte selon ton user
 
             string query = $"SELECT * FROM users WHERE prenom = '{UserPrenom}' AND password = '{Password}'";
@@ -44,17 +45,30 @@ public class LoginViewModel : ViewModelBase
 
                 // Authentification réussie
                 var row = table.Rows[0];
+                var utilisateur = new User
+                {
+                    UserId = Convert.ToUInt64(row["user_id"]),
+                    Password = row["password"].ToString(),
+                    Role = row["role"].ToString(),
+                    Type = row["type"].ToString(),
+                    Email = row["email"].ToString(),
+                    Nom = row["nom"].ToString(),
+                    Prenom = row["prenom"].ToString(),
+                    Adresse = row["adresse"].ToString(),
+                    Telephone = row["telephone"].ToString(),
+                    Entreprise = row["entreprise"]?.ToString()
+                };
                 string role = row["role"].ToString();
                 Console.WriteLine($"✅ Connexion réussie en tant que {role}");
                 if (allRoles.Length > 1)
                 {
                     // Fenêtre ou menu de sélection
                     var selectedRole = ShowRoleSelectionPopup(allRoles); 
-                    RedirectUser(selectedRole);
+                    RedirectUser(utilisateur, selectedRole);
                 }
                 else
                 {
-                    RedirectUser(allRoles[0]);
+                    RedirectUser(utilisateur, allRoles[0]);
                 }
             }
             else
@@ -89,22 +103,11 @@ public class LoginViewModel : ViewModelBase
             return null;
     }
 
-    void RedirectUser(string role)
+    void RedirectUser(User utilisateur, string role)
     {
-        if (role == "Client")
-        {
-            var vue = new ClientView();
-            vue.DataContext = new ClientViewModel(_parent); // important
-            _parent.CurrentSubView = vue;
-        }
-        else if (role == "Cuisinier")
-        {
-            var vue = new CuisinierView();
-            vue.DataContext = new CuisinierViewModel(_parent); // important
-            _parent.CurrentSubView = vue;
-        }
-
+        _parent.NaviguerVersAccueil(utilisateur, role);
     }
+
 
 }
 

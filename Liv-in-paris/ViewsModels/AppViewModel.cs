@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Liv_in_paris.Core.Models;
 
 namespace Liv_in_paris
 {
@@ -42,7 +43,7 @@ namespace Liv_in_paris
             CurrentSubView = vue;
         }
 
-        public void NaviguerVersAccueil(string role)
+        public void NaviguerVersAccueil(User utilisateur, string role)
         {
             if (role == "Client")
             {
@@ -52,11 +53,11 @@ namespace Liv_in_paris
             }
             else if (role == "Cuisinier")
             {
-                var vue = new CuisinierView();
-                vue.DataContext = new CuisinierViewModel(this);
+                var vue = new CuisinierView(utilisateur, this);
                 CurrentSubView = vue;
             }
         }
+
 
         public void Deconnexion()
         {

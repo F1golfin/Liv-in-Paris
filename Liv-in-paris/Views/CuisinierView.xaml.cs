@@ -1,35 +1,14 @@
-﻿using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+﻿using System.Windows.Controls;
+using Liv_in_paris.Core.Models;
 
-namespace Liv_in_paris;
-
-public partial class CuisinierView : UserControl
+namespace Liv_in_paris
 {
-    public CuisinierView()
+    public partial class CuisinierView : UserControl
     {
-        InitializeComponent();
-        
-        
-    }
-    private void RemovePlaceholder(object sender, RoutedEventArgs e)
-    {
-        var tb = sender as TextBox;
-        if (tb != null && tb.Text == (string)tb.Tag)
+        public CuisinierView(User utilisateur, AppViewModel parent)
         {
-            tb.Text = "";
-            tb.Foreground = Brushes.Black;
+            InitializeComponent();
+            DataContext = new CuisinierViewModel(parent, utilisateur);
         }
     }
-
-    private void AddPlaceholder(object sender, RoutedEventArgs e)
-    {
-        var tb = sender as TextBox;
-        if (tb != null && string.IsNullOrWhiteSpace(tb.Text))
-        {
-            tb.Text = (string)tb.Tag;
-            tb.Foreground = Brushes.Gray;
-        }
-    }
-
 }
