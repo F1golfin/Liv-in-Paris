@@ -21,6 +21,8 @@ namespace Liv_in_paris
         public string NewPrixPlat { get; set; }
         public string NewTypePlat { get; set; }
         public Recette RecetteSelectionnee { get; set; }
+        
+        public ObservableCollection<Evaluation> EvaluationsRecues { get; set; }
 
         public ICommand AjouterPlatCommand { get; }
         public ICommand AjouterNouvelleRecetteCommand { get; }
@@ -51,6 +53,12 @@ namespace Liv_in_paris
             RecettesExistantes = new ObservableCollection<Recette>(Recette.GetAll(_db));
             OnPropertyChanged(nameof(Plats));
             OnPropertyChanged(nameof(RecettesExistantes));
+            
+            EvaluationsRecues = new ObservableCollection<Evaluation>(
+                Evaluation.GetByCuisinier(_db, _utilisateurConnecte.UserId)
+            );
+            OnPropertyChanged(nameof(EvaluationsRecues));
+
         }
 
         private void AjouterPlat()

@@ -83,10 +83,35 @@
                     </StackPanel>
 
                     <Button Content="Ajouter" Margin="5" Command="{Binding AjouterPlatCommand}" />
+                    <!-- Section des évaluations reçues -->
+                    <Separator Margin="0 20 0 20"/>
+                    <TextBlock Text="📝 Avis reçus" FontWeight="Bold" FontSize="16" Margin="0 0 0 10"/>
+
+                    <ItemsControl ItemsSource="{Binding EvaluationsRecues}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0 0 0 10">
+                                    <StackPanel>
+                                        <TextBlock Text="Note :" FontWeight="Bold"/>
+                                        <TextBlock Text="{Binding Note}"/>
+
+                                        <TextBlock Text="Commentaire :" FontWeight="Bold" Margin="0,5,0,0"/>
+                                        <TextBlock Text="{Binding Commentaire}"/>
+
+                                        <TextBlock Text="Date :" FontWeight="Bold" Margin="0,5,0,0"/>
+                                        <TextBlock Text="{Binding DateEvaluation}"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
                 </StackPanel>
             </StackPanel>
+            
         </ScrollViewer>
-
+        
+       
         <!-- DÉCONNEXION -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
             <Button Content="Se déconnecter"
