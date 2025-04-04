@@ -12,7 +12,11 @@ public class Plat
     public byte[]? Photo { get; set; } // optionnel
     public ulong CuisinierId { get; set; }
     public ulong RecetteId { get; set; }
-    
+    public List<string> StatutsDisponibles => new() { "Commandee", "Preparee", "En cours", "Livree", "Annulee" };
+
+    public string? StatutCommande { get; set; }
+    public DateTime? HeureLivraison { get; set; }
+
     public Recette Recette { get; set; }
 
     public ulong? CommandeId { get; set; }
@@ -101,6 +105,57 @@ public class Plat
         {
             Recette recette = Recette.GetById(db, Convert.ToUInt64(row["recette_id"]));
 
+            var plat = new Plat
+            {
+                PlatId = Convert.ToUInt64(row["plat_id"]),
+                NomPlat = row["nom_plat"].ToString(),
+                NbParts = Convert.ToInt32(row["nb_parts"]),
+                DateFabrication = Convert.ToDateTime(row["date_fabrication"]),
+                DatePeremption = Convert.ToDateTime(row["date_peremption"]),
+                PrixParPersonne = Convert.ToDecimal(row["prix_par_personne"]),
+                Photo = row["photo"] == DBNull.Value ? null : (byte[])row["photo"],
+                CuisinierId = Convert.ToUInt64(row["cuisinier_id"]),
+                RecetteId = Convert.ToUInt64(row["recette_id"]),
+                CommandeId = row["commande_id"] == DBNull.Value ? null : Convert.ToUInt64(row["commande_id"]),
+                Recette = recette
+            };
+
+            // ✅ Charger les infos de ligne_commande s’il y a une commande associée
+            if (plat.CommandeId != null)
+            {
+                var ligneTable = db.ExecuteQuery($@"
+                SELECT statut, heure_livraison 
+                FROM lignes_commandes 
+                WHERE commande_id = {plat.CommandeId}
+                ORDER BY ligne_commande_id DESC
+                LIMIT 1;
+            ");
+
+                if (ligneTable.Rows.Count > 0)
+                {
+                    plat.StatutCommande = ligneTable.Rows[0]["statut"].ToString();
+                    plat.HeureLivraison = ligneTable.Rows[0]["heure_livraison"] == DBNull.Value
+                        ? null
+                        : Convert.ToDateTime(ligneTable.Rows[0]["heure_livraison"]);
+                }
+            }
+
+            plats.Add(plat);
+        }
+
+        return plats;
+    }
+    
+    
+    public static List<Plat> GetByCommandeId(DatabaseManager db, ulong commandeId)
+    {
+        var plats = new List<Plat>();
+        var table = db.ExecuteQuery($"SELECT * FROM plats WHERE commande_id = {commandeId};");
+
+        foreach (DataRow row in table.Rows)
+        {
+            Recette recette = Recette.GetById(db, Convert.ToUInt64(row["recette_id"]));
+
             plats.Add(new Plat
             {
                 PlatId = Convert.ToUInt64(row["plat_id"]),
@@ -118,6 +173,28 @@ public class Plat
         }
 
         return plats;
+    }
+
+    public string Statut
+    {
+        get => StatutCommande ?? "Commandee"; // valeur par défaut
+        set => StatutCommande = value;
+    }
+
+    public void MettreAJourStatut(DatabaseManager db)
+    {
+        if (CommandeId == null) return;
+
+        // Mettre à jour la dernière ligne commande
+        string query = $@"
+        UPDATE lignes_commandes
+        SET statut = '{StatutCommande}'
+        WHERE commande_id = {CommandeId}
+        ORDER BY ligne_commande_id DESC
+        LIMIT 1;
+    ";
+
+        db.ExecuteNonQuery(query);
     }
 
 

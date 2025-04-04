@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Utils;
 using Liv_in_paris.Views;
 
 namespace Liv_in_paris
@@ -16,6 +17,7 @@ namespace Liv_in_paris
 
         public ObservableCollection<Plat> Plats { get; set; }
         public ObservableCollection<Recette> RecettesExistantes { get; set; }
+        public ICommand MettreAJourStatutCommand { get; }
 
         public string NewNomPlat { get; set; }
         public string NewPrixPlat { get; set; }
@@ -28,6 +30,7 @@ namespace Liv_in_paris
         public ICommand AjouterNouvelleRecetteCommand { get; }
         public ICommand DeconnexionCommand { get; }
 
+        
         public CuisinierViewModel(AppViewModel parent, User utilisateur)
         {
             _app = parent;
@@ -45,6 +48,12 @@ namespace Liv_in_paris
             DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
 
             ChargerDonnees();
+            MettreAJourStatutCommand = new RelayCommand<Plat>(plat =>
+            {
+                plat.MettreAJourStatut(_db); // met à jour en base
+                ChargerDonnees();            // recharge les données pour l’UI
+            });
+
         }
 
         private void ChargerDonnees()
@@ -58,6 +67,8 @@ namespace Liv_in_paris
                 Evaluation.GetByCuisinier(_db, _utilisateurConnecte.UserId)
             );
             OnPropertyChanged(nameof(EvaluationsRecues));
+
+            ChargerCommandes();
 
         }
 
@@ -97,5 +108,16 @@ namespace Liv_in_paris
             fenetre.ShowDialog();
             ChargerDonnees();
         }
+        
+        public ObservableCollection<Commande> Commandes { get; set; }
+
+        private void ChargerCommandes()
+        {
+            Commandes = new ObservableCollection<Commande>(
+                Commande.GetByCuisinier(_db, _utilisateurConnecte.UserId)
+            );
+            OnPropertyChanged(nameof(Commandes));
+        }
+
     }
 }
