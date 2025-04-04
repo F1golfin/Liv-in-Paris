@@ -9,6 +9,14 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ShowAccueilCommand { get; }
     public ICommand ShowMetroCommand { get; }
     public ICommand ShowAppCommand { get; }
+    
+    public ICommand ShowAdminCommand =>
+        new RelayCommand(() =>
+        {
+            var vue = new UtilisateursView();
+            vue.DataContext = new UtilisateursViewModel();
+            CurrentView = vue;
+        });
 
     private object _currentView;
     public object CurrentView
@@ -36,6 +44,7 @@ public class MainViewModel : INotifyPropertyChanged
         CurrentView = _accueilView;
     }
 
+    
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

@@ -20,6 +20,7 @@
             <Button Content="Accueil" Command="{Binding ShowAccueilCommand}" Margin="0 5"/>
             <Button Content="Métro de Paris" Command="{Binding ShowMetroCommand}" Margin="0 5"/>
             <Button Content="App" Command="{Binding ShowAppCommand}" Margin="0 5"/>
+            <Button Content="Utilisateurs" Command="{Binding ShowAdminCommand}" Margin="0 5"/>
         </StackPanel>
 
         <!-- CONTENU CHANGÉ DYNAMIQUEMENT -->
