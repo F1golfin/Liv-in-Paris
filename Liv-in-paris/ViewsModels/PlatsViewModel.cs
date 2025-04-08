@@ -7,11 +7,9 @@ using Liv_in_paris.Core.Models;
 public class PlatsViewModel : ViewModelBase
 {
     public ObservableCollection<Plat> Plats { get; set; } = new();
+    public ObservableCollection<User> Cuisiniers { get; set; } = new();
     
     private readonly ClientViewModel _clientVM;
-    
-
-    public ObservableCollection<User> Cuisiniers { get; set; } = new();
     private User _cuisinierSelectionne;
     public User CuisinierSelectionne
     {

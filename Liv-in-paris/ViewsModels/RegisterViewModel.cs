@@ -33,8 +33,6 @@ public class RegisterViewModel : ViewModelBase
 
     public void Register()
     {
-        // TODO: Ajouter utilisateur à la BDD
-
         if (string.IsNullOrWhiteSpace(NewNom) || string.IsNullOrWhiteSpace(NewPrenom) || string.IsNullOrWhiteSpace(NewPassword) || string.IsNullOrWhiteSpace(ConfirmPassword)
             || string.IsNullOrWhiteSpace(NewEmail) || string.IsNullOrWhiteSpace(NewAdresse) || string.IsNullOrWhiteSpace(NewTelephone) || string.IsNullOrWhiteSpace(SelectedType) || string.IsNullOrWhiteSpace(SelectedRole))
         {

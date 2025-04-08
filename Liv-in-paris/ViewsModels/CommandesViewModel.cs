@@ -78,11 +78,9 @@ public class CommandesViewModel : ViewModelBase
 
         Console.WriteLine($"✅ Commandes chargées : {CommandesClient.Count}");
     }
-
-
+    
     private void NoterCuisinier(CommandeAvecPlats commande)
     {
-        // Ouvrir une boîte de dialogue ou naviguer vers une vue de notation
         MessageBox.Show($"Tu veux noter {commande.CuisinierNom} pour la commande {commande.Commande.CommandeId}");
     }
     

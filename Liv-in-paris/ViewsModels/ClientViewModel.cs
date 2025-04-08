@@ -14,24 +14,11 @@ public class ClientViewModel : ViewModelBase
     public ICommand VoirPlatsCommand { get; }
     public ICommand VoirPanierCommand { get; }
     public ICommand VoirCommandesCommand { get; }
-    public ICommand PasserCommandeCommand => new RelayCommand(PasserCommande);
 
     private object _vueActive;
     private User _utilisateur;
     
-    public object VueActive
-    {
-        get => _vueActive;
-        set { _vueActive = value; OnPropertyChanged(); }
-    }
-    
-    public decimal PrixTotal
-    {
-        get => Panier.Sum(p => p.PrixParPersonne);
-    }
-    
     public ObservableCollection<Plat> Panier { get; set; } = new();
-    public ObservableCollection<CommandeAvecPlats> CommandesClient { get; set; } = new();
     
     public string UtilisateurLabel => $"Bonjour {_utilisateur.Prenom}";
     
@@ -45,10 +32,45 @@ public class ClientViewModel : ViewModelBase
         VoirCommandesCommand = new RelayCommand(AfficherCommandes);
         DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
         
-        AfficherPlats(); // vue par défaut
-        Panier.CollectionChanged += Panier_CollectionChanged;
+        ChargerDonnees();
     }
+    
+    public object VueActive
+    {
+        get => _vueActive;
+        set { _vueActive = value; OnPropertyChanged(); }
+    }
+    
+    public void ChargerDonnees()
+    {
+        switch (VueActive)
+        {
+            case PlatsView:
+                var platsView = new PlatsView();
+                platsView.DataContext = new PlatsViewModel(this);
+                VueActive = platsView;
+                break;
 
+            case PanierView:
+                var panierView = new PanierView();
+                panierView.DataContext = new PanierViewModel(Panier, _utilisateur, _app);
+                VueActive = panierView;
+                break;
+
+            case CommandesView:
+                var commandesView = new CommandesView();
+                commandesView.DataContext = new CommandesViewModel(_app, _utilisateur);
+                VueActive = commandesView;
+                break;
+
+            default:
+                var vue = new PlatsView();
+                vue.DataContext = new PlatsViewModel(this);
+                VueActive = vue;
+                break;
+        }
+    }
+    
     private void AfficherPlats()
     {
         var vue = new PlatsView();
@@ -66,7 +88,7 @@ public class ClientViewModel : ViewModelBase
     private void AfficherPanier()
     {
         var vue = new PanierView();
-        vue.DataContext = this;
+        vue.DataContext = new PanierViewModel(Panier, _utilisateur, _app);
         VueActive = vue;
     }
     
@@ -93,7 +115,7 @@ public class ClientViewModel : ViewModelBase
         if (!Panier.Contains(plat))
             Panier.Add(plat);
 
-        // Facultatif : retirer le plat de la liste visible
+        // Retirer le plat de la liste visible
         if (VueActive is PlatsView vue && vue.DataContext is PlatsViewModel platsVM)
         {
             platsVM.Plats.Remove(plat);
@@ -101,58 +123,5 @@ public class ClientViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(Panier));
     }
-    
-    public ICommand RetirerDuPanierCommand => new RelayCommand<Plat>(plat =>
-    {
-        Panier.Remove(plat);
-        OnPropertyChanged(nameof(Panier));
-    });
-    
-    private void Panier_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-    {
-        OnPropertyChanged(nameof(Panier));
-        OnPropertyChanged(nameof(PrixTotal));
-    }
-    
-    private void PasserCommande()
-    {
-        if (Panier.Count == 0)
-        {
-            MessageBox.Show("Votre panier est vide.");
-            return;
-        }
-
-        try
-        {
-            var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
-
-            // 1. Création de la commande
-            string insertCommande = $@"
-            INSERT INTO commandes (heure_commande, adresse_depart, prix_total, client_id, cuisinier_id)
-            VALUES (NOW(), 'Adresse factice', {PrixTotal.ToString().Replace(',', '.')}, {_utilisateur.UserId}, {Panier[0].CuisinierId});
-        ";
-
-            db.ExecuteNonQuery(insertCommande);
-
-            // 2. Récupération de l'ID de la commande insérée
-            var result = db.ExecuteQuery("SELECT LAST_INSERT_ID() AS id;");
-            int commandeId = Convert.ToInt32(result.Rows[0]["id"]);
-
-            // 3. Mise à jour des plats avec le nouvel ID de commande
-            foreach (var plat in Panier)
-            {
-                string update = $"UPDATE plats SET commande_id = {commandeId} WHERE plat_id = {plat.PlatId};";
-                db.ExecuteNonQuery(update);
-            }
-
-            MessageBox.Show("✅ Commande enregistrée !");
-            Panier.Clear();
-        }
-        catch (Exception ex)
-        {
-            MessageBox.Show("❌ Erreur lors de la commande : " + ex.Message);
-        }
-    }
-    
     
 }
