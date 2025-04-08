@@ -14,6 +14,7 @@ public class ClientViewModel : ViewModelBase
     public ICommand VoirPlatsCommand { get; }
     public ICommand VoirPanierCommand { get; }
     public ICommand VoirCommandesCommand { get; }
+    public ICommand ActualiserCommand { get; }
 
     private object _vueActive;
     private User _utilisateur;
@@ -30,6 +31,7 @@ public class ClientViewModel : ViewModelBase
         VoirPlatsCommand = new RelayCommand(AfficherPlats);
         VoirPanierCommand = new RelayCommand(AfficherPanier);
         VoirCommandesCommand = new RelayCommand(AfficherCommandes);
+        ActualiserCommand = new RelayCommand(ChargerDonnees);
         DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
         
         ChargerDonnees();
