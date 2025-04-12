@@ -12,7 +12,7 @@ public class CommandesViewModel : ViewModelBase
     private readonly AppViewModel _app;
     private readonly User _utilisateur;
 
-    public ObservableCollection<CommandeAvecPlats> CommandesClient { get; } = new();
+    public ObservableCollection<Commande> CommandesClient { get; set; } = new();
     public ICommand SupprimerCommandeCommand { get; }
     public ICommand NoterCuisinierCommand { get; }
 
@@ -21,8 +21,8 @@ public class CommandesViewModel : ViewModelBase
         _app = app;
         _utilisateur = utilisateur;
 
-        NoterCuisinierCommand = new RelayCommand<CommandeAvecPlats>(NoterCuisinier);
-        SupprimerCommandeCommand = new RelayCommand<CommandeAvecPlats>(SupprimerCommande);
+        NoterCuisinierCommand = new RelayCommand<Commande>(NoterCuisinier);
+        SupprimerCommandeCommand = new RelayCommand<Commande>(SupprimerCommande);
 
         ChargerCommandes();
     }
@@ -32,56 +32,21 @@ public class CommandesViewModel : ViewModelBase
         CommandesClient.Clear();
 
         var db = Database.Instance;
-        
-        string commandesQuery = $@"
-        SELECT * FROM commandes
-        WHERE client_id = {_utilisateur.UserId}
-        ORDER BY heure_commande DESC";
-
-        var table = db.ExecuteQuery(commandesQuery);
-
-        foreach (DataRow row in table.Rows)
+        foreach (Commande c in Commande.GetByClient(db, _utilisateur.UserId))
         {
-            Commande c = new Commande();
-            c.AjouterCommande(db);
-            var commande = new Commande
-            {
-                CommandeId = row["commande_id"] != DBNull.Value ? Convert.ToUInt64(row["commande_id"]) : 0,
-                HeureCommande = row["heure_commande"] != DBNull.Value ? Convert.ToDateTime(row["heure_commande"]) : DateTime.MinValue,
-                AdresseDepart = row["adresse_depart"] != DBNull.Value ? row["adresse_depart"].ToString() : "Adresse inconnue",
-                PrixTotal = row["prix_total"] != DBNull.Value ? Convert.ToDecimal(row["prix_total"]) : 0,
-                ClientId = row["client_id"] != DBNull.Value ? Convert.ToUInt64(row["client_id"]) : 0,
-                CuisinierId = row["cuisinier_id"] != DBNull.Value ? Convert.ToUInt64(row["cuisinier_id"]) : 0
-            };
-
-            var wrapper = new CommandeAvecPlats
-            {
-                Commande = commande,
-                // Pas encore de plats ni de statut
-                CuisinierNom = "Inconnu"
-            };
-            
-            List<Plat> plats = Plat.GetByCommandeId(db,commande.CommandeId);
-            
-            foreach (Plat p in plats)
-            {
-                wrapper.Plats.Add(p);
-            }
-
-            CommandesClient.Add(wrapper);
+            CommandesClient.Add(c);
         }
-
         Console.WriteLine($"Commandes chargées : {CommandesClient.Count}");
     }
     
-    private void NoterCuisinier(CommandeAvecPlats commande)
+    private void NoterCuisinier(Commande commande)
     {
-        MessageBox.Show($"Tu veux noter {commande.CuisinierNom} pour la commande {commande.Commande.CommandeId}");
+        MessageBox.Show($"Tu veux noter {commande.CuisinierId} pour la commande {commande.CommandeId}");
     }
     
-    private void SupprimerCommande(CommandeAvecPlats commandeAvecPlats)
+    private void SupprimerCommande(Commande commande)
     {
-        if (commandeAvecPlats == null) return;
+        if (commande == null) return;
 
         var result = MessageBox.Show("Voulez-vous vraiment supprimer cette commande ?", "Confirmation", MessageBoxButton.YesNo);
         if (result != MessageBoxResult.Yes) return;
@@ -89,12 +54,7 @@ public class CommandesViewModel : ViewModelBase
         try
         {
             var db = Database.Instance;
-            
-            string updatePlats = $"UPDATE plats SET commande_id = NULL WHERE commande_id = {commandeAvecPlats.Commande.CommandeId}";
-            db.ExecuteNonQuery(updatePlats);
-            
-            Commande.
-            CommandesClient.Remove(commandeAvecPlats);
+            commande.SupprimerCommande(db);
 
             MessageBox.Show("✅ Commande supprimée !");
         }
@@ -102,5 +62,7 @@ public class CommandesViewModel : ViewModelBase
         {
             MessageBox.Show("❌ Erreur lors de la suppression : " + ex.Message);
         }
+        
+        ChargerCommandes();
     }
 }

@@ -196,8 +196,6 @@ public class Graphe<T> where T : new()
         }
 
         return FaConnexe;
-
-        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -520,7 +518,8 @@ public class Graphe<T> where T : new()
         Console.Write("     ");
         foreach (int colonne in keys)
         {
-            Console.Write($"{colonne:000} "); //BUG: Revoir l'affichage de la matrice, noeud 1 avec le jeu de tests
+            //BUG: Revoir l'affichage de la matrice, noeud 1 avec le jeu de tests
+            Console.Write($"{colonne:000} ");
         }
         Console.WriteLine();
         

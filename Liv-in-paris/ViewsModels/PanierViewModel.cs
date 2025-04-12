@@ -55,6 +55,7 @@ public class PanierViewModel : INotifyPropertyChanged
                 HeureCommande = DateTime.Now,
                 PrixTotal = PrixTotal,
                 CuisinierId = Panier.First().CuisinierId,
+                ClientId = _utilisateur.UserId,
                 AdresseArrivee = _utilisateur.Adresse,
                 Plats = _panier.ToList()
             };

@@ -205,13 +205,26 @@ public class Plat
         return plats;
     }
 
-    public void AffecterCommande(DatabaseManager db, ulong commandeId)
+    public void AffecterCommande(DatabaseManager db, ulong cId)
     {
-        this.CommandeId = commandeId;
+        CommandeId = cId;
 
         string query = $@"
         UPDATE plats 
-        SET commande_id = {commandeId}
+        SET commande_id = {cId}
+        WHERE plat_id = {PlatId};
+    ";
+
+        db.ExecuteNonQuery(query);
+    }
+    
+    public void RetirerCommande(DatabaseManager db)
+    {
+        CommandeId = null;
+
+        string query = $@"
+        UPDATE plats 
+        SET commande_id = NULL
         WHERE plat_id = {PlatId};
     ";
 
