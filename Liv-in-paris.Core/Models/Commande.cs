@@ -37,6 +37,25 @@ namespace Liv_in_paris.Core.Models
     ";
 
             database.ExecuteNonQuery(query);
+            
+            //Actualiser plats
+            var result = database.ExecuteQuery("SELECT LAST_INSERT_ID() AS id;");
+            ulong cId = Convert.ToUInt64(result.Rows[0]["id"]);
+
+            foreach (Plat plat in Plats)
+            {
+                plat.AffecterCommande(database, cId);
+            }
+            
+            // Ligne de commande
+            LigneCommande lc = new LigneCommande
+            {
+                AdresseArrivee = AdresseArrivee,
+                Statut = "Commandee",
+                CommandeId = cId
+            };
+            
+            lc.AjouterCommande(database);
         }
 
 
@@ -57,7 +76,9 @@ namespace Liv_in_paris.Core.Models
 
         public void SupprimerCommande(DatabaseManager database)
         {
-            string query = $"DELETE FROM commandes WHERE commande_id = {CommandeId};";
+            string query = $"DELETE FROM lignes_commandes WHERE commande_id = {CommandeId}";
+            database.ExecuteNonQuery(query);
+            query = $"DELETE FROM commandes WHERE commande_id = {CommandeId};";
             database.ExecuteNonQuery(query);
         }
 
@@ -103,8 +124,8 @@ namespace Liv_in_paris.Core.Models
                 {
                     CommandeId = Convert.ToUInt64(row["commande_id"]),
                     HeureCommande = Convert.ToDateTime(row["heure_commande"]),
-                    AdresseDepart = row["adresse_cuisinier"]?.ToString(),  // 👍 cuisinier
-                    AdresseArrivee = row["adresse_client"]?.ToString(),     // 👍 client
+                    AdresseDepart = row["adresse_cuisinier"].ToString(),
+                    AdresseArrivee = row["adresse_client"].ToString(),
                     PrixTotal = Convert.ToDecimal(row["prix_total"]),
                     ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                     CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),

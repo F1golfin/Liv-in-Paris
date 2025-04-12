@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
@@ -47,24 +48,17 @@ public class PanierViewModel : INotifyPropertyChanged
 
         try
         {
-            var cuisinierId = Panier.First().CuisinierId;
-            var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
-
-            string insertCommande = $@"
-                INSERT INTO commandes (heure_commande, adresse_depart, prix_total, client_id, cuisinier_id)
-                VALUES (NOW(), 'Adresse factice', {PrixTotal.ToString().Replace(',', '.')}, {_utilisateur.UserId}, {cuisinierId});";
-
-            db.ExecuteNonQuery(insertCommande);
-
-            var result = db.ExecuteQuery("SELECT LAST_INSERT_ID() AS id;");
-            int commandeId = Convert.ToInt32(result.Rows[0]["id"]);
-
-            foreach (var plat in Panier)
+            var db = Database.Instance;
+            
+            Commande commande = new Commande
             {
-                string update = $"UPDATE plats SET commande_id = {commandeId} WHERE plat_id = {plat.PlatId};";
-                db.ExecuteNonQuery(update);
-            }
-
+                HeureCommande = DateTime.Now,
+                PrixTotal = PrixTotal,
+                CuisinierId = Panier.First().CuisinierId,
+                AdresseArrivee = _utilisateur.Adresse,
+                Plats = _panier.ToList()
+            };
+            commande.AjouterCommande(db);
             MessageBox.Show("✅ Commande enregistrée !");
             Panier.Clear();
         }

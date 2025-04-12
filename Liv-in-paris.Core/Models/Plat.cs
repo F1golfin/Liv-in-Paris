@@ -146,6 +146,36 @@ public class Plat
         return plats;
     }
     
+    public static List<Plat> GetDisponibles(DatabaseManager db, ulong? cuisinierId = null)
+    {
+        string query = "SELECT * FROM plats WHERE commande_id IS NULL";
+        if (cuisinierId != null)
+            query += $" AND cuisinier_id = {cuisinierId}";
+
+        var table = db.ExecuteQuery(query);
+        var plats = new List<Plat>();
+
+        foreach (DataRow row in table.Rows)
+        {
+            Recette recette = Recette.GetById(db, Convert.ToUInt64(row["recette_id"]));
+            plats.Add(new Plat
+            {
+                PlatId = Convert.ToUInt64(row["plat_id"]),
+                NomPlat = row["nom_plat"].ToString(),
+                NbParts = Convert.ToInt32(row["nb_parts"]),
+                DateFabrication = Convert.ToDateTime(row["date_fabrication"]),
+                DatePeremption = Convert.ToDateTime(row["date_peremption"]),
+                PrixParPersonne = Convert.ToDecimal(row["prix_par_personne"]),
+                Photo = row["photo"] == DBNull.Value ? null : (byte[])row["photo"],
+                CuisinierId = Convert.ToUInt64(row["cuisinier_id"]),
+                RecetteId = Convert.ToUInt64(row["recette_id"]),
+                CommandeId = row["commande_id"] == DBNull.Value ? null : Convert.ToUInt64(row["commande_id"]),
+                Recette = recette
+            });
+        }
+
+        return plats;
+    }
     
     public static List<Plat> GetByCommandeId(DatabaseManager db, ulong commandeId)
     {
@@ -175,6 +205,19 @@ public class Plat
         return plats;
     }
 
+    public void AffecterCommande(DatabaseManager db, ulong commandeId)
+    {
+        this.CommandeId = commandeId;
+
+        string query = $@"
+        UPDATE plats 
+        SET commande_id = {commandeId}
+        WHERE plat_id = {PlatId};
+    ";
+
+        db.ExecuteNonQuery(query);
+    }
+    
     public string Statut
     {
         get => StatutCommande ?? "Commandee"; // valeur par défaut

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 using Liv_in_paris.Core.Utils;
 using Liv_in_paris.Views;
 
@@ -12,7 +13,6 @@ namespace Liv_in_paris
     public class CuisinierViewModel : ViewModelBase
     {
         private readonly AppViewModel _app;
-        private readonly DatabaseManager _db;
         private readonly User _utilisateurConnecte;
 
         public ObservableCollection<Plat> Plats { get; set; }
@@ -35,8 +35,7 @@ namespace Liv_in_paris
         {
             _app = parent;
             _utilisateurConnecte = utilisateur;
-            _db = new DatabaseManager("localhost", "livin_paris", "root", "root");
-
+            
             if (!_utilisateurConnecte.Role.ToLower().Contains("cuisinier"))
             {
                 MessageBox.Show("Accès réservé aux cuisiniers.");
@@ -47,10 +46,11 @@ namespace Liv_in_paris
             AjouterNouvelleRecetteCommand = new RelayCommand(AjouterNouvelleRecette);
             DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
 
+            var db = Database.Instance;
             ChargerDonnees();
             MettreAJourStatutCommand = new RelayCommand<Plat>(plat =>
             {
-                plat.MettreAJourStatut(_db); // met à jour en base
+                plat.MettreAJourStatut(db); // met à jour en base
                 ChargerDonnees();            // recharge les données pour l’UI
             });
 
@@ -58,13 +58,15 @@ namespace Liv_in_paris
 
         private void ChargerDonnees()
         {
-            Plats = new ObservableCollection<Plat>(Plat.GetAllByCuisinier(_db, _utilisateurConnecte.UserId));
-            RecettesExistantes = new ObservableCollection<Recette>(Recette.GetAll(_db));
+            var db = Database.Instance;
+            
+            Plats = new ObservableCollection<Plat>(Plat.GetAllByCuisinier(db, _utilisateurConnecte.UserId));
+            RecettesExistantes = new ObservableCollection<Recette>(Recette.GetAll(db));
             OnPropertyChanged(nameof(Plats));
             OnPropertyChanged(nameof(RecettesExistantes));
             
             EvaluationsRecues = new ObservableCollection<Evaluation>(
-                Evaluation.GetByCuisinier(_db, _utilisateurConnecte.UserId)
+                Evaluation.GetByCuisinier(db, _utilisateurConnecte.UserId)
             );
             OnPropertyChanged(nameof(EvaluationsRecues));
 
@@ -86,6 +88,7 @@ namespace Liv_in_paris
                 return;
             }
 
+            var db = Database.Instance;
             var nouveauPlat = new Plat
             {
                 NomPlat = NewNomPlat,
@@ -97,7 +100,7 @@ namespace Liv_in_paris
                 RecetteId = RecetteSelectionnee?.RecetteId ?? 0
             };
 
-            nouveauPlat.AjouterPlat(_db);
+            nouveauPlat.AjouterPlat(db);
             MessageBox.Show("Plat ajouté !");
             ChargerDonnees();
         }
@@ -113,8 +116,9 @@ namespace Liv_in_paris
 
         private void ChargerCommandes()
         {
+            var db = Database.Instance;
             Commandes = new ObservableCollection<Commande>(
-                Commande.GetByCuisinier(_db, _utilisateurConnecte.UserId)
+                Commande.GetByCuisinier(db, _utilisateurConnecte.UserId)
             );
             OnPropertyChanged(nameof(Commandes));
         }

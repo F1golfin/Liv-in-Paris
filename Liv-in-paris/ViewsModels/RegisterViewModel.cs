@@ -1,6 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
@@ -67,7 +68,7 @@ public class RegisterViewModel : ViewModelBase
     
         try
         {
-            DatabaseManager db = new DatabaseManager("localhost", "livin_paris", "root", "root"); // Modifier les paramètres si nécessaire
+            var db = Database.Instance;
             newUser.CreerUser(db);
         
             Console.WriteLine($"Compte créé pour {NewNom}");

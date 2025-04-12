@@ -3,6 +3,7 @@ using System.Data;
 using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
@@ -12,8 +13,7 @@ public class CommandesViewModel : ViewModelBase
     private readonly User _utilisateur;
 
     public ObservableCollection<CommandeAvecPlats> CommandesClient { get; } = new();
-    public ICommand SupprimerCommandeCommand => new RelayCommand<CommandeAvecPlats>(SupprimerCommande);
-
+    public ICommand SupprimerCommandeCommand { get; }
     public ICommand NoterCuisinierCommand { get; }
 
     public CommandesViewModel(AppViewModel app, User utilisateur)
@@ -22,6 +22,7 @@ public class CommandesViewModel : ViewModelBase
         _utilisateur = utilisateur;
 
         NoterCuisinierCommand = new RelayCommand<CommandeAvecPlats>(NoterCuisinier);
+        SupprimerCommandeCommand = new RelayCommand<CommandeAvecPlats>(SupprimerCommande);
 
         ChargerCommandes();
     }
@@ -29,9 +30,9 @@ public class CommandesViewModel : ViewModelBase
     public void ChargerCommandes()
     {
         CommandesClient.Clear();
-        var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
 
-        // 🔁 Requête pour récupérer uniquement les commandes du client
+        var db = Database.Instance;
+        
         string commandesQuery = $@"
         SELECT * FROM commandes
         WHERE client_id = {_utilisateur.UserId}
@@ -41,6 +42,8 @@ public class CommandesViewModel : ViewModelBase
 
         foreach (DataRow row in table.Rows)
         {
+            Commande c = new Commande();
+            c.AjouterCommande(db);
             var commande = new Commande
             {
                 CommandeId = row["commande_id"] != DBNull.Value ? Convert.ToUInt64(row["commande_id"]) : 0,
@@ -58,25 +61,17 @@ public class CommandesViewModel : ViewModelBase
                 CuisinierNom = "Inconnu"
             };
             
-            var platsTable = db.ExecuteQuery($"SELECT * FROM plats WHERE commande_id = {commande.CommandeId}");
-
-            foreach (DataRow platRow in platsTable.Rows)
+            List<Plat> plats = Plat.GetByCommandeId(db,commande.CommandeId);
+            
+            foreach (Plat p in plats)
             {
-                var plat = new Plat
-                {
-                    PlatId = Convert.ToUInt64(platRow["plat_id"]),
-                    NomPlat = platRow["nom_plat"].ToString(),
-                    NbParts = Convert.ToInt32(platRow["nb_parts"]),
-                    PrixParPersonne = Convert.ToDecimal(platRow["prix_par_personne"])
-                };
-
-                wrapper.Plats.Add(plat);
+                wrapper.Plats.Add(p);
             }
 
             CommandesClient.Add(wrapper);
         }
 
-        Console.WriteLine($"✅ Commandes chargées : {CommandesClient.Count}");
+        Console.WriteLine($"Commandes chargées : {CommandesClient.Count}");
     }
     
     private void NoterCuisinier(CommandeAvecPlats commande)
@@ -93,16 +88,12 @@ public class CommandesViewModel : ViewModelBase
 
         try
         {
-            var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
+            var db = Database.Instance;
             
             string updatePlats = $"UPDATE plats SET commande_id = NULL WHERE commande_id = {commandeAvecPlats.Commande.CommandeId}";
             db.ExecuteNonQuery(updatePlats);
             
-            string deleteLigne = $"DELETE FROM lignes_commandes WHERE commande_id = {commandeAvecPlats.Commande.CommandeId}";
-            db.ExecuteNonQuery(deleteLigne);
-            
-            string deleteCommande = $"DELETE FROM commandes WHERE commande_id = {commandeAvecPlats.Commande.CommandeId}";
-            db.ExecuteNonQuery(deleteCommande);
+            Commande.
             CommandesClient.Remove(commandeAvecPlats);
 
             MessageBox.Show("✅ Commande supprimée !");
