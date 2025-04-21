@@ -36,28 +36,25 @@ CREATE TABLE regime_alimentaire
     regime VARCHAR(50) UNIQUE NOT NULL
 );
 
-CREATE TABLE possede
-(
-    recette_id BIGINT,
-    regime_id BIGINT,
-    PRIMARY KEY(recette_id, regime_id),
-    FOREIGN KEY(recette_id) REFERENCES recettes(recette_id),
-    FOREIGN KEY(regime_id) REFERENCES regime_alimentaire(regime_id)
-);
-
-
 CREATE TABLE recettes
 (
     recette_id         BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nom_recette        VARCHAR(100)                                 NOT NULL,
     type               ENUM ('Entrée', 'Plat Principal', 'Dessert') NOT NULL,
     ingredients        TEXT                                         NOT NULL,
-    style_cuisine      VARCHAR(50)                                  NOT NULL, -- ENUM ?
-    regime_id          BIGINT UNSIGNED,                                           
+    style_cuisine      VARCHAR(50)                                  NOT NULL, -- ENUM ?                                  
     parent_recette_id  BIGINT UNSIGNED UNIQUE,
 
-    FOREIGN KEY (regime_id) REFERENCES regime_alimentaire (regime_id) 
     FOREIGN KEY (parent_recette_id) REFERENCES recettes (recette_id) ON DELETE SET NULL
+);
+
+CREATE TABLE respecte
+(
+    recette_id BIGINT UNSIGNED,
+    regime_id BIGINT UNSIGNED,
+    PRIMARY KEY(recette_id, regime_id),
+    FOREIGN KEY(recette_id) REFERENCES recettes(recette_id),
+    FOREIGN KEY(regime_id) REFERENCES regime_alimentaire(regime_id)
 );
 
 CREATE TABLE lignes_commandes

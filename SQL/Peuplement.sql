@@ -33,13 +33,13 @@ VALUES
     ('Régime méditerranéen');
 
 -- 🍽️ Recettes
-INSERT INTO recettes (nom_recette, type, ingredients, style_cuisine, regime_id, parent_recette_id) VALUES
-                                                                                                       ('Salade de quinoa', 'Entrée', 'quinoa, concombre, tomate, citron, huile d’olive', 'Méditerranéenne', 1, NULL), -- Végétarien
-                                                                                                       ('Tacos végan', 'Plat Principal', 'galette maïs, haricots noirs, avocat, tofu, épices', 'Mexicaine', 2, NULL), -- Végan
-                                                                                                       ('Poulet Tikka Masala', 'Plat Principal', 'poulet, yaourt, épices, tomate, ail, gingembre', 'Indienne', 5, NULL), -- Halal
-                                                                                                       ('Gâteau sans gluten', 'Dessert', 'farine de riz, œuf, sucre, chocolat, beurre', 'Française', 3, NULL), -- Sans gluten
-                                                                                                       ('Soupe miso', 'Entrée', 'bouillon miso, tofu, algues, oignons verts', 'Japonaise', 2, NULL), -- Végan
-                                                                                                       ('Saumon vapeur citron', 'Plat Principal', 'saumon, citron, aneth, sel', 'Nordique', 7, NULL); -- Pescetarien
+INSERT INTO recettes (nom_recette, type, ingredients, style_cuisine, parent_recette_id) VALUES
+                                                                                                       ('Salade de quinoa', 'Entrée', 'quinoa, concombre, tomate, citron, huile d’olive', 'Méditerranéenne', NULL), -- Végétarien
+                                                                                                       ('Tacos végan', 'Plat Principal', 'galette maïs, haricots noirs, avocat, tofu, épices', 'Mexicaine', NULL), -- Végan
+                                                                                                       ('Poulet Tikka Masala', 'Plat Principal', 'poulet, yaourt, épices, tomate, ail, gingembre', 'Indienne', NULL), -- Halal
+                                                                                                       ('Gâteau sans gluten', 'Dessert', 'farine de riz, œuf, sucre, chocolat, beurre', 'Française', NULL), -- Sans gluten
+                                                                                                       ('Soupe miso', 'Entrée', 'bouillon miso, tofu, algues, oignons verts', 'Japonaise', NULL), -- Végan
+                                                                                                       ('Saumon vapeur citron', 'Plat Principal', 'saumon, citron, aneth, sel', 'Nordique', NULL); -- Pescetarien
 
 INSERT INTO possede (recette_id, regime_id) VALUES
                                                 (1, 1), -- Salade de quinoa → Végétarien

@@ -8,43 +8,59 @@ public class Recette
     public string Type { get; set; } 
     public string Ingredients { get; set; }
     public int StyleCuisine { get; set; } 
-    public string? RegimeAlimentaire { get; set; }
     public ulong? ParentRecetteId { get; set; }
+    
+    public List<ulong> RegimeIds { get; set; } = new();
 
     public void AjouterRecette(DatabaseManager database)
     {
         string query = $@"
         INSERT INTO recettes (
-            nom_recette, type, ingredients, style_cuisine, regime_alimentaire, parent_recette_id
+            nom_recette, type, ingredients, style_cuisine, parent_recette_id
         ) VALUES (
             '{NomRecette}',
             '{Type}',
             '{Ingredients}',
             {StyleCuisine},
-            {(RegimeAlimentaire != null ? $"'{RegimeAlimentaire}'" : "NULL")},
             {(ParentRecetteId != null ? ParentRecetteId.ToString() : "NULL")}
         );
     ";
         database.ExecuteNonQuery(query);
+        
+        ulong recetteId = Convert.ToUInt64(database.ExecuteQuery("SELECT LAST_INSERT_ID();"));
+        foreach (ulong regimeId in RegimeIds)
+        {
+            Respecte.Ajouter(database, recetteId, regimeId);
+        }
         
     }
 
     public void ModifierRecette(DatabaseManager database)
     {
         string query = $@"
-            UPDATE users SET
-               nom_recette = '{NomRecette}',
-               type = '{Type}',
-               ingredients = '{Ingredients}',
-               style_cuisine = {StyleCuisine},
-               regime_alimentaire = '{RegimeAlimentaire}',
-               parent_recette_id = {ParentRecetteId},
+            UPDATE recettes SET
+                nom_recette = '{NomRecette}',
+                type = '{Type}',
+                ingredients = '{Ingredients}',
+                style_cuisine = {StyleCuisine},
+                parent_recette_id = {(ParentRecetteId != null ? ParentRecetteId.ToString() : "NULL")}
             WHERE recette_id = {RecetteId};
         ";
+
         database.ExecuteNonQuery(query);
+
+        Respecte.SupprimerParRecette(database, RecetteId);
+        
+        foreach (ulong regimeId in RegimeIds)
+        {
+            Respecte.Ajouter(database, RecetteId, regimeId);
+        }
     }
+    
     public void SupprimerRecette(DatabaseManager database)
     {
+        Respecte.SupprimerParRecette(database, RecetteId);
+
         string query = $"DELETE FROM recettes WHERE recette_id = {RecetteId};";
         database.ExecuteNonQuery(query);
     }
@@ -56,16 +72,20 @@ public class Recette
 
         foreach (DataRow row in table.Rows)
         {
-            recettes.Add(new Recette
+            var recetteId = Convert.ToUInt64(row["recette_id"]);
+
+            var recette = new Recette
             {
-                RecetteId = Convert.ToUInt64(row["recette_id"]),
+                RecetteId = recetteId,
                 NomRecette = row["nom_recette"].ToString(),
                 Type = row["type"].ToString(),
                 Ingredients = row["ingredients"].ToString(),
                 StyleCuisine = Convert.ToInt32(row["style_cuisine"]),
-                RegimeAlimentaire = row["regime_alimentaire"]?.ToString(),
-                ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"])
-            });
+                ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
+                RegimeIds = Respecte.ObtenirRegimesParRecette(db, recetteId)
+            };
+
+            recettes.Add(recette);
         }
 
         return recettes;
@@ -73,7 +93,7 @@ public class Recette
 
     public static Recette GetById(DatabaseManager db, ulong id)
     {
-        var table = db.ExecuteQuery($"SELECT * FROM recettes WHERE recette_id = {id} LIMIT 1");
+        var table = db.ExecuteQuery($"SELECT * FROM recettes WHERE recette_id = {id} LIMIT 1;");
 
         if (table.Rows.Count == 0)
             return null;
@@ -87,10 +107,8 @@ public class Recette
             Type = row["type"].ToString(),
             Ingredients = row["ingredients"].ToString(),
             StyleCuisine = Convert.ToInt32(row["style_cuisine"]),
-            RegimeAlimentaire = row["regime_alimentaire"]?.ToString(),
-            ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"])
+            ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
+            RegimeIds = Respecte.ObtenirRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
         };
     }
-
-
 }

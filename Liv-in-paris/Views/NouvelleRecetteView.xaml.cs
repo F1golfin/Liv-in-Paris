@@ -41,7 +41,7 @@ public partial class NouvelleRecetteWindow : Window
             Type = ((ComboBoxItem)TypeComboBox.SelectedItem).Content.ToString(),
             Ingredients = IngredientsTextBox.Text,
             StyleCuisine = style,
-            RegimeAlimentaire = string.IsNullOrWhiteSpace(RegimeTextBox.Text) ? null : RegimeTextBox.Text
+            // RegimeAlimentaire = string.IsNullOrWhiteSpace(RegimeTextBox.Text) ? null : RegimeTextBox.Text
         };
 
 
