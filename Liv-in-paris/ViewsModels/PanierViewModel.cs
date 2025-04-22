@@ -10,32 +10,34 @@ namespace Liv_in_paris;
 
 public class PanierViewModel : INotifyPropertyChanged
 {
-    private readonly ObservableCollection<Plat> _panier;
     private readonly User _utilisateur;
     private readonly AppViewModel _app;
 
-    public ObservableCollection<Plat> Panier => _panier;
+    private readonly ObservableCollection<PlatCommandeViewModel> _panier;
+    public ObservableCollection<PlatCommandeViewModel> Panier => _panier;
 
-    public decimal PrixTotal => Panier.Sum(p => p.PrixParPersonne);
+    public decimal PrixTotal => Panier.Sum(p => p.Plat.PrixParPersonne);
 
     public ICommand RetirerDuPanierCommand { get; }
     public ICommand PasserCommandeCommand { get; }
 
     public PanierViewModel(ObservableCollection<Plat> panier, User utilisateur, AppViewModel app)
     {
-        _panier = panier;
         _utilisateur = utilisateur;
         _app = app;
 
-        RetirerDuPanierCommand = new RelayCommand<Plat>(RetirerDuPanier);
+        _panier = new ObservableCollection<PlatCommandeViewModel>(
+            panier.Select(p => new PlatCommandeViewModel(p, utilisateur.Adresse)));
+
+        RetirerDuPanierCommand = new RelayCommand<PlatCommandeViewModel>(RetirerDuPanier);
         PasserCommandeCommand = new RelayCommand(PasserCommande);
 
         _panier.CollectionChanged += (_, _) => OnPropertyChanged(nameof(PrixTotal));
     }
 
-    private void RetirerDuPanier(Plat plat)
+    private void RetirerDuPanier(PlatCommandeViewModel platVM)
     {
-        Panier.Remove(plat);
+        Panier.Remove(platVM);
     }
 
     private void PasserCommande()
@@ -54,9 +56,9 @@ public class PanierViewModel : INotifyPropertyChanged
             {
                 HeureCommande = DateTime.Now,
                 PrixTotal = PrixTotal,
-                CuisinierId = Panier.First().CuisinierId,
+                CuisinierId = Panier.First().Plat.CuisinierId,
                 ClientId = _utilisateur.UserId,
-                AdresseDepart = Commande.GetAdresseUser(db, Panier.First().CuisinierId),
+                AdresseDepart = Commande.GetAdresseUser(db, Panier.First().Plat.CuisinierId),
                 Lignes = new List<LigneCommande>()
             };
 
@@ -64,9 +66,9 @@ public class PanierViewModel : INotifyPropertyChanged
             {
                 commande.Lignes.Add(new LigneCommande
                 {
-                    PlatId = plat.PlatId,
-                    AdresseArrivee = _utilisateur.Adresse, // Par défaut, adresse du client
-                    HeureLivraison = DateTime.Now.AddHours(2), // Par défaut : 2h après la commande
+                    PlatId = plat.Plat.PlatId,
+                    AdresseArrivee = plat.AdresseLivraison,
+                    HeureLivraison = plat.HeureLivraison,
                     Statut = "Commandee"
                 });
             }

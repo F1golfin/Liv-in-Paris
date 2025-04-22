@@ -77,9 +77,9 @@ CREATE TABLE lignes_commandes
 (
     ligne_commande_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     heure_livraison   DATETIME,
-    adresse_arrivee   TEXT                                                            NOT NULL,
-    statut            ENUM ('Commandee', 'Preparee', 'En cours', 'Livree', 'Annulee') NOT NULL,
-    commande_id       BIGINT UNSIGNED                                                 NOT NULL,
+    adresse_arrivee   TEXT,
+    statut            ENUM ('Panier','Commandee', 'Preparee', 'En cours', 'Livree', 'Annulee') NOT NULL,
+    commande_id       BIGINT UNSIGNED,
     plat_id           BIGINT UNSIGNED UNIQUE                                          NOT NULL,
 
     FOREIGN KEY (commande_id) REFERENCES commandes (commande_id),

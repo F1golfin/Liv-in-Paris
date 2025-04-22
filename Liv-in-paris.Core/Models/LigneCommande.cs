@@ -55,6 +55,7 @@ public class LigneCommande
 
         foreach (DataRow row in table.Rows)
         {
+            ulong platId = Convert.ToUInt64(row["plat_id"]);
             lignes.Add(new LigneCommande
             {
                 LigneCommandeId = Convert.ToUInt64(row["ligne_commande_id"]),
@@ -62,7 +63,8 @@ public class LigneCommande
                 AdresseArrivee = row["adresse_arrivee"].ToString(),
                 Statut = row["statut"].ToString(),
                 CommandeId = Convert.ToUInt64(row["commande_id"]),
-                PlatId = Convert.ToUInt64(row["plat_id"])
+                PlatId = platId,
+                Plat = Plat.GetById(db, platId)
             });
         }
 
@@ -76,6 +78,7 @@ public class LigneCommande
 
         foreach (DataRow row in table.Rows)
         {
+            ulong platId = Convert.ToUInt64(row["plat_id"]);
             lignes.Add(new LigneCommande
             {
                 LigneCommandeId = Convert.ToUInt64(row["ligne_commande_id"]),
@@ -83,7 +86,8 @@ public class LigneCommande
                 AdresseArrivee = row["adresse_arrivee"].ToString(),
                 Statut = row["statut"].ToString(),
                 CommandeId = Convert.ToUInt64(row["commande_id"]),
-                PlatId = Convert.ToUInt64(row["plat_id"])
+                PlatId = platId,
+                Plat = Plat.GetById(db, platId)
             });
         }
 
