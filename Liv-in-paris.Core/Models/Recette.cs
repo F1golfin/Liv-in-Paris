@@ -7,7 +7,7 @@ public class Recette
     public string NomRecette { get; set; }
     public string Type { get; set; } 
     public string Ingredients { get; set; }
-    public int StyleCuisine { get; set; } 
+    public string StyleCuisine { get; set; } 
     public ulong? ParentRecetteId { get; set; }
     
     public List<ulong> RegimeIds { get; set; } = new();
@@ -80,7 +80,7 @@ public class Recette
                 NomRecette = row["nom_recette"].ToString(),
                 Type = row["type"].ToString(),
                 Ingredients = row["ingredients"].ToString(),
-                StyleCuisine = Convert.ToInt32(row["style_cuisine"]),
+                StyleCuisine = row["style_cuisine"].ToString(),
                 ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
                 RegimeIds = Respecte.ObtenirRegimesParRecette(db, recetteId)
             };
@@ -106,7 +106,7 @@ public class Recette
             NomRecette = row["nom_recette"].ToString(),
             Type = row["type"].ToString(),
             Ingredients = row["ingredients"].ToString(),
-            StyleCuisine = Convert.ToInt32(row["style_cuisine"]),
+            StyleCuisine = row["style_cuisine"].ToString(),
             ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
             RegimeIds = Respecte.ObtenirRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
         };

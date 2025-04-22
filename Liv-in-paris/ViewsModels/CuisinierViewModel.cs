@@ -50,7 +50,7 @@ namespace Liv_in_paris
             ChargerDonnees();
             MettreAJourStatutCommand = new RelayCommand<Plat>(plat =>
             {
-                plat.MettreAJourStatut(db); // met à jour en base
+                //plat.MettreAJourStatut(db); // met à jour en base
                 ChargerDonnees();            // recharge les données pour l’UI
             });
 

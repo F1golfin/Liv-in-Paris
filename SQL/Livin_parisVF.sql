@@ -57,17 +57,6 @@ CREATE TABLE respecte
     FOREIGN KEY(regime_id) REFERENCES regime_alimentaire(regime_id)
 );
 
-CREATE TABLE lignes_commandes
-(
-    ligne_commande_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    heure_livraison   DATETIME,
-    adresse_arrivee   TEXT                                                            NOT NULL,
-    statut            ENUM ('Commandee', 'Preparee', 'En cours', 'Livree', 'Annulee') NOT NULL,
-    commande_id       BIGINT UNSIGNED                                                 NOT NULL,
-
-    FOREIGN KEY (commande_id) REFERENCES commandes (commande_id)
-);
-
 CREATE TABLE plats
 (
     plat_id           BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -79,11 +68,22 @@ CREATE TABLE plats
     photo             LONGBLOB,
     cuisinier_id      BIGINT UNSIGNED NOT NULL,
     recette_id        BIGINT UNSIGNED NOT NULL,
-    ligne_commande_id       BIGINT UNSIGNED, -- Null si le plat n'a pas été commandé
 
     FOREIGN KEY (cuisinier_id) REFERENCES users (user_id),
-    FOREIGN KEY (recette_id) REFERENCES recettes (recette_id),
-    FOREIGN KEY (ligne_commande_id) REFERENCES lignes_commandes (ligne_commande_id)
+    FOREIGN KEY (recette_id) REFERENCES recettes (recette_id)
+);
+
+CREATE TABLE lignes_commandes
+(
+    ligne_commande_id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    heure_livraison   DATETIME,
+    adresse_arrivee   TEXT                                                            NOT NULL,
+    statut            ENUM ('Commandee', 'Preparee', 'En cours', 'Livree', 'Annulee') NOT NULL,
+    commande_id       BIGINT UNSIGNED                                                 NOT NULL,
+    plat_id           BIGINT UNSIGNED UNIQUE                                          NOT NULL,
+
+    FOREIGN KEY (commande_id) REFERENCES commandes (commande_id),
+    FOREIGN KEY (plat_id) REFERENCES plats (plat_id)
 );
 
 CREATE TABLE evaluation

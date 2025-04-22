@@ -10,8 +10,7 @@ public class Commande
     public decimal PrixTotal { get; set; }
     public ulong? ClientId { get; set; }
     public ulong? CuisinierId { get; set; }
-    public string AdresseArrivee { get; set; }
-    public List<Plat> Plats { get; set; } = new();
+    public List<LigneCommande> Lignes { get; set; } = new();
 
     public static string GetAdresseUser(DatabaseManager db, ulong userId)
     {
@@ -35,27 +34,17 @@ public class Commande
             {(CuisinierId != null ? CuisinierId.ToString() : "NULL")}
         );
     ";
-
         database.ExecuteNonQuery(query);
             
-        //Actualiser plats
+        //Ligne de commandes
         var result = database.ExecuteQuery("SELECT LAST_INSERT_ID() AS id;");
-        ulong cId = Convert.ToUInt64(result.Rows[0]["id"]);
-
-        foreach (Plat plat in Plats)
+        ulong commandeId = Convert.ToUInt64(result.Rows[0]["id"]);
+        
+        foreach (LigneCommande ligne in Lignes)
         {
-            plat.AffecterCommande(database, cId);
+            ligne.CommandeId = commandeId;
+            ligne.AjouterCommande(database);
         }
-            
-        // Ligne de commande
-        LigneCommande lc = new LigneCommande
-        {
-            AdresseArrivee = AdresseArrivee,
-            Statut = "Commandee",
-            CommandeId = cId
-        };
-            
-        lc.AjouterCommande(database);
     }
 
 
@@ -76,12 +65,6 @@ public class Commande
 
     public void SupprimerCommande(DatabaseManager database)
     {
-        // On modifie les plats
-        foreach (Plat plat in Plats)
-        {
-            plat.RetirerCommande(database);
-        }
-        
         // On delete les lignes de commandes
         string query = $"DELETE FROM lignes_commandes WHERE commande_id = {CommandeId}";
         database.ExecuteNonQuery(query);
@@ -105,7 +88,8 @@ public class Commande
                 AdresseDepart = row["adresse_depart"].ToString(),
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
-                CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"])
+                CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
+                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             });
         }
 
@@ -117,15 +101,8 @@ public class Commande
         var commandes = new List<Commande>();
 
         var table = db.ExecuteQuery($@"
-                SELECT 
-                    c.*,
-                    cli.adresse AS adresse_client,
-                    cuis.adresse AS adresse_cuisinier
-                FROM commandes c
-                LEFT JOIN users cli ON c.client_id = cli.user_id
-                LEFT JOIN users cuis ON c.cuisinier_id = cuis.user_id
-                WHERE c.cuisinier_id = {cuisinierId};
-            ");
+            SELECT * FROM commandes
+            WHERE cuisinier_id = {cuisinierId};");
 
         foreach (DataRow row in table.Rows)
         {
@@ -133,12 +110,11 @@ public class Commande
             {
                 CommandeId = Convert.ToUInt64(row["commande_id"]),
                 HeureCommande = Convert.ToDateTime(row["heure_commande"]),
-                AdresseDepart = row["adresse_cuisinier"].ToString(),
-                AdresseArrivee = row["adresse_client"].ToString(),
+                AdresseDepart = row["adresse_depart"].ToString(),
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Plats = Plat.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             };
 
             commandes.Add(commande);
@@ -152,15 +128,8 @@ public class Commande
         var commandes = new List<Commande>();
 
         var table = db.ExecuteQuery($@"
-        SELECT 
-            c.*,
-            cli.adresse AS adresse_client,
-            cuis.adresse AS adresse_cuisinier
-        FROM commandes c
-        LEFT JOIN users cli ON c.client_id = cli.user_id
-        LEFT JOIN users cuis ON c.cuisinier_id = cuis.user_id
-        WHERE c.client_id = {clientId};
-    ");
+            SELECT * FROM commandes
+            WHERE client_id = {clientId};");
 
         foreach (DataRow row in table.Rows)
         {
@@ -168,12 +137,11 @@ public class Commande
             {
                 CommandeId = Convert.ToUInt64(row["commande_id"]),
                 HeureCommande = Convert.ToDateTime(row["heure_commande"]),
-                AdresseDepart = row["adresse_cuisinier"]?.ToString(),
-                AdresseArrivee = row["adresse_client"]?.ToString(),
+                AdresseDepart = row["adresse_depart"]?.ToString(),
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Plats = Plat.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             };
 
             commandes.Add(commande);

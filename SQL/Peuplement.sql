@@ -41,7 +41,7 @@ INSERT INTO recettes (nom_recette, type, ingredients, style_cuisine, parent_rece
                                                                                                        ('Soupe miso', 'Entrée', 'bouillon miso, tofu, algues, oignons verts', 'Japonaise', NULL), -- Végan
                                                                                                        ('Saumon vapeur citron', 'Plat Principal', 'saumon, citron, aneth, sel', 'Nordique', NULL); -- Pescetarien
 
-INSERT INTO possede (recette_id, regime_id) VALUES
+INSERT INTO respecte (recette_id, regime_id) VALUES
                                                 (1, 1), -- Salade de quinoa → Végétarien
                                                 (1, 14), -- Riche en fibres
                                                 (2, 2), -- Tacos végan → Végan
@@ -63,3 +63,22 @@ VALUES
     (3, 2, 4, 'Bonne portion, livraison rapide.', NOW()),
     (5, 3, 3, 'Un peu tiède à l’arrivée mais bon goût.', NOW()),
     (5, 6, 5, 'Parfait pour un déjeuner rapide et sain.', NOW());
+
+-- 🍽️ Plats associés à des recettes existantes
+INSERT INTO plats (nom_plat, nb_parts, date_fabrication, date_peremption, prix_par_personne, cuisinier_id, recette_id)
+VALUES
+-- Bob Martin
+('Bœuf bourguignon', 3, '2025-04-20', '2025-04-23', 9.50, 2, 3), -- recette: Poulet Tikka Masala (similaire au niveau Halal)
+('Tarte aux pommes', 4, '2025-04-20', '2025-04-22', 4.00, 2, 4), -- recette sans gluten
+
+-- Claire Durand
+('Couscous végétarien', 2, '2025-04-21', '2025-04-24', 8.00, 3, 1), -- recette: Salade de quinoa (Végétarien)
+('Salade grecque', 2, '2025-04-21', '2025-04-23', 5.00, 3, 1), -- aussi végétarien
+
+-- Maxime Rousseau
+('Wraps au poulet', 3, '2025-04-22', '2025-04-24', 7.50, 4, 3), -- même recette que poulet tikka (base poulet)
+('Compote maison', 2, '2025-04-22', '2025-04-23', 3.00, 4, 4), -- recette gâteau sans gluten (sucré)
+
+-- Guillaume Blain
+('Gratin de légumes', 4, '2025-04-21', '2025-04-25', 6.50, 6, 1), -- recette salade quinoa (végé, fibre)
+('Riz au lait coco', 3, '2025-04-21', '2025-04-23', 4.50, 6, 5); -- recette soupe miso (vegan)

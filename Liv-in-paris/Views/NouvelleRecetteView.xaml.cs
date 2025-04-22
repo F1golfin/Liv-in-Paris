@@ -29,24 +29,17 @@ public partial class NouvelleRecetteWindow : Window
             return;
         }
 
-        if (!int.TryParse(StyleTextBox.Text, out int style))
-        {
-            MessageBox.Show("Le style doit être un entier.");
-            return;
-        }
-
         var recette = new Recette
         {
             NomRecette = NomTextBox.Text,
             Type = ((ComboBoxItem)TypeComboBox.SelectedItem).Content.ToString(),
             Ingredients = IngredientsTextBox.Text,
-            StyleCuisine = style,
+            StyleCuisine = StyleTextBox.Text
             // RegimeAlimentaire = string.IsNullOrWhiteSpace(RegimeTextBox.Text) ? null : RegimeTextBox.Text
         };
 
-
         recette.AjouterRecette(_db);
         MessageBox.Show("Recette enregistrée !");
-        this.Close();
+        Close();
     }
 }

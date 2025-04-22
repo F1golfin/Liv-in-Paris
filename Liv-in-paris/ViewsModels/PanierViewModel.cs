@@ -49,16 +49,28 @@ public class PanierViewModel : INotifyPropertyChanged
         try
         {
             var db = Database.Instance;
-            
-            Commande commande = new Commande
+
+            var commande = new Commande
             {
                 HeureCommande = DateTime.Now,
                 PrixTotal = PrixTotal,
                 CuisinierId = Panier.First().CuisinierId,
                 ClientId = _utilisateur.UserId,
-                AdresseArrivee = _utilisateur.Adresse,
-                Plats = _panier.ToList()
+                AdresseDepart = Commande.GetAdresseUser(db, Panier.First().CuisinierId),
+                Lignes = new List<LigneCommande>()
             };
+
+            foreach (var plat in Panier)
+            {
+                commande.Lignes.Add(new LigneCommande
+                {
+                    PlatId = plat.PlatId,
+                    AdresseArrivee = _utilisateur.Adresse, // Par défaut, adresse du client
+                    HeureLivraison = DateTime.Now.AddHours(2), // Par défaut : 2h après la commande
+                    Statut = "Commandee"
+                });
+            }
+
             commande.AjouterCommande(db);
             MessageBox.Show("✅ Commande enregistrée !");
             Panier.Clear();
