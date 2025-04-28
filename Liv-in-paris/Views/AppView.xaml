@@ -8,7 +8,7 @@
     </UserControl.DataContext>
 
     <Grid>
-        <!-- Contenu dynamique (Login / Register / Accueil...) -->
+        <!-- Contenu dynamique (Login / Register / Accueil... ) -->
         <ContentControl Content="{Binding CurrentSubView}" />
     </Grid>
 </UserControl>
