@@ -5,16 +5,20 @@
         Title="Liv'in Paris" Height="1200" Width="1400">
 
     <Window.DataContext>
-        <livInParis:MainViewModel />
+        <livInParis:MainViewModel/>
     </Window.DataContext>
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/> <!-- Menu -->
-            <ColumnDefinition Width="*" />  <!-- Contenu dynamique -->
+            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-
-        <!-- MENU -->
+        <ContentControl Grid.Column="1" Name="Accueil_View" />
+        <ContentControl Grid.Column="1" Grid.Row="1" Content="{Binding CurrentView}"/>
         <StackPanel Background="#EEE">
             <TextBlock Text="Menu" FontWeight="Bold" FontSize="18" Margin="0 0 0 10" Padding="10"/>
             <Button Content="Accueil" Command="{Binding ShowAccueilCommand}" Margin="0 5"/>
@@ -23,7 +27,5 @@
             <Button Content="Utilisateurs" Command="{Binding ShowAdminCommand}" Margin="0 5"/>
         </StackPanel>
 
-        <!-- CONTENU CHANGÉ DYNAMIQUEMENT -->
-        <ContentControl Grid.Column="1" Content="{Binding CurrentView}" />
     </Grid>
 </Window>
