@@ -20,7 +20,7 @@ public partial class RegisterView : UserControl
                 .Cast<ListBoxItem>()
                 .Select(item => item.Content.ToString());
             vm.SelectedRole = string.Join(",", roles);
-            vm.Register(); // Appelle la méthode dans ton ViewModel
+            vm.Register();
         }
     }
 

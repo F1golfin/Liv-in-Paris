@@ -1,30 +1,29 @@
 using System.Data;
 
-namespace Liv_in_paris.Core.Models
+namespace Liv_in_paris.Core.Models;
+
+public class Commande
 {
-    public class Commande
+    public ulong CommandeId { get; set; }
+    public DateTime HeureCommande { get; set; }
+    public string AdresseDepart { get; set; }
+    public decimal PrixTotal { get; set; }
+    public ulong? ClientId { get; set; }
+    public ulong? CuisinierId { get; set; }
+    public List<LigneCommande> Lignes { get; set; } = new();
+
+    public static string GetAdresseUser(DatabaseManager db, ulong userId)
     {
-        public ulong CommandeId { get; set; }
-        public DateTime HeureCommande { get; set; }
-        public string AdresseDepart { get; set; }
-        public decimal PrixTotal { get; set; }
-        public ulong? ClientId { get; set; }
-        public ulong? CuisinierId { get; set; }
-        public string AdresseArrivee { get; set; }
-        public List<Plat> Plats { get; set; } = new();
+        var result = db.ExecuteQuery($"SELECT adresse FROM users WHERE user_id = {userId}");
+        return result.Rows.Count > 0 ? result.Rows[0]["adresse"].ToString() : "";
+    }
 
-        public static string GetAdresseUser(DatabaseManager db, ulong userId)
-        {
-            var result = db.ExecuteQuery($"SELECT adresse FROM users WHERE user_id = {userId}");
-            return result.Rows.Count > 0 ? result.Rows[0]["adresse"].ToString() : "";
-        }
+    public void AjouterCommande(DatabaseManager database)
+    {
+        // Récupère automatiquement l'adresse du cuisinier
+        string adresseCuisinier = GetAdresseUser(database, CuisinierId ?? 0);
 
-        public void AjouterCommande(DatabaseManager database)
-        {
-            // Récupère automatiquement l'adresse du cuisinier
-            string adresseCuisinier = GetAdresseUser(database, CuisinierId ?? 0);
-
-            string query = $@"
+        string query = $@"
         INSERT INTO commandes (
             heure_commande, adresse_depart, prix_total, client_id, cuisinier_id
         ) VALUES (
@@ -35,14 +34,23 @@ namespace Liv_in_paris.Core.Models
             {(CuisinierId != null ? CuisinierId.ToString() : "NULL")}
         );
     ";
-
-            database.ExecuteNonQuery(query);
-        }
-
-
-        public void ModifierCommande(DatabaseManager database)
+        database.ExecuteNonQuery(query);
+            
+        //Ligne de commandes
+        var result = database.ExecuteQuery("SELECT LAST_INSERT_ID() AS id;");
+        ulong commandeId = Convert.ToUInt64(result.Rows[0]["id"]);
+        
+        foreach (LigneCommande ligne in Lignes)
         {
-            string query = $@"
+            ligne.CommandeId = commandeId;
+            ligne.AjouterCommande(database);
+        }
+    }
+
+
+    public void ModifierCommande(DatabaseManager database)
+    {
+        string query = $@"
                 UPDATE commandes SET
                     heure_commande = '{HeureCommande:yyyy-MM-dd HH:mm:ss}',
                     adresse_depart = '{AdresseDepart}',
@@ -52,69 +60,93 @@ namespace Liv_in_paris.Core.Models
                 WHERE commande_id = {CommandeId};
             ";
 
-            database.ExecuteNonQuery(query);
-        }
+        database.ExecuteNonQuery(query);
+    }
 
-        public void SupprimerCommande(DatabaseManager database)
+    public void SupprimerCommande(DatabaseManager database)
+    {
+        // On delete les lignes de commandes
+        string query = $"DELETE FROM lignes_commandes WHERE commande_id = {CommandeId}";
+        database.ExecuteNonQuery(query);
+        
+        // On delete la commande
+        query = $"DELETE FROM commandes WHERE commande_id = {CommandeId};";
+        database.ExecuteNonQuery(query);
+    }
+
+    public static List<Commande> GetAll(DatabaseManager db)
+    {
+        var commandes = new List<Commande>();
+        var table = db.ExecuteQuery("SELECT * FROM commandes;");
+
+        foreach (DataRow row in table.Rows)
         {
-            string query = $"DELETE FROM commandes WHERE commande_id = {CommandeId};";
-            database.ExecuteNonQuery(query);
-        }
-
-        public static List<Commande> GetAll(DatabaseManager db)
-        {
-            var commandes = new List<Commande>();
-            var table = db.ExecuteQuery("SELECT * FROM commandes;");
-
-            foreach (DataRow row in table.Rows)
+            commandes.Add(new Commande
             {
-                commandes.Add(new Commande
-                {
-                    CommandeId = Convert.ToUInt64(row["commande_id"]),
-                    HeureCommande = Convert.ToDateTime(row["heure_commande"]),
-                    AdresseDepart = row["adresse_depart"].ToString(),
-                    PrixTotal = Convert.ToDecimal(row["prix_total"]),
-                    ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
-                    CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"])
-                });
-            }
-
-            return commandes;
+                CommandeId = Convert.ToUInt64(row["commande_id"]),
+                HeureCommande = Convert.ToDateTime(row["heure_commande"]),
+                AdresseDepart = row["adresse_depart"].ToString(),
+                PrixTotal = Convert.ToDecimal(row["prix_total"]),
+                ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
+                CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
+                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+            });
         }
 
-        public static List<Commande> GetByCuisinier(DatabaseManager db, ulong cuisinierId)
+        return commandes;
+    }
+
+    public static List<Commande> GetByCuisinier(DatabaseManager db, ulong cuisinierId)
+    {
+        var commandes = new List<Commande>();
+
+        var table = db.ExecuteQuery($@"
+            SELECT * FROM commandes
+            WHERE cuisinier_id = {cuisinierId};");
+
+        foreach (DataRow row in table.Rows)
         {
-            var commandes = new List<Commande>();
-
-            var table = db.ExecuteQuery($@"
-                SELECT 
-                    c.*,
-                    cli.adresse AS adresse_client,
-                    cuis.adresse AS adresse_cuisinier
-                FROM commandes c
-                LEFT JOIN users cli ON c.client_id = cli.user_id
-                LEFT JOIN users cuis ON c.cuisinier_id = cuis.user_id
-                WHERE c.cuisinier_id = {cuisinierId};
-            ");
-
-            foreach (DataRow row in table.Rows)
+            var commande = new Commande
             {
-                var commande = new Commande
-                {
-                    CommandeId = Convert.ToUInt64(row["commande_id"]),
-                    HeureCommande = Convert.ToDateTime(row["heure_commande"]),
-                    AdresseDepart = row["adresse_cuisinier"]?.ToString(),  // 👍 cuisinier
-                    AdresseArrivee = row["adresse_client"]?.ToString(),     // 👍 client
-                    PrixTotal = Convert.ToDecimal(row["prix_total"]),
-                    ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
-                    CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                    Plats = Plat.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
-                };
+                CommandeId = Convert.ToUInt64(row["commande_id"]),
+                HeureCommande = Convert.ToDateTime(row["heure_commande"]),
+                AdresseDepart = row["adresse_depart"].ToString(),
+                PrixTotal = Convert.ToDecimal(row["prix_total"]),
+                ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
+                CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
+                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+            };
 
-                commandes.Add(commande);
-            }
-
-            return commandes;
+            commandes.Add(commande);
         }
+
+        return commandes;
+    }
+        
+    public static List<Commande> GetByClient(DatabaseManager db, ulong clientId)
+    {
+        var commandes = new List<Commande>();
+
+        var table = db.ExecuteQuery($@"
+            SELECT * FROM commandes
+            WHERE client_id = {clientId};");
+
+        foreach (DataRow row in table.Rows)
+        {
+            var commande = new Commande
+            {
+                CommandeId = Convert.ToUInt64(row["commande_id"]),
+                HeureCommande = Convert.ToDateTime(row["heure_commande"]),
+                AdresseDepart = row["adresse_depart"]?.ToString(),
+                PrixTotal = Convert.ToDecimal(row["prix_total"]),
+                ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
+                CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
+                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+            };
+
+            commandes.Add(commande);
+        }
+
+        return commandes;
     }
 }

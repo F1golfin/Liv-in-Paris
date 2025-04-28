@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using Liv_in_paris;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 using Liv_in_paris.Views;
 
 public class LoginViewModel : ViewModelBase
@@ -32,39 +33,15 @@ public class LoginViewModel : ViewModelBase
         }
         try
         {
-            Console.WriteLine("🧪 Je vais me connecter avec le mot de passe : " + "root");
-            var db = new DatabaseManager("localhost", "livin_paris", "root", "root"); // adapte selon ton user
+            var db = Database.Instance;
+            User? utilisateur = User.Authenticate(db, UserPrenom, Password);
 
-            string query = $"SELECT * FROM users WHERE prenom = '{UserPrenom}' AND password = '{Password}'";
-            var table = db.ExecuteQuery(query);
-
-            if (table.Rows.Count == 1)
+            if (utilisateur != null)
             {
-                string rolesFromDb = table.Rows[0]["role"].ToString(); // ex: "Client,Cuisinier"
-                var allRoles = rolesFromDb.Split(','); // => ["Client", "Cuisinier"]
-
-                // Authentification réussie
-                var row = table.Rows[0];
-                var utilisateur = new User
-                {
-                    UserId = Convert.ToUInt64(row["user_id"]),
-                    Password = row["password"].ToString(),
-                    Role = row["role"].ToString(),
-                    Type = row["type"].ToString(),
-                    Email = row["email"].ToString(),
-                    Nom = row["nom"].ToString(),
-                    Prenom = row["prenom"].ToString(),
-                    Adresse = row["adresse"].ToString(),
-                    Telephone = row["telephone"].ToString(),
-                    Entreprise = row["entreprise"]?.ToString()
-                };
-                string role = row["role"].ToString();
-                
-                Console.WriteLine($"✅ Connexion réussie en tant que {role}");
+                string[] allRoles = utilisateur.Role.Split(',');
                 if (allRoles.Length > 1)
                 {
-                    // Fenêtre ou menu de sélection
-                    var selectedRole = ShowRoleSelectionPopup(allRoles); 
+                    string selectedRole = ShowRoleSelectionPopup(allRoles); 
                     RedirectUser(utilisateur,selectedRole);
                 }
                 else
@@ -84,6 +61,7 @@ public class LoginViewModel : ViewModelBase
             OnPropertyChanged(nameof(MessageErreur));
         }
     }
+    
     private string ShowRoleSelectionPopup(string[] allRoles)
     {
         var popup = new RoleSelectionPopup(allRoles);
@@ -99,7 +77,5 @@ public class LoginViewModel : ViewModelBase
     {
         _parent.NaviguerVersAccueil(utilisateur, role);
     }
-
-
 }
 

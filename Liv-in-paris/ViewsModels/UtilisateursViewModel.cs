@@ -3,35 +3,29 @@ using System.Data;
 using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
 public class UtilisateursViewModel : ViewModelBase
 {
-    public ObservableCollection<User> Utilisateurs { get; } = new();
-    public ICommand SupprimerUtilisateurCommand => new RelayCommand<User>(SupprimerUtilisateur);
+    public ObservableCollection<User> Utilisateurs { get; set; } = new();
+    public ICommand SupprimerUtilisateurCommand { get; }
 
     public UtilisateursViewModel()
     {
+        SupprimerUtilisateurCommand = new RelayCommand<User>(SupprimerUtilisateur);
         ChargerUtilisateurs();
     }
 
     private void ChargerUtilisateurs()
     {
         Utilisateurs.Clear();
-        var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
+        var db = Database.Instance;
 
-        var table = db.ExecuteQuery("SELECT * FROM users");
-
-        foreach (DataRow row in table.Rows)
+        foreach (User user in User.GetAllUsers(db))
         {
-            Utilisateurs.Add(new User
-            {
-                UserId = Convert.ToUInt64(row["user_id"]),
-                Nom = row["nom"].ToString(),
-                Prenom = row["prenom"].ToString(),
-                Email = row["email"].ToString()
-            });
+            Utilisateurs.Add(user);
         }
     }
 
@@ -44,9 +38,12 @@ public class UtilisateursViewModel : ViewModelBase
 
         try
         {
-            var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
+            var db = Database.Instance;
+            
+            // Supprimer les plats si cuisinier
             db.ExecuteNonQuery($"DELETE FROM plats WHERE cuisinier_id = {user.UserId};");
-            db.ExecuteNonQuery($"DELETE FROM users WHERE user_id = {user.UserId}");
+            
+            user.SupprimerUser(db);
             Utilisateurs.Remove(user);
             MessageBox.Show("✅ Utilisateur supprimé !");
         }

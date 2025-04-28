@@ -3,15 +3,14 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 public class PlatsViewModel : ViewModelBase
 {
     public ObservableCollection<Plat> Plats { get; set; } = new();
+    public ObservableCollection<User> Cuisiniers { get; set; } = new();
     
     private readonly ClientViewModel _clientVM;
-    
-
-    public ObservableCollection<User> Cuisiniers { get; set; } = new();
     private User _cuisinierSelectionne;
     public User CuisinierSelectionne
     {
@@ -27,27 +26,17 @@ public class PlatsViewModel : ViewModelBase
         }
     }
     
-    public ICommand AjouterAuPanierCommand => new RelayCommand<Plat>(plat =>
-    {
-        _clientVM.AjouterAuPanier(plat);
-    });
+    public ICommand AjouterAuPanierCommand { get; }
 
     public PlatsViewModel(ClientViewModel clientVM)
     {
         _clientVM = clientVM;
+        AjouterAuPanierCommand = new RelayCommand<Plat>(plat => _clientVM.AjouterAuPanier(plat));   
+        var db = Database.Instance;
         
-        // Chargement des cuisiniers
-        var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
-        var table = db.ExecuteQuery("SELECT * FROM users WHERE role LIKE '%Cuisinier%'");
-
-        foreach (DataRow row in table.Rows)
+        foreach (User user in User.GetAllCuisinier(db))
         {
-            Cuisiniers.Add(new User
-            {
-                UserId = Convert.ToUInt64(row["user_id"]),
-                Prenom = row["prenom"].ToString(),
-                Nom = row["nom"].ToString()
-            });
+            Cuisiniers.Add(user);
         }
         
         if (Cuisiniers.Any())
@@ -65,21 +54,11 @@ public class PlatsViewModel : ViewModelBase
             Console.WriteLine("Aucun cuisinier sélectionné.");
             return;
         }
-        
-        var db = new DatabaseManager("localhost", "livin_paris", "root", "root");
-        string query = $"SELECT * FROM plats WHERE commande_id IS NULL AND cuisinier_id = {CuisinierSelectionne.UserId}";
-        var table = db.ExecuteQuery(query);
 
-        foreach (DataRow row in table.Rows)
+        var db = Database.Instance;
+        foreach (Plat plat in Plat.GetDisponibles(db, CuisinierSelectionne.UserId))
         {
-            Plats.Add(new Plat
-            {
-                PlatId = Convert.ToUInt64(row["plat_id"]),
-                NomPlat = row["nom_plat"].ToString(),
-                PrixParPersonne = Convert.ToDecimal(row["prix_par_personne"]),
-                NbParts = Convert.ToInt32(row["nb_parts"]),
-                CuisinierId = Convert.ToUInt64(row["cuisinier_id"])
-            });
+            Plats.Add(plat);
         }
     }
 }
