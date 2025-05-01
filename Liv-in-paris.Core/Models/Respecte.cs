@@ -37,4 +37,25 @@ public class Respecte
 
         return regimes;
     }
+    
+    /// <summary>
+    /// Récupère tous les noms des régimes associés à une recette.
+    /// </summary>
+    public static List<string> ObtenirNomsRegimesParRecette(DatabaseManager db, ulong recetteId)
+    {
+        var noms = new List<string>();
+        var query = @"
+        SELECT ra.regime 
+        FROM respecte r
+        JOIN regime_alimentaire ra ON r.regime_id = ra.regime_id
+        WHERE r.recette_id = " + recetteId + ";";
+
+        var table = db.ExecuteQuery(query);
+        foreach (DataRow row in table.Rows)
+        {
+            noms.Add(row["regime"].ToString());
+        }
+
+        return noms;
+    }
 }

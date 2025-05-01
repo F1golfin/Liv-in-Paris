@@ -10,7 +10,7 @@ public class Commande
     public decimal PrixTotal { get; set; }
     public ulong? ClientId { get; set; }
     public ulong? CuisinierId { get; set; }
-    public List<LigneCommande> Lignes { get; set; } = new();
+    public List<LigneCommande> LignesCommandes { get; set; } = new();
 
     public static string GetAdresseUser(DatabaseManager db, ulong userId)
     {
@@ -20,7 +20,6 @@ public class Commande
 
     public void AjouterCommande(DatabaseManager database)
     {
-        // Récupère automatiquement l'adresse du cuisinier
         string adresseCuisinier = GetAdresseUser(database, CuisinierId ?? 0);
 
         string query = $@"
@@ -32,19 +31,12 @@ public class Commande
             {PrixTotal.ToString(System.Globalization.CultureInfo.InvariantCulture)},
             {(ClientId != null ? ClientId.ToString() : "NULL")},
             {(CuisinierId != null ? CuisinierId.ToString() : "NULL")}
-        );
-    ";
+        );";
+
         database.ExecuteNonQuery(query);
-            
-        //Ligne de commandes
+
         var result = database.ExecuteQuery("SELECT LAST_INSERT_ID() AS id;");
-        ulong commandeId = Convert.ToUInt64(result.Rows[0]["id"]);
-        
-        foreach (LigneCommande ligne in Lignes)
-        {
-            ligne.CommandeId = commandeId;
-            ligne.AjouterCommande(database);
-        }
+        CommandeId = Convert.ToUInt64(result.Rows[0]["id"]);
     }
 
 
@@ -89,7 +81,7 @@ public class Commande
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                LignesCommandes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             });
         }
 
@@ -114,7 +106,7 @@ public class Commande
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                LignesCommandes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             };
 
             commandes.Add(commande);
@@ -141,7 +133,7 @@ public class Commande
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                LignesCommandes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             };
 
             commandes.Add(commande);
