@@ -22,18 +22,27 @@ public class Recette
             '{NomRecette}',
             '{Type}',
             '{Ingredients}',
-            {StyleCuisine},
+            '{StyleCuisine}',
             {(ParentRecetteId != null ? ParentRecetteId.ToString() : "NULL")}
         );
     ";
+
         database.ExecuteNonQuery(query);
         
-        ulong recetteId = Convert.ToUInt64(database.ExecuteQuery("SELECT LAST_INSERT_ID();"));
-        foreach (ulong regimeId in RegimeIds)
+        var table = database.ExecuteQuery("SELECT LAST_INSERT_ID();");
+        if (table.Rows.Count > 0)
         {
-            Respecte.Ajouter(database, recetteId, regimeId);
+            ulong recetteId = Convert.ToUInt64(table.Rows[0][0]);
+            
+            foreach (ulong regimeId in RegimeIds)
+            {
+                Respecte.Ajouter(database, recetteId, regimeId);
+            }
         }
-        
+        else
+        {
+            throw new Exception("Impossible de récupérer l'identifiant de la recette après insertion.");
+        }
     }
 
     public void ModifierRecette(DatabaseManager database)

@@ -22,6 +22,16 @@ namespace Liv_in_paris
         public string NewPrixPlat { get; set; }
         public string NewTypePlat { get; set; }
         public Recette RecetteSelectionnee { get; set; }
+        private string _newNbParts;
+        public string NewNbParts
+        {
+            get => _newNbParts;
+            set
+            {
+                _newNbParts = value;
+                OnPropertyChanged(nameof(NewNbParts));
+            }
+        }
         
         public ObservableCollection<Evaluation> EvaluationsRecues { get; set; }
 
@@ -29,6 +39,7 @@ namespace Liv_in_paris
         public ICommand AjouterNouvelleRecetteCommand { get; }
         public ICommand DeconnexionCommand { get; }
         public ICommand MettreAJourStatutCommand { get; }
+        public ICommand SupprimerPlatCommand { get; }
 
         
         public CuisinierViewModel(AppViewModel parent, User utilisateur)
@@ -53,6 +64,17 @@ namespace Liv_in_paris
                 var db = Database.Instance;
                 ligne.MettreAJourStatut(db, ligne.Statut); // statut déjà sélectionné dans ComboBox
                 ChargerCommandes(); // refresh
+            });
+            
+            SupprimerPlatCommand = new RelayCommand<Plat>(plat =>
+            {
+                var result = MessageBox.Show($"Supprimer le plat « {plat.NomPlat} » ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                if (result == MessageBoxResult.Yes)
+                {
+                    var db = Database.Instance;
+                    plat.SupprimerPlat(db);
+                    ChargerDonnees();
+                }
             });
 
         }
@@ -88,13 +110,19 @@ namespace Liv_in_paris
                 MessageBox.Show("Prix invalide.");
                 return;
             }
+            
+            if (!int.TryParse(NewNbParts, out int nbParts) || nbParts <= 0)
+            {
+                MessageBox.Show("Nombre de parts invalide.");
+                return;
+            }
 
             var db = Database.Instance;
             var nouveauPlat = new Plat
             {
                 NomPlat = NewNomPlat,
                 PrixParPersonne = prix,
-                NbParts = 1,
+                NbParts = nbParts,
                 DateFabrication = DateTime.Now,
                 DatePeremption = DateTime.Now.AddDays(3),
                 CuisinierId = _utilisateurConnecte.UserId,
