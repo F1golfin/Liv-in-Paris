@@ -11,8 +11,13 @@
                        FontWeight="Bold"
                        Margin="0 0 0 20"
                        HorizontalAlignment="Center"/>
-
-            <TextBlock Text="Nom"/>
+                <TextBlock Text="Type"/>
+                <ComboBox x:Name="UserType" SelectedValue="{Binding SelectedType}" SelectedValuePath="Content" Margin="0 5 0 15" SelectionChanged="ComboBox_SelectionChanged">
+                    <ComboBoxItem Content="Particulier"/>
+                    <ComboBoxItem Content="Entreprise"/>
+                </ComboBox>
+                <TextBlock x:Name="CooReferent" Text="Coordonnées du référent : " Margin="0 5" FontSize="15" TextDecorations="Underline"/>
+                <TextBlock Text="Nom"/>
             <TextBox Text="{Binding NewNom}" Margin="0 5"/>
             
             <TextBlock Text="Prénom"/>
@@ -31,16 +36,12 @@
             <TextBox Text="{Binding NewTelephone}" Margin="0 5"/>
             
             <TextBlock Text="Adresse"/>
-            <TextBox Text="{Binding NewAdresse}" Margin="0 5"/>
+            <TextBox Text="{Binding NewAdresse}" Margin="0 5 0 15"/>
 
-            <TextBlock Text="Type"/>
-            <ComboBox SelectedValue="{Binding SelectedType}" SelectedValuePath="Content" Margin="0 5">
-                <ComboBoxItem Content="Particulier"/>
-                <ComboBoxItem Content="Entreprise"/>
-            </ComboBox>
-            
-            <TextBlock Text="Nom de l'entreprise"/>
-            <TextBox Text="{Binding NewEntreprise}" Margin="0 5"/>
+                <TextBlock x:Name="InfoEntreprise" Text="Informations sur l'entreprise : " Margin="0 5" FontSize="15" TextDecorations="Underline"/>
+
+                <TextBlock x:Name="TxtEntreprise" Text="Nom de l'entreprise"/>
+            <TextBox x:Name="NomEntreprise" Text="{Binding NewEntreprise}" Margin="0 5"/>
             
             <TextBlock Text="Rôles"/>
             <ListBox x:Name="RoleListBox" SelectionMode="Multiple" Height="60">

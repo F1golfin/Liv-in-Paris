@@ -9,7 +9,7 @@ namespace Liv_in_paris;
 
 public class ClientViewModel : ViewModelBase
 {
-    private readonly AppViewModel _app;
+    /**private readonly AppViewModel _app;
     public ICommand DeconnexionCommand { get; }
     public ICommand VoirPlatsCommand { get; }
     public ICommand VoirPanierCommand { get; }
@@ -28,13 +28,13 @@ public class ClientViewModel : ViewModelBase
         _app = app;
         _utilisateur = utilisateur;
 
-        VoirPlatsCommand = new RelayCommand(AfficherPlats);
-        VoirPanierCommand = new RelayCommand(AfficherPanier);
-        VoirCommandesCommand = new RelayCommand(AfficherCommandes);
-        ActualiserCommand = new RelayCommand(ChargerDonnees);
+        //VoirPlatsCommand = new RelayCommand(AfficherPlats);
+        //VoirPanierCommand = new RelayCommand(AfficherPanier);
+        //VoirCommandesCommand = new RelayCommand(AfficherCommandes);
+        //ActualiserCommand = new RelayCommand(ChargerDonnees);
         DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
         
-        ChargerDonnees();
+        //ChargerDonnees();
     }
     
     public object VueActive
@@ -54,6 +54,7 @@ public class ClientViewModel : ViewModelBase
                 break;
 
             case PanierView:
+
                 var panierView = new PanierView();
                 panierView.DataContext = new PanierViewModel(Panier, _utilisateur, _app);
                 VueActive = panierView;
@@ -124,6 +125,6 @@ public class ClientViewModel : ViewModelBase
         }
 
         OnPropertyChanged(nameof(Panier));
-    }
+    }**/
     
 }

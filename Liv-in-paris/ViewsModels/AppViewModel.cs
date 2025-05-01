@@ -47,8 +47,8 @@ namespace Liv_in_paris
         {
             if (role == "Client")
             {
-                var vue = new ClientView();
-                vue.DataContext = new ClientViewModel(this,user);
+                var vue = new NClientView();
+                vue.DataContext = new NClientViewModel(this,user);
                 CurrentSubView = vue;
             }
             else if (role == "Cuisinier")

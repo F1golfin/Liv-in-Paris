@@ -10,7 +10,7 @@ public class PlatsViewModel : ViewModelBase
     public ObservableCollection<Plat> Plats { get; set; } = new();
     public ObservableCollection<User> Cuisiniers { get; set; } = new();
     
-    private readonly ClientViewModel _clientVM;
+    private readonly NClientViewModel _clientVM;
     private User _cuisinierSelectionne;
     public User CuisinierSelectionne
     {
@@ -28,7 +28,7 @@ public class PlatsViewModel : ViewModelBase
     
     public ICommand AjouterAuPanierCommand { get; }
 
-    public PlatsViewModel(ClientViewModel clientVM)
+    public PlatsViewModel(NClientViewModel clientVM)
     {
         _clientVM = clientVM;
         AjouterAuPanierCommand = new RelayCommand<Plat>(plat => _clientVM.AjouterAuPanier(plat));   
