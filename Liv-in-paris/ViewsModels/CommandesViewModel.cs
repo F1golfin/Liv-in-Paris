@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
 using Liv_in_paris.Core.Services;
+using Liv_in_paris.ViewModels;
 
 namespace Liv_in_paris;
 
@@ -41,7 +42,7 @@ public class CommandesViewModel : ViewModelBase
     
     private void NoterCuisinier(Commande commande)
     {
-        MessageBox.Show($"Tu veux noter {commande.CuisinierId} pour la commande {commande.CommandeId}");
+        EvaluationDialogViewModel.OuvrirDialog(_utilisateur.UserId, commande.CuisinierId ?? 0);
     }
     
     private void SupprimerCommande(Commande commande)

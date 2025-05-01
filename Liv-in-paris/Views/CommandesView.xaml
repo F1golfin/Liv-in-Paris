@@ -36,6 +36,13 @@
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+                                
+                                <Button Content="📝 Noter"
+                                        Background="#3498db"
+                                        Foreground="White"
+                                        Command="{Binding DataContext.NoterCuisinierCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Visibility="{Binding Lignes, Converter={StaticResource AllLivreeVisibilityConverter}}" />
 
                                 <Button Content="🗑 Supprimer la commande"
                                         Background="Tomato"
