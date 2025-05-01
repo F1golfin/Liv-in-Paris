@@ -10,7 +10,7 @@ public class Commande
     public decimal PrixTotal { get; set; }
     public ulong? ClientId { get; set; }
     public ulong? CuisinierId { get; set; }
-    public List<LigneCommande> Lignes { get; set; } = new();
+    public List<LigneCommande> LignesCommandes { get; set; } = new();
 
     public static string GetAdresseUser(DatabaseManager db, ulong userId)
     {
@@ -81,7 +81,7 @@ public class Commande
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                LignesCommandes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             });
         }
 
@@ -106,7 +106,7 @@ public class Commande
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                LignesCommandes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             };
 
             commandes.Add(commande);
@@ -133,7 +133,7 @@ public class Commande
                 PrixTotal = Convert.ToDecimal(row["prix_total"]),
                 ClientId = row["client_id"] == DBNull.Value ? null : Convert.ToUInt64(row["client_id"]),
                 CuisinierId = row["cuisinier_id"] == DBNull.Value ? null : Convert.ToUInt64(row["cuisinier_id"]),
-                Lignes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
+                LignesCommandes = LigneCommande.GetByCommandeId(db, Convert.ToUInt64(row["commande_id"]))
             };
 
             commandes.Add(commande);

@@ -9,8 +9,9 @@ public class LigneCommande
     public string Statut { get; set; }
     public ulong? CommandeId { get; set; }
     public ulong PlatId { get; set; }
-    
     public Plat? Plat { get; set; }
+    
+    public List<string> StatutsDisponibles => new() { "Panier", "Commandee", "Preparee", "En cours", "Livree", "Annulee" };
 
     public void AjouterCommande(DatabaseManager database)
     {
@@ -137,14 +138,11 @@ public class LigneCommande
         };
     }
     
-    public void ChangerStatut(DatabaseManager db, string nouveauStatut)
+    public void MettreAJourStatut(DatabaseManager db, string nouveauStatut)
     {
-        string query = $@"
-        UPDATE lignes_commandes
-        SET statut = '{nouveauStatut}'
-        WHERE plat_id = {PlatId};";
-
+        var query = $"UPDATE lignes_commandes SET statut = '{nouveauStatut}' WHERE ligne_commande_id = {LigneCommandeId};";
         db.ExecuteNonQuery(query);
+        Statut = nouveauStatut;
     }
     
 }

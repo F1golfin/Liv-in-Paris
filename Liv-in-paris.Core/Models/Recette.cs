@@ -11,6 +11,7 @@ public class Recette
     public ulong? ParentRecetteId { get; set; }
     
     public List<ulong> RegimeIds { get; set; } = new();
+    public List<string> RegimesNoms { get; set; } = new();
 
     public void AjouterRecette(DatabaseManager database)
     {
@@ -82,7 +83,8 @@ public class Recette
                 Ingredients = row["ingredients"].ToString(),
                 StyleCuisine = row["style_cuisine"].ToString(),
                 ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
-                RegimeIds = Respecte.ObtenirRegimesParRecette(db, recetteId)
+                RegimeIds = Respecte.ObtenirRegimesParRecette(db, recetteId),
+                RegimesNoms = Respecte.ObtenirNomsRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
             };
 
             recettes.Add(recette);
@@ -108,7 +110,9 @@ public class Recette
             Ingredients = row["ingredients"].ToString(),
             StyleCuisine = row["style_cuisine"].ToString(),
             ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
-            RegimeIds = Respecte.ObtenirRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
+            RegimeIds = Respecte.ObtenirRegimesParRecette(db, Convert.ToUInt64(row["recette_id"])),
+            RegimesNoms = Respecte.ObtenirNomsRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
         };
     }
+    
 }

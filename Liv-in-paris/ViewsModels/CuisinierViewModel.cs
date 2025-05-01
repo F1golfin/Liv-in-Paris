@@ -17,7 +17,6 @@ namespace Liv_in_paris
 
         public ObservableCollection<Plat> Plats { get; set; }
         public ObservableCollection<Recette> RecettesExistantes { get; set; }
-        public ICommand MettreAJourStatutCommand { get; }
 
         public string NewNomPlat { get; set; }
         public string NewPrixPlat { get; set; }
@@ -29,6 +28,7 @@ namespace Liv_in_paris
         public ICommand AjouterPlatCommand { get; }
         public ICommand AjouterNouvelleRecetteCommand { get; }
         public ICommand DeconnexionCommand { get; }
+        public ICommand MettreAJourStatutCommand { get; }
 
         
         public CuisinierViewModel(AppViewModel parent, User utilisateur)
@@ -48,10 +48,11 @@ namespace Liv_in_paris
 
             var db = Database.Instance;
             ChargerDonnees();
-            MettreAJourStatutCommand = new RelayCommand<Plat>(plat =>
+            MettreAJourStatutCommand = new RelayCommand<LigneCommande>(ligne =>
             {
-                //plat.MettreAJourStatut(db); // met à jour en base
-                ChargerDonnees();            // recharge les données pour l’UI
+                var db = Database.Instance;
+                ligne.MettreAJourStatut(db, ligne.Statut); // statut déjà sélectionné dans ComboBox
+                ChargerCommandes(); // refresh
             });
 
         }
