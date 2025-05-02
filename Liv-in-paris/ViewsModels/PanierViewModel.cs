@@ -11,7 +11,7 @@ namespace Liv_in_paris;
 public class PanierViewModel : INotifyPropertyChanged
 {
     private readonly User _utilisateur;
-    private readonly ClientViewModel _client;
+    private readonly NClientViewModel _client;
 
     private readonly ObservableCollection<PlatCommandeViewModel> _panier;
     public ObservableCollection<PlatCommandeViewModel> Panier => _panier;
@@ -21,7 +21,7 @@ public class PanierViewModel : INotifyPropertyChanged
     public ICommand RetirerDuPanierCommand { get; }
     public ICommand PasserCommandeCommand { get; }
 
-    public PanierViewModel(ObservableCollection<Plat> panier, User utilisateur, ClientViewModel clientVM)
+    public PanierViewModel(ObservableCollection<Plat> panier, User utilisateur, NClientViewModel clientVM)
     {
         _utilisateur = utilisateur;
         _client = clientVM;
