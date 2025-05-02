@@ -9,7 +9,8 @@ public class Evaluation
     public string? Commentaire { get; set; }
     public DateTime DateEvaluation { get; set; }
 
-    public void AjouterEvaluation(DatabaseManager database)
+    // A la place d'ajouter et modifier
+    public void Enregistrer(DatabaseManager db)
     {
         string query = $@"
         INSERT INTO evaluation (
@@ -18,24 +19,15 @@ public class Evaluation
             {ClientId},
             {CuisinierId},
             {Note},
-            {(Commentaire != null ? $"'{Commentaire}'" : "NULL")},
+            {(Commentaire != null ? $"'{Commentaire.Replace("'", "''")}'" : "NULL")},
             '{DateEvaluation:yyyy-MM-dd HH:mm:ss}'
-        );
-    ";
-        database.ExecuteNonQuery(query);
-    }
-
-    public void ModifierEvaluation(DatabaseManager database)
-    {
-        string query = $@"
-        UPDATE evaluation SET
+        )
+        ON DUPLICATE KEY UPDATE
             note = {Note},
-            commentaire = {(Commentaire != null ? $"'{Commentaire}'" : "NULL")},
-            date_evaluation = '{DateEvaluation:yyyy-MM-dd HH:mm:ss}'
-        WHERE client_id = {ClientId} AND cuisinier_id = {CuisinierId};
-    ";
+            commentaire = {(Commentaire != null ? $"'{Commentaire.Replace("'", "''")}'" : "NULL")},
+            date_evaluation = '{DateEvaluation:yyyy-MM-dd HH:mm:ss}';";
 
-        database.ExecuteNonQuery(query);
+        db.ExecuteNonQuery(query);
     }
 
     public void SupprimerEvaluation(DatabaseManager database)

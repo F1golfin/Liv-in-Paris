@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris
 {
@@ -26,6 +27,7 @@ namespace Liv_in_paris
 
         public AppViewModel()
         {
+            NettoyerLignesPanierOrphelines();
             NavigateToLogin();
         }
 
@@ -61,7 +63,15 @@ namespace Liv_in_paris
 
         public void Deconnexion()
         {
+            NettoyerLignesPanierOrphelines();
             NavigateToLogin();
+        }
+        
+        public void NettoyerLignesPanierOrphelines()
+        {
+            var db = Database.Instance;
+            string query = "DELETE FROM lignes_commandes WHERE statut = 'Panier' AND commande_id IS NULL;";
+            db.ExecuteNonQuery(query);
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

@@ -1,9 +1,12 @@
 ﻿using System.Collections.ObjectModel;
 using System.Data;
+using System.Data.Entity;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
+using Database = Liv_in_paris.Core.Services.Database;
 
 namespace Liv_in_paris;
 
@@ -56,7 +59,7 @@ public class ClientViewModel : ViewModelBase
             case PanierView:
 
                 var panierView = new PanierView();
-                panierView.DataContext = new PanierViewModel(Panier, _utilisateur, _app);
+                panierView.DataContext = new PanierViewModel(Panier, _utilisateur, this);
                 VueActive = panierView;
                 break;
 
@@ -91,7 +94,7 @@ public class ClientViewModel : ViewModelBase
     private void AfficherPanier()
     {
         var vue = new PanierView();
-        vue.DataContext = new PanierViewModel(Panier, _utilisateur, _app);
+        vue.DataContext = new PanierViewModel(Panier, _utilisateur, this);
         VueActive = vue;
     }
     
@@ -107,16 +110,25 @@ public class ClientViewModel : ViewModelBase
         if (Panier.Count > 0)
         {
             var premierCuisinierId = Panier[0].CuisinierId;
-
             if (plat.CuisinierId != premierCuisinierId)
             {
-                MessageBox.Show("❌ Vous ne pouvez commander que des plats du même cuisinier. Veuillez valider ou vider votre panier.");
+                MessageBox.Show("❌ Vous ne pouvez commander que des plats du même cuisinier.");
                 return;
             }
         }
 
         if (!Panier.Contains(plat))
+        {
+            var db = Database.Instance;
+            var ligne = new LigneCommande
+            {
+                PlatId = plat.PlatId,
+                Statut = "Panier"
+            };
+            ligne.AjouterCommande_tps(db);
+            
             Panier.Add(plat);
+        }
 
         // Retirer le plat de la liste visible
         if (VueActive is PlatsView vue && vue.DataContext is PlatsViewModel platsVM)
@@ -125,6 +137,6 @@ public class ClientViewModel : ViewModelBase
         }
 
         OnPropertyChanged(nameof(Panier));
+
     }**/
-    
 }
