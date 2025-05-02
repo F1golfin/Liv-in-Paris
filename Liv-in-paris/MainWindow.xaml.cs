@@ -20,5 +20,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        Accueil_View.Content = new AccueilView();
     }
 }

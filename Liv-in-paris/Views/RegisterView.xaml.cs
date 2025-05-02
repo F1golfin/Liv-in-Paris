@@ -8,6 +8,7 @@ public partial class RegisterView : UserControl
     public RegisterView()
     {
         InitializeComponent();
+        UserType.SelectedIndex = 0;
     }
     
     private void RegisterButton_Click(object sender, RoutedEventArgs e)
@@ -24,4 +25,15 @@ public partial class RegisterView : UserControl
         }
     }
 
+    private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (UserType.SelectedItem is ComboBoxItem selectedItem)
+        {
+            string value = selectedItem.Content.ToString();
+            TxtEntreprise.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
+            NomEntreprise.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
+            CooReferent.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
+            InfoEntreprise.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
+        }
+    }
 }
