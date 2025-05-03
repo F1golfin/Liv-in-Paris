@@ -28,7 +28,6 @@ namespace Liv_in_paris
         {
             InitializeComponent();
         }
-
     }
 }
 

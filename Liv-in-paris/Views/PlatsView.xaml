@@ -1,35 +1,89 @@
 ﻿<UserControl x:Class="Liv_in_paris.PlatsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel>
-        <ComboBox Width="250"
-                  Margin="10"
-                  ItemsSource="{Binding Cuisiniers}"
-                  SelectedItem="{Binding CuisinierSelectionne, Mode=TwoWay}"
-                  DisplayMemberPath="Prenom"/>
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:Liv_in_paris">
+    
+    <UserControl.Resources>
+        <local:ListeToStringConverter x:Key="ListeToStringConverter"/>
+    </UserControl.Resources>
 
-        <ScrollViewer>
+    <Grid Background="#FFF">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 🔍 Filtres -->
+        <Border Margin="10" Background="#FFFDFDFD" Padding="10" CornerRadius="8">
+            <StackPanel>
+                <!-- Ligne 1 -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
+                    <Button Content="🔄 Réinitialiser les filtres"
+                            Command="{Binding ResetFiltresCommand}"
+                            Padding="6,2"
+                            Margin="0,0,15,0"
+                            Width="180"/>
+
+                    <TextBlock Text="Cuisinier :" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox Width="200"
+                              ItemsSource="{Binding Cuisiniers}"
+                              SelectedItem="{Binding CuisinierSelectionne, Mode=TwoWay}"
+                              DisplayMemberPath="Prenom"/>
+                </StackPanel>
+
+                <!-- Ligne 2 -->
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="Type :" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox Width="100"
+                              ItemsSource="{Binding TypesDisponibles}"
+                              SelectedItem="{Binding TypeFiltre}"
+                              Margin="0,0,15,0"/>
+
+                    <TextBlock Text="Régimes :" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ListBox x:Name="RegimeListBox"
+                             Width="160"
+                             Height="60"
+                             ItemsSource="{Binding RegimesDisponibles}"
+                             SelectionMode="Multiple"
+                             SelectionChanged="RegimeListBox_SelectionChanged"
+                             Margin="0,0,15,0"/>
+
+                    <CheckBox Content="Prix croissant"
+                              IsChecked="{Binding TriPrixCroissant}"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        
+        <!-- 🍽️ Résultats -->
+        <ScrollViewer Grid.Row="1" Margin="10">
             <ItemsControl ItemsSource="{Binding Plats}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="LightGray" BorderThickness="1" Margin="10" Padding="10" CornerRadius="5">
-                            <StackPanel Orientation="Horizontal">
-                                <!-- <Image Source="{Binding Photo}" Width="100" Height="100" Margin="0,0,10,0"/> -->
-                                <StackPanel>
-                                    <TextBlock Text="{Binding NomPlat}" FontWeight="Bold" FontSize="16"/>
-                                    <TextBlock Text="{Binding PrixParPersonne, StringFormat='Prix : {0} €'}"/>
-                                    <TextBlock Text="{Binding NbParts, StringFormat='Parts : {0}'}"/>
-                                    <Button Content="Ajouter au panier"
-                                            Width="150"
-                                            Margin="0,5,0,0"
-                                            Command="{Binding DataContext.AjouterAuPanierCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}" />
-                                </StackPanel>
+                        <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,0,0,15" Padding="10" CornerRadius="10" Background="#FFF">
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock Text="{Binding NomPlat}" FontWeight="Bold" FontSize="16"/>
+                                <TextBlock Text="{Binding PrixParPersonne, StringFormat='Prix : {0} €'}"/>
+                                <TextBlock Text="{Binding NbParts, StringFormat='Parts : {0}'}"/>
+                                <TextBlock Text="{Binding DateFabrication, StringFormat='Fabriqué le : {0:dd/MM/yyyy}'}"/>
+                                <TextBlock Text="{Binding DatePeremption, StringFormat='Péremption : {0:dd/MM/yyyy}'}"/>
+
+                                <TextBlock Text="{Binding Recette.NomRecette, StringFormat='Recette : {0}'}" FontWeight="Bold" Margin="0,5,0,0"/>
+                                <TextBlock Text="{Binding Recette.Type, StringFormat='Type : {0}'}"/>
+                                <TextBlock Text="{Binding Recette.StyleCuisine, StringFormat='Cuisine : {0}'}"/>
+                                <TextBlock Text="{Binding Recette.RegimesNoms, Converter={StaticResource ListeToStringConverter}, StringFormat='Régimes : {0}'}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Recette.Ingredients, StringFormat='Ingrédients : {0}'}" TextWrapping="Wrap" Margin="0,2,0,5"/>
+
+                                <Button Content="Ajouter au panier"
+                                        Width="150"
+                                        Margin="0,10,0,0"
+                                        Command="{Binding DataContext.AjouterAuPanierCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}" />
                             </StackPanel>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-    </StackPanel>
+    </Grid>
 </UserControl>
