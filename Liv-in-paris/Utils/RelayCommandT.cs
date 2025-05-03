@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace Liv_in_paris.Core.Utils // ou ton namespace habituel
+namespace Liv_in_paris.Core.Utils 
 {
     public class RelayCommand<T> : ICommand
     {

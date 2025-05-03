@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris.Views;
 
@@ -13,7 +14,10 @@ public partial class NouvelleRecetteWindow : Window
     public NouvelleRecetteWindow()
     {
         InitializeComponent();
-        _db = new DatabaseManager("localhost", "livin_paris", "root", "root");
+        _db = Database.Instance;
+
+        var regimes = RegimeAlimentaire.GetAll(_db); // récupère tous les régimes existants
+        RegimesListBox.ItemsSource = regimes;
     }
         
         
@@ -35,8 +39,12 @@ public partial class NouvelleRecetteWindow : Window
             Type = ((ComboBoxItem)TypeComboBox.SelectedItem).Content.ToString(),
             Ingredients = IngredientsTextBox.Text,
             StyleCuisine = StyleTextBox.Text
-            // RegimeAlimentaire = string.IsNullOrWhiteSpace(RegimeTextBox.Text) ? null : RegimeTextBox.Text
         };
+        
+        foreach (RegimeAlimentaire regime in RegimesListBox.SelectedItems)
+        {
+            recette.RegimeIds.Add(regime.RegimeId);
+        }
 
         recette.AjouterRecette(_db);
         MessageBox.Show("Recette enregistrée !");

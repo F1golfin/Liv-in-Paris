@@ -11,6 +11,7 @@ public class Recette
     public ulong? ParentRecetteId { get; set; }
     
     public List<ulong> RegimeIds { get; set; } = new();
+    public List<string> RegimesNoms { get; set; } = new();
 
     public void AjouterRecette(DatabaseManager database)
     {
@@ -21,18 +22,27 @@ public class Recette
             '{NomRecette}',
             '{Type}',
             '{Ingredients}',
-            {StyleCuisine},
+            '{StyleCuisine}',
             {(ParentRecetteId != null ? ParentRecetteId.ToString() : "NULL")}
         );
     ";
+
         database.ExecuteNonQuery(query);
         
-        ulong recetteId = Convert.ToUInt64(database.ExecuteQuery("SELECT LAST_INSERT_ID();"));
-        foreach (ulong regimeId in RegimeIds)
+        var table = database.ExecuteQuery("SELECT LAST_INSERT_ID();");
+        if (table.Rows.Count > 0)
         {
-            Respecte.Ajouter(database, recetteId, regimeId);
+            ulong recetteId = Convert.ToUInt64(table.Rows[0][0]);
+            
+            foreach (ulong regimeId in RegimeIds)
+            {
+                Respecte.Ajouter(database, recetteId, regimeId);
+            }
         }
-        
+        else
+        {
+            throw new Exception("Impossible de récupérer l'identifiant de la recette après insertion.");
+        }
     }
 
     public void ModifierRecette(DatabaseManager database)
@@ -82,7 +92,8 @@ public class Recette
                 Ingredients = row["ingredients"].ToString(),
                 StyleCuisine = row["style_cuisine"].ToString(),
                 ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
-                RegimeIds = Respecte.ObtenirRegimesParRecette(db, recetteId)
+                RegimeIds = Respecte.ObtenirRegimesParRecette(db, recetteId),
+                RegimesNoms = Respecte.ObtenirNomsRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
             };
 
             recettes.Add(recette);
@@ -108,7 +119,9 @@ public class Recette
             Ingredients = row["ingredients"].ToString(),
             StyleCuisine = row["style_cuisine"].ToString(),
             ParentRecetteId = row["parent_recette_id"] == DBNull.Value ? null : Convert.ToUInt64(row["parent_recette_id"]),
-            RegimeIds = Respecte.ObtenirRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
+            RegimeIds = Respecte.ObtenirRegimesParRecette(db, Convert.ToUInt64(row["recette_id"])),
+            RegimesNoms = Respecte.ObtenirNomsRegimesParRecette(db, Convert.ToUInt64(row["recette_id"]))
         };
     }
+    
 }

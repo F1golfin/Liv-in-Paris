@@ -11,7 +11,7 @@ namespace Liv_in_paris;
 public class PanierViewModel : INotifyPropertyChanged
 {
     private readonly User _utilisateur;
-    private readonly AppViewModel _app;
+    private readonly NClientViewModel _client;
 
     private readonly ObservableCollection<PlatCommandeViewModel> _panier;
     public ObservableCollection<PlatCommandeViewModel> Panier => _panier;
@@ -21,10 +21,10 @@ public class PanierViewModel : INotifyPropertyChanged
     public ICommand RetirerDuPanierCommand { get; }
     public ICommand PasserCommandeCommand { get; }
 
-    public PanierViewModel(ObservableCollection<Plat> panier, User utilisateur, AppViewModel app)
+    public PanierViewModel(ObservableCollection<Plat> panier, User utilisateur, NClientViewModel clientVM)
     {
         _utilisateur = utilisateur;
-        _app = app;
+        _client = clientVM;
 
         _panier = new ObservableCollection<PlatCommandeViewModel>(
             panier.Select(p => new PlatCommandeViewModel(p, utilisateur.Adresse)));
@@ -38,6 +38,12 @@ public class PanierViewModel : INotifyPropertyChanged
     private void RetirerDuPanier(PlatCommandeViewModel platVM)
     {
         Panier.Remove(platVM);
+
+        var db = Database.Instance;
+        LigneCommande.SupprimerParPlatId(db, platVM.Plat.PlatId);
+        _client.Panier.Remove(platVM.Plat);
+
+        OnPropertyChanged(nameof(PrixTotal));
     }
 
     private void PasserCommande()
@@ -52,30 +58,34 @@ public class PanierViewModel : INotifyPropertyChanged
         {
             var db = Database.Instance;
 
+            //Créer la commande
             var commande = new Commande
             {
                 HeureCommande = DateTime.Now,
                 PrixTotal = PrixTotal,
                 CuisinierId = Panier.First().Plat.CuisinierId,
                 ClientId = _utilisateur.UserId,
-                AdresseDepart = Commande.GetAdresseUser(db, Panier.First().Plat.CuisinierId),
-                Lignes = new List<LigneCommande>()
+                AdresseDepart = Commande.GetAdresseUser(db, Panier.First().Plat.CuisinierId)
             };
+            commande.AjouterCommande(db); // récupère CommandeId
 
-            foreach (var plat in Panier)
+            //Mettre à jour les lignes existantes
+            foreach (var platVM in Panier)
             {
-                commande.Lignes.Add(new LigneCommande
+                LigneCommande ligne = LigneCommande.GetByPlatId(db, platVM.Plat.PlatId);
+                if (ligne != null)
                 {
-                    PlatId = plat.Plat.PlatId,
-                    AdresseArrivee = plat.AdresseLivraison,
-                    HeureLivraison = plat.HeureLivraison,
-                    Statut = "Commandee"
-                });
+                    ligne.AdresseArrivee = platVM.AdresseLivraison;
+                    ligne.HeureLivraison = platVM.HeureLivraison;
+                    ligne.Statut = "Commandee";
+                    ligne.CommandeId = commande.CommandeId;
+                    ligne.ModifierCommande(db);
+                }
             }
 
-            commande.AjouterCommande(db);
             MessageBox.Show("✅ Commande enregistrée !");
             Panier.Clear();
+            _client.Panier.Clear();
         }
         catch (Exception ex)
         {

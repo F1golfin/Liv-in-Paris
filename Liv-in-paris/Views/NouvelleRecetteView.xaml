@@ -30,8 +30,8 @@
             <TextBlock Text="Style de cuisine" />
             <TextBox x:Name="StyleTextBox" Margin="0 5"/>
 
-            <TextBlock Text="Régime alimentaire" />
-            <TextBox x:Name="RegimeTextBox" Margin="0 5"/>
+            <TextBlock Text="Régimes alimentaires" />
+            <ListBox x:Name="RegimesListBox" Margin="0 5" SelectionMode="Multiple" DisplayMemberPath="Regime"/>
 
         </StackPanel>
 
