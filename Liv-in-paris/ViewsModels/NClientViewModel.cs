@@ -61,7 +61,7 @@ namespace Liv_in_paris
             PlatsVue=platsView;
 
             var panierView = new PanierView();
-            panierView.DataContext = new PanierViewModel(Panier, _utilisateur, _app);
+            panierView.DataContext = new PanierViewModel(Panier, _utilisateur, this);
             PanierVue=panierView;
 
             var commandesView = new CommandesView();

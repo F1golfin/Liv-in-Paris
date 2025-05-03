@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows.Data;
 
-public class ListeToStringConverter : IValueConverter
+namespace Liv_in_paris
 {
-    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    public class ListeToStringConverter : IValueConverter
     {
-        if (value is List<string> list)
-            return string.Join(", ", list);
-        return "";
-    }
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is List<string> list)
+                return string.Join(", ", list);
+            return "";
+        }
 
-    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
+
+
