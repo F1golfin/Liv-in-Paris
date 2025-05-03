@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Views;
 using Liv_in_paris.Core.Services;
+
 
 namespace Liv_in_paris
 {
@@ -56,6 +58,11 @@ namespace Liv_in_paris
             else if (role == "Cuisinier")
             {
                 var vue = new CuisinierView(user, this);
+                CurrentSubView = vue;
+            }
+            else if (role == "Admin")
+            {
+                var vue = new AdminView();
                 CurrentSubView = vue;
             }
         }

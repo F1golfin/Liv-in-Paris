@@ -62,6 +62,17 @@ public class User
     /// <param name="db">Instance de <see cref="DatabaseManager"/> utilisée pour exécuter la requête.</param>
     public void CreerUser(DatabaseManager db)
     {
+        var checkQuery = $@"
+        SELECT 1 FROM users 
+        WHERE email = '{Email.Replace("'", "''")}' 
+        OR telephone = '{Telephone.Replace("'", "''")}'";
+
+        var result = db.ExecuteQuery(checkQuery);
+        if (result.Rows.Count > 0)
+        {
+            Console.WriteLine($"⚠️ Utilisateur déjà existant : {Email}");
+            return;
+        }
         string query = $@"
         INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise)
         VALUES (
