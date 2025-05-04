@@ -76,7 +76,10 @@ public class PlatsViewModel : ViewModelBase
         
         foreach (User user in User.GetAllCuisinier(db))
         {
-            Cuisiniers.Add(user);
+            if (user.UserId != _clientVM._utilisateur.UserId)
+            {
+                Cuisiniers.Add(user);
+            }
         }
         
         if (Cuisiniers.Any())

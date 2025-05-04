@@ -44,7 +44,7 @@ namespace Liv_in_paris
         public ICommand ActualiserCommand { get; }
         public ICommand GererCompteCommand { get; }
 
-        private User _utilisateur;
+        public readonly User _utilisateur;
 
         public ObservableCollection<Plat> Panier { get; } = new();
 
