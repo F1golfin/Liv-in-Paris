@@ -13,6 +13,7 @@ public class Plat
     public ulong CuisinierId { get; set; }
     public ulong RecetteId { get; set; }
     public Recette Recette { get; set; }
+    public bool EstNouveau => (DateTime.Now - DateFabrication).TotalDays < 2;
 
     
     public static Plat? GetById(DatabaseManager db, ulong platId)

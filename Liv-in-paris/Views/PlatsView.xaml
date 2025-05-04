@@ -5,6 +5,8 @@
     
     <UserControl.Resources>
         <local:ListeToStringConverter x:Key="ListeToStringConverter"/>
+        <local:ByteArrayToImageSourceConverter x:Key="PhotoConverter"/>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
 
     <Grid Background="#FFF">
@@ -60,26 +62,49 @@
             <ItemsControl ItemsSource="{Binding Plats}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,0,0,15" Padding="10" CornerRadius="10" Background="#FFF">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="{Binding NomPlat}" FontWeight="Bold" FontSize="16"/>
-                                <TextBlock Text="{Binding PrixParPersonne, StringFormat='Prix : {0} €'}"/>
-                                <TextBlock Text="{Binding NbParts, StringFormat='Parts : {0}'}"/>
-                                <TextBlock Text="{Binding DateFabrication, StringFormat='Fabriqué le : {0:dd/MM/yyyy}'}"/>
-                                <TextBlock Text="{Binding DatePeremption, StringFormat='Péremption : {0:dd/MM/yyyy}'}"/>
+                        <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,0,0,15" Padding="10" CornerRadius="10" Background="#FAFAFA">
+                            <DockPanel>
+                                <!-- 📸 Image à gauche -->
+                                <Border Width="120" Height="120" CornerRadius="8" Margin="0,0,10,0" BorderBrush="Gray" BorderThickness="1">
+                                    <Image Source="{Binding Photo, Converter={StaticResource PhotoConverter}}"
+                                           Stretch="UniformToFill"
+                                           ClipToBounds="True"
+                                           Width="120" Height="120"/>
+                                </Border>
 
-                                <TextBlock Text="{Binding Recette.NomRecette, StringFormat='Recette : {0}'}" FontWeight="Bold" Margin="0,5,0,0"/>
-                                <TextBlock Text="{Binding Recette.Type, StringFormat='Type : {0}'}"/>
-                                <TextBlock Text="{Binding Recette.StyleCuisine, StringFormat='Cuisine : {0}'}"/>
-                                <TextBlock Text="{Binding Recette.RegimesNoms, Converter={StaticResource ListeToStringConverter}, StringFormat='Régimes : {0}'}" TextWrapping="Wrap"/>
-                                <TextBlock Text="{Binding Recette.Ingredients, StringFormat='Ingrédients : {0}'}" TextWrapping="Wrap" Margin="0,2,0,5"/>
+                                <!-- 📝 Infos plat à droite -->
+                                <StackPanel>
+                                    <Border Background="OrangeRed"
+                                            CornerRadius="6"
+                                            Padding="6,2"
+                                            Margin="0,0,0,5"
+                                            HorizontalAlignment="Left"
+                                            Visibility="{Binding EstNouveau, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock Text="🆕 Nouveau"
+                                                   Foreground="White"
+                                                   FontWeight="Bold"
+                                                   FontSize="12"/>
+                                    </Border>
+                                    <TextBlock Text="{Binding NomPlat}" FontWeight="Bold" FontSize="16" Foreground="#333"/>
+                                    <TextBlock Text="{Binding PrixParPersonne, StringFormat='Prix : {0} €'}" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding NbParts, StringFormat='Parts : {0}'}" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding DateFabrication, StringFormat='Fabriqué le : {0:dd/MM/yyyy}'}" Foreground="Gray"/>
+                                    <TextBlock Text="{Binding DatePeremption, StringFormat='Péremption : {0:dd/MM/yyyy}'}" Foreground="Gray" Margin="0,0,0,5"/>
 
-                                <Button Content="Ajouter au panier"
-                                        Width="150"
-                                        Margin="0,10,0,0"
-                                        Command="{Binding DataContext.AjouterAuPanierCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        CommandParameter="{Binding}" />
-                            </StackPanel>
+                                    <TextBlock Text="{Binding Recette.NomRecette, StringFormat='Recette : {0}'}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding Recette.Type, StringFormat='Type : {0}'}"/>
+                                    <TextBlock Text="{Binding Recette.StyleCuisine, StringFormat='Cuisine : {0}'}"/>
+                                    <TextBlock Text="{Binding Recette.RegimesNoms, Converter={StaticResource ListeToStringConverter}, StringFormat='Régimes : {0}'}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Recette.Ingredients, StringFormat='Ingrédients : {0}'}" TextWrapping="Wrap" Margin="0,2,0,5"/>
+
+                                    <Button Content="Ajouter au panier"
+                                            Width="150"
+                                            Padding="4"
+                                            Margin="0,10,0,0"
+                                            Command="{Binding DataContext.AjouterAuPanierCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}" />
+                                </StackPanel>
+                            </DockPanel>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
