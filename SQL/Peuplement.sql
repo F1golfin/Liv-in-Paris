@@ -5,7 +5,7 @@ INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone,
                                                                                                  ('pass123', 'Client', 'Entreprise', 'multi@example.com', 'Durand', 'Claire', '3 rue Paris', '0600000003', 'La Bonne Bouffe');
 -- 👥 Insertion de Maxime, Amandine et Guillaume
 INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise) VALUES
-                                                                                                 ('azerty', 'Client,Cuisinier', 'Particulier', 'maxime@example.com', 'Rousseau', 'Maxime', '4 rue Paris', '0600000004', NULL),
+                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'maxime@example.com', 'Rousseau', 'Maxime', '4 rue Paris', '0600000004', NULL),
                                                                                                  ('azerty', 'Client', 'Particulier', 'amandine@example.com', 'Baranger', 'Amandine', '5 rue Paris', '0600000005', NULL),
                                                                                                  ('azerty', 'Client', 'Entreprise', 'guillaume@example.com', 'Blain', 'Guillaume', '6 rue Paris', '0600000006', 'Livin Paris');
 -- Regime alimentaire

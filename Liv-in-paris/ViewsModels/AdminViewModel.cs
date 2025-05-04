@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Graph;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
@@ -32,9 +33,10 @@ public class AdminViewModel : INotifyPropertyChanged
         }
     }
 
-    public AdminViewModel(DatabaseManager db)
+    public AdminViewModel(AppViewModel app)
     {
-        _db = db;
+        DeconnexionCommand = new RelayCommand(() => app.Deconnexion());
+        _db = Database.Instance;
         LoadUsers();
         
     }

@@ -11,11 +11,10 @@ public partial class AdminView : UserControl
 {
     private AdminViewModel _viewModel;
 
-    public AdminView() // plus besoin de passer db en paramètre
+    public AdminView(AppViewModel parent) 
     {
         InitializeComponent();
-        var db = Database.Instance;
-        _viewModel = new AdminViewModel(db);
+        _viewModel = new AdminViewModel(parent);
         DataContext = _viewModel;
         
     }

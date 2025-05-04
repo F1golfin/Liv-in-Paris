@@ -62,7 +62,7 @@ namespace Liv_in_paris
             }
             else if (role == "Admin")
             {
-                var vue = new AdminView();
+                var vue = new AdminView(this);
                 CurrentSubView = vue;
             }
         }
