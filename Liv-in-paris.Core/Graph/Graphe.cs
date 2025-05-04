@@ -541,4 +541,45 @@ public class Graphe<T> where T : new()
         }
     }
     #endregion
+    
+    /// <summary>
+    /// Applique l'algorithme de Welsh-Powell pour colorier le graphe.
+    /// </summary>
+    /// <returns>Un dictionnaire contenant l'id de chaque nœud et sa couleur.</returns>
+    public Dictionary<int, int> ColorierWelshPowell()
+    {
+        // Trie les nœuds par ordre décroissant de degré (nombre de voisins)
+        var noeudsTries = _noeuds.Keys
+            .OrderByDescending(id => _matrice.ContainsKey(id) ? _matrice[id].Count : 0)
+            .ToList();
+
+        var couleurs = new Dictionary<int, int>();
+
+        foreach (var noeud in noeudsTries)
+        {
+            var couleursUtilisees = new HashSet<int>();
+
+            if (_matrice.ContainsKey(noeud))
+            {
+                foreach (var voisin in _matrice[noeud].Keys)
+                {
+                    if (couleurs.TryGetValue(voisin, out int couleurVoisin))
+                    {
+                        couleursUtilisees.Add(couleurVoisin);
+                    }
+                }
+            }
+
+            int couleur = 0;
+            while (couleursUtilisees.Contains(couleur))
+            {
+                couleur++;
+            }
+
+            couleurs[noeud] = couleur;
+        }
+
+        return couleurs;
+    }
+
 }
