@@ -27,6 +27,7 @@ public class RegisterViewModel : ViewModelBase
 
     public RegisterViewModel(AppViewModel appViewModel)
     {
+        SelectedType = "Particulier";
         _appViewModel = appViewModel;
         RegisterCommand = new RelayCommand(Register);
         GoToLoginCommand = new RelayCommand(() => _appViewModel.NavigateToLogin());
@@ -47,9 +48,13 @@ public class RegisterViewModel : ViewModelBase
             OnPropertyChanged(nameof(MessageErreur));
             return;
         }
+        if (SelectedType == "Entreprise" && string.IsNullOrWhiteSpace(NewEntreprise))
+        {
+            MessageErreur = "Le nom de l'entreprise est requis pour les comptes professionnels.";
+            OnPropertyChanged(nameof(MessageErreur));
+            return;
+        }
         Console.WriteLine($"Compte créé pour {NewNom}");
-        _appViewModel.NavigateToLogin();
-        
         Console.WriteLine($"Role = '{SelectedRole}', Type = '{SelectedType}'");
 
         // Création de l'utilisateur
@@ -76,7 +81,13 @@ public class RegisterViewModel : ViewModelBase
         }
         catch (Exception ex)
         {
-            MessageErreur = "Erreur lors de l'enregistrement : " + ex.Message;
+            if (ex.Message.Contains("Duplicate") && ex.Message.Contains("email"))
+                MessageErreur = "Cette adresse email est déjà utilisée.";
+            else if (ex.Message.Contains("Duplicate") && ex.Message.Contains("entreprise"))
+                MessageErreur = "Ce nom d’entreprise est déjà utilisé.";
+            else
+                MessageErreur = "Erreur lors de l'enregistrement : " + ex.Message;
+
             OnPropertyChanged(nameof(MessageErreur));
         }
 

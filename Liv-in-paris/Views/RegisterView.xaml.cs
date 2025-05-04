@@ -30,10 +30,37 @@ public partial class RegisterView : UserControl
         if (UserType.SelectedItem is ComboBoxItem selectedItem)
         {
             string value = selectedItem.Content.ToString();
+
+            // Gérer visibilité des champs spécifiques
             TxtEntreprise.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
             NomEntreprise.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
             CooReferent.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
             InfoEntreprise.Visibility = (value == "Particulier") ? Visibility.Collapsed : Visibility.Visible;
+
+            // Si Entreprise, forcer le rôle à Client uniquement
+            if (DataContext is RegisterViewModel vm)
+            {
+                if (value == "Entreprise")
+                {
+                    vm.SelectedRole = "Client";
+                    RoleListBox.SelectedItems.Clear();
+                    foreach (ListBoxItem item in RoleListBox.Items)
+                    {
+                        if ((string)item.Content == "Client")
+                        {
+                            item.IsSelected = true;
+                            break;
+                        }
+                    }
+                    RoleListBox.IsEnabled = false;
+                }
+                else
+                {
+                    vm.SelectedRole = null;
+                    RoleListBox.IsEnabled = true;
+                }
+            }
         }
     }
+
 }

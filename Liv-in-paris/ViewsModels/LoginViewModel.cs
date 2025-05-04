@@ -11,6 +11,7 @@ public class LoginViewModel : ViewModelBase
     public string UserPrenom { get; set; }
     public string Password { get; set; }
     public string MessageErreur { get; set; }
+    public string SelectedUserType { get; set; } = "Particulier";
 
     public ICommand LoginCommand { get; }
     public ICommand GoToRegisterCommand { get; }
@@ -24,34 +25,44 @@ public class LoginViewModel : ViewModelBase
 
     private void Login()
     {
-        
         if (string.IsNullOrWhiteSpace(UserPrenom) || string.IsNullOrWhiteSpace(Password))
         {
             MessageErreur = "Veuillez remplir tous les champs.";
             OnPropertyChanged(nameof(MessageErreur));
             return;
         }
+
         try
         {
+            User? utilisateur = null;
             var db = Database.Instance;
-            User? utilisateur = User.Authenticate(db, UserPrenom, Password);
+
+            if (SelectedUserType == "Particulier")
+            {
+                utilisateur = User.AuthenticateParEmail(db, UserPrenom, Password);
+            }
+            else if (SelectedUserType == "Entreprise")
+            {
+                utilisateur = User.AuthenticateParEntreprise(db, UserPrenom, Password);
+            }
 
             if (utilisateur != null)
             {
                 string[] allRoles = utilisateur.Role.Split(',');
+
                 if (allRoles.Length > 1)
                 {
-                    string selectedRole = ShowRoleSelectionPopup(allRoles); 
-                    RedirectUser(utilisateur,selectedRole);
+                    string selectedRole = ShowRoleSelectionPopup(allRoles);
+                    RedirectUser(utilisateur, selectedRole);
                 }
                 else
                 {
-                    RedirectUser(utilisateur,allRoles[0]);
+                    RedirectUser(utilisateur, allRoles[0]);
                 }
             }
             else
             {
-                MessageErreur = "Email ou mot de passe incorrect.";
+                MessageErreur = "Identifiants incorrects.";
                 OnPropertyChanged(nameof(MessageErreur));
             }
         }
@@ -61,6 +72,7 @@ public class LoginViewModel : ViewModelBase
             OnPropertyChanged(nameof(MessageErreur));
         }
     }
+
     
     private string ShowRoleSelectionPopup(string[] allRoles)
     {

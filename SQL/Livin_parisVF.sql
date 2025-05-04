@@ -13,7 +13,7 @@ CREATE TABLE users
     prenom     VARCHAR(50)                        NOT NULL, -- Pour les entreprises contient le prenom du contact
     adresse    VARCHAR(255)                       NOT NULL,
     telephone  VARCHAR(15) UNIQUE                 NOT NULL,
-    entreprise VARCHAR(50)                                  -- Pour les entreprises contient le nom de l'entreprise, NULL pour les particuliers
+    entreprise VARCHAR(50) UNIQUE                           -- Pour les entreprises contient le nom de l'entreprise, NULL pour les particuliers
 
 );
 
