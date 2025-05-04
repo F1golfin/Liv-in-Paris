@@ -2,11 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using Database = Liv_in_paris.Core.Services.Database;
 
 namespace Liv_in_paris
 {
@@ -73,7 +75,7 @@ namespace Liv_in_paris
             PanierVue=panierView;
 
             var commandesView = new CommandesView();
-            commandesView.DataContext = new CommandesViewModel(_app, _utilisateur);
+            commandesView.DataContext = new CommandesViewModel(this, _utilisateur);
             CommandesVue=commandesView;
         }
         
@@ -86,9 +88,27 @@ namespace Liv_in_paris
                 return;
             }
 
-            if (!Panier.Any(p => p.PlatId == plat.PlatId))
+            if (Panier.Any(p => p.PlatId == plat.PlatId))
+                return; // Évite les doublons
+
+            Panier.Add(plat);
+
+            try
             {
-                Panier.Add(plat);
+                var db = Database.Instance;
+                var ligne = new LigneCommande
+                {
+                    PlatId = plat.PlatId,
+                    AdresseArrivee = null,
+                    HeureLivraison = null,
+                    Statut = "Panier",
+                    CommandeId = null
+                };
+                ligne.AjouterCommande_tps(db);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'ajout de la ligne de commande : {ex.Message}");
             }
 
             if (PlatsVue is PlatsView vue && vue.DataContext is PlatsViewModel platsVM)

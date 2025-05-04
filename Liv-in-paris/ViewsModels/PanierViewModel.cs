@@ -127,6 +127,11 @@ public class PanierViewModel : INotifyPropertyChanged
         }
 
         OnPropertyChanged(nameof(PrixTotal));
+        
+        if (_client.CommandesVue is CommandesView commandesView && commandesView.DataContext is CommandesViewModel commandesVM)
+        {
+            commandesVM.RechargerCommandes();
+        }
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;

@@ -124,4 +124,5 @@ public class PlatsViewModel : ViewModelBase
     {
         Plats.Remove(plat);
     }
+    
 }
