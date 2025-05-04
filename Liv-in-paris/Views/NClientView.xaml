@@ -14,7 +14,10 @@
         </Grid.ColumnDefinitions>
 
         <StackPanel Margin="5">
-            <Button x:Name="AccountManager" Content="Gérer votre compte" />
+            <Button x:Name="AccountManager"
+                    Content="{Binding TexteBoutonCompte}"
+                    Command="{Binding GererCompteCommand}"
+                    Margin="0,0,0,10"/>
             <ContentControl Content="{Binding PlatsVue}"/>
         </StackPanel>
         <StackPanel Grid.Column="2" Margin="5">

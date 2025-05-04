@@ -31,10 +31,18 @@ namespace Liv_in_paris
             set { _commandesVue = value; OnPropertyChanged(); }
         }
 
+        private string _texteBoutonCompte = "Gérer votre compte";
+        public string TexteBoutonCompte
+        {
+            get => _texteBoutonCompte;
+            set { _texteBoutonCompte = value; OnPropertyChanged(); }
+        }
+        private bool _estDansCompte = false;
 
         private readonly AppViewModel _app;
         public ICommand DeconnexionCommand { get; }
         public ICommand ActualiserCommand { get; }
+        public ICommand GererCompteCommand { get; }
 
         private User _utilisateur;
 
@@ -47,6 +55,7 @@ namespace Liv_in_paris
             _utilisateur = utilisateur;
             ActualiserCommand = new RelayCommand(ChargerDonnees);
             DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
+            GererCompteCommand = new RelayCommand(ToggleCompteOuPlats);
 
             ChargerDonnees();
 
@@ -67,7 +76,7 @@ namespace Liv_in_paris
             commandesView.DataContext = new CommandesViewModel(_app, _utilisateur);
             CommandesVue=commandesView;
         }
-
+        
 
         public void AjouterAuPanier(Plat plat)
         {
@@ -88,6 +97,38 @@ namespace Liv_in_paris
             }
 
             OnPropertyChanged(nameof(Panier));
+        }
+        
+        private void AfficherCompte()
+        {
+            var compteView = new CompteView();
+            compteView.DataContext = new CompteViewModel(_utilisateur,this);
+            PlatsVue = compteView;
+        }
+        
+        public void AfficherPlats()
+        {
+            var platsView = new PlatsView();
+            platsView.DataContext = new PlatsViewModel(this);
+            PlatsVue = platsView;
+        }
+        
+        private void ToggleCompteOuPlats()
+        {
+            if (_estDansCompte)
+            {
+                AfficherPlats();
+                TexteBoutonCompte = "Gérer votre compte";
+            }
+            else
+            {
+                var compteView = new CompteView();
+                compteView.DataContext = new CompteViewModel(_utilisateur, this);
+                PlatsVue = compteView;
+                TexteBoutonCompte = "← Revenir aux plats";
+            }
+
+            _estDansCompte = !_estDansCompte;
         }
     }
 }
