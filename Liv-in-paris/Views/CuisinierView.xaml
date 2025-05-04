@@ -12,137 +12,85 @@
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="1" Margin="10 0 10 0">
+            <TextBlock Text="📦 Mes commandes" FontWeight="Bold" FontSize="16" Margin="0 0 20 10"/>
 
+            <ItemsControl ItemsSource="{Binding Commandes}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="DarkGray" BorderThickness="1" Padding="10" Margin="0 0 0 10">
+                            <StackPanel>
+                                <TextBlock Text="{Binding CommandeId, StringFormat='Commande #{0}'}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding HeureCommande, StringFormat='🕒 Commandée le : {0:dd/MM/yyyy HH:mm}'}"/>
+
+                                <!-- ✅ Affichage des lignes de commande -->
+                                <ItemsControl ItemsSource="{Binding LignesCommandes}" Margin="10,10,0,0">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding Plat.NomPlat}" Width="150"/>
+                                                <TextBlock Text="{Binding AdresseArrivee}" Width="200"/>
+                                                <ComboBox ItemsSource="{Binding StatutsDisponibles}"
+                                                    SelectedItem="{Binding Statut, Mode=TwoWay}"
+                                                    Width="150"/>
+                                                <Button Content="✅"
+                                                    Margin="10,0,0,0"
+                                                    Command="{Binding DataContext.MettreAJourStatutCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+        
         <!-- Contenu principal défilable -->
-        <ScrollViewer Grid.Row="0" Margin="10" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="20">
+        <StackPanel Margin="20">
 
-                <!-- TITRE -->
-                <TextBlock Text="👨‍🍳 Mes plats" FontSize="20" FontWeight="Bold" Margin="0 0 0 20"/>
+            <!-- TITRE -->
 
-                <!-- LISTE DES PLATS -->
-                <ItemsControl ItemsSource="{Binding Plats}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0 0 0 10">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding NomPlat}" FontWeight="Bold"/>
-                                    <TextBlock Text="Prix par personne :"/>
-                                    <TextBlock Text="{Binding PrixParPersonne}" />
-                                    <TextBlock Text="🧂 Ingrédients :" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Recette.Ingredients}" />
-                                    <TextBlock Text="Type :" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Recette.Type}" />
-                                    <TextBlock Text="Régimes :" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Recette.RegimesNoms, Converter={StaticResource ListeToStringConverter}}" />
-                                    <TextBlock Text="Style cuisine :" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Recette.StyleCuisine}" />
-                                    <TextBlock Text="Nombre de parts :" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding NbParts}" />
-                                    <Button Content="🗑 Supprimer"
-                                            Margin="0,10,0,0"
-                                            Background="LightCoral"
-                                            Command="{Binding DataContext.SupprimerPlatCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                            CommandParameter="{Binding}" />
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="👨‍🍳 Mes plats" x:Name="MesPlats" FontSize="20" FontWeight="Bold" Margin="0 0 0 20" Padding="5 0 5 2" Click="Button_Click"/>
+                <Button Grid.Column="1" x:Name="AjouterPlat" Margin="0 0 0 20" Content="➕ Ajouter un plat" FontSize="20" FontWeight="Bold" Padding="5 0 5 2" Click="Button_Click_1"/>
+            </Grid>
+            <ContentControl x:Name="ContentBox"/>
+            <!-- LISTE DES PLATS -->
 
-                <!-- Section Commandes -->
-<Separator Margin="0 20 0 20"/>
-<TextBlock Text="📦 Mes commandes" FontWeight="Bold" FontSize="16" Margin="0 0 0 10"/>
 
-                <ItemsControl ItemsSource="{Binding Commandes}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="DarkGray" BorderThickness="1" Padding="10" Margin="0 0 0 10">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding CommandeId, StringFormat='Commande #{0}'}" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding HeureCommande, StringFormat='🕒 Commandée le : {0:dd/MM/yyyy HH:mm}'}"/>
 
-                                    <!-- ✅ Affichage des lignes de commande -->
-                                    <ItemsControl ItemsSource="{Binding LignesCommandes}" Margin="10,10,0,0">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                                    <TextBlock Text="{Binding Plat.NomPlat}" Width="150"/>
-                                                    <TextBlock Text="{Binding AdresseArrivee}" Width="200"/>
-                                                    <ComboBox ItemsSource="{Binding StatutsDisponibles}"
-                                                              SelectedItem="{Binding Statut, Mode=TwoWay}"
-                                                              Width="150"/>
-                                                    <Button Content="✅"
-                                                            Margin="10,0,0,0"
-                                                            Command="{Binding DataContext.MettreAJourStatutCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                            CommandParameter="{Binding}" />
-                                                </StackPanel>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
 
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
 
-                <!-- AJOUT DE PLAT -->
-                <Separator Margin="0 20 0 20"/>
-                <TextBlock Text="➕ Ajouter un nouveau plat" FontWeight="Bold" FontSize="16" Margin="0 0 0 10"/>
-                <StackPanel>
-                    <TextBlock Text="Nom :" Margin="0,0,0,5"/>
-                    <TextBox Margin="5" Text="{Binding NewNomPlat}" />
-                    <TextBlock Text="Prix (€) :" Margin="0,0,0,5"/>
-                    <TextBox Margin="5" Text="{Binding NewPrixPlat}" />
-                    <TextBlock Text="Nombre de parts :" Margin="0,0,0,5"/>
-                    <TextBox Margin="5" Text="{Binding NewNbParts}" />
-                    <TextBlock Text="Type :" Margin="0,0,0,5"/>
-                    <ComboBox Width="200" Margin="10"
-                              SelectedItem="{Binding NewTypePlat}">
-                        <ComboBox.ItemsSource>
-                            <x:Array Type="{x:Type sys:String}">
-                                <sys:String>Entrée</sys:String>
-                                <sys:String>Plat</sys:String>
-                                <sys:String>Dessert</sys:String>
-                            </x:Array>
-                        </ComboBox.ItemsSource>
-                    </ComboBox>
-                    <TextBlock Text="Recette associée (facultatif) :" Margin="10,10,0,5"/>
-                    <ComboBox Width="300"
-                              ItemsSource="{Binding RecettesExistantes}"
-                              DisplayMemberPath="NomRecette"
-                              SelectedItem="{Binding RecetteSelectionnee}"
-                              Margin="5"/>
-                    <StackPanel Orientation="Horizontal" Margin="5">
-                        <Button Content="➕ Nouvelle recette"
-                                Command="{Binding AjouterNouvelleRecetteCommand}"
-                                Margin="0,0,10,0"/>
-                    </StackPanel>
-                    <Button Content="Ajouter" Margin="5" Command="{Binding AjouterPlatCommand}" />
-                </StackPanel>
-
-                <!-- ÉVALUATIONS -->
-                <Separator Margin="0 20 0 20"/>
-                <TextBlock Text="📝 Avis reçus" FontWeight="Bold" FontSize="16" Margin="0 0 0 10"/>
-                <ItemsControl ItemsSource="{Binding EvaluationsRecues}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0 0 0 10">
-                                <StackPanel>
-                                    <TextBlock Text="Note :" FontWeight="Bold"/>
-                                    <TextBlock Text="{Binding Note}"/>
-                                    <TextBlock Text="Commentaire :" FontWeight="Bold" Margin="0,5,0,0"/>
-                                    <TextBlock Text="{Binding Commentaire}"/>
-                                    <TextBlock Text="Date :" FontWeight="Bold" Margin="0,5,0,0"/>
-                                    <TextBlock Text="{Binding DateEvaluation}"/>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </ScrollViewer>
+            <TextBlock Text="📝 Avis reçus" FontWeight="Bold" FontSize="16" Margin="0 0 0 10"/>
+            <ItemsControl ItemsSource="{Binding EvaluationsRecues}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0 0 0 10">
+                            <StackPanel>
+                                <TextBlock Text="Note :" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding Note}"/>
+                                <TextBlock Text="Commentaire :" FontWeight="Bold" Margin="0,5,0,0"/>
+                                <TextBlock Text="{Binding Commentaire}"/>
+                                <TextBlock Text="Date :" FontWeight="Bold" Margin="0,5,0,0"/>
+                                <TextBlock Text="{Binding DateEvaluation}"/>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
 
         <!-- Bouton de déconnexion -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
