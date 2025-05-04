@@ -65,5 +65,22 @@ public partial class AdminView : UserControl
         if (dialog.ShowDialog() == true)
             _viewModel.ImportUsersFromXml(dialog.FileName);
     }
+    
+    private void AfficherLivraisonsParCuisinier(object sender, RoutedEventArgs e) =>
+        _viewModel.AfficherLivraisonsParCuisinier();
+
+    private void AfficherCommandesParPeriode(object sender, RoutedEventArgs e) =>
+        _viewModel.AfficherCommandesParPeriode();
+
+    private void AfficherMoyennePrixCommandes(object sender, RoutedEventArgs e) =>
+        _viewModel.AfficherMoyennePrixCommandes();
+
+    private void AfficherMoyenneComptesClients(object sender, RoutedEventArgs e) =>
+        _viewModel.AfficherMoyenneComptesClients();
+
+    private void AfficherCommandesClientFiltrées(object sender, RoutedEventArgs e) =>
+        _viewModel.AfficherCommandesClientFiltrées();
+
+
 
 }
