@@ -45,8 +45,20 @@
                     <TextBlock Text="Téléphone"/>
                     <TextBox Text="{Binding NewTelephone}" Margin="0 5"/>
 
-                    <TextBlock Text="Adresse"/>
-                    <TextBox Text="{Binding NewAdresse}" Margin="0 5"/>
+                    <TextBlock Text="Adresse" />
+                    <TextBox x:Name="IDAdresse"
+                             Text="{Binding NewAdresse, UpdateSourceTrigger=PropertyChanged}" 
+                             TextChanged="IDAdresse_TextChanged"
+                             Margin="0 5"/>
+                    <ListBox x:Name="SuggestionsListBox"
+                             ItemsSource="{Binding Suggestions}"
+                             SelectionChanged="SuggestionsListBox_SelectionChanged"
+                             Visibility="{Binding Suggestions.Count, Converter={StaticResource CountToVisibilityConverter}}"
+                             MaxHeight="100"
+                             Margin="0,0,0,10"
+                             Background="White"
+                             BorderBrush="#CCC"
+                             BorderThickness="1"/>
 
                     <!-- Informations entreprise -->
                     <TextBlock x:Name="InfoEntreprise" Text="Informations sur l'entreprise" FontWeight="Bold" Margin="0,10,0,5" Visibility="Collapsed"/>

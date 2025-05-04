@@ -62,5 +62,27 @@ public partial class RegisterView : UserControl
             }
         }
     }
+    
+    private async void IDAdresse_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (DataContext is RegisterViewModel vm)
+        {
+            string saisie = IDAdresse.Text;
+            await vm.ChargerSuggestionsAsync(saisie);
+        }
+    }
+
+    private void SuggestionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is ListBox listBox && listBox.SelectedItem is string adresse)
+        {
+            if (DataContext is RegisterViewModel vm)
+            {
+                vm.NewAdresse = adresse;
+                vm.Suggestions.Clear();
+            }
+        }
+    }
+
 
 }
