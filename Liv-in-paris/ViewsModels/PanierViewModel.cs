@@ -8,24 +8,46 @@ using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
-public class PanierViewModel : INotifyPropertyChanged
+/// <summary>
+/// ViewModel de la vue du panier côté client.
+/// Gère l'affichage des plats sélectionnés, leur suppression et la validation de la commande.
+/// </summary>
+public class PanierViewModel : ViewModelBase
 {
     private readonly User _utilisateur;
     private readonly NClientViewModel _client;
-
     private readonly ObservableCollection<PlatCommandeViewModel> _panier;
+
+    /// <summary>
+    /// Plats affichés dans le panier, encapsulés dans des ViewModels pour gérer l’adresse et l’horaire.
+    /// </summary>
     public ObservableCollection<PlatCommandeViewModel> Panier => _panier;
 
+    /// <summary>
+    /// Prix total calculé dynamiquement à partir du panier.
+    /// </summary>
     public decimal PrixTotal => Panier.Sum(p => p.Plat.PrixParPersonne);
 
+    /// <summary>
+    /// Commande pour retirer un plat du panier.
+    /// </summary>
     public ICommand RetirerDuPanierCommand { get; }
+
+    /// <summary>
+    /// Commande pour valider la commande (enregistrer les lignes, vérifier les adresses).
+    /// </summary>
     public ICommand PasserCommandeCommand { get; }
 
+    /// <summary>
+    /// Initialise une nouvelle instance du <see cref="PanierViewModel"/>.
+    /// </summary>
+    /// <param name="panier">Collection initiale de plats sélectionnés.</param>
+    /// <param name="utilisateur">Utilisateur client actuel.</param>
+    /// <param name="clientVM">ViewModel principal du client.</param>
     public PanierViewModel(ObservableCollection<Plat> panier, User utilisateur, NClientViewModel clientVM)
     {
         _utilisateur = utilisateur;
         _client = clientVM;
-
         _panier = new ObservableCollection<PlatCommandeViewModel>();
 
         foreach (var plat in panier)
@@ -33,7 +55,6 @@ public class PanierViewModel : INotifyPropertyChanged
             _panier.Add(new PlatCommandeViewModel(plat, utilisateur.Adresse));
         }
 
-        // écoute les ajouts futurs dans le panier du client
         panier.CollectionChanged += (sender, e) =>
         {
             if (e.NewItems != null)
@@ -63,6 +84,10 @@ public class PanierViewModel : INotifyPropertyChanged
         _panier.CollectionChanged += (_, _) => OnPropertyChanged(nameof(PrixTotal));
     }
 
+    /// <summary>
+    /// Supprime un plat du panier et de la base, et le réaffiche dans la liste des plats disponibles.
+    /// </summary>
+    /// <param name="platVM">Plat à retirer.</param>
     private void RetirerDuPanier(PlatCommandeViewModel platVM)
     {
         Panier.Remove(platVM);
@@ -70,8 +95,7 @@ public class PanierViewModel : INotifyPropertyChanged
         var db = Database.Instance;
         LigneCommande.SupprimerParPlatId(db, platVM.Plat.PlatId);
         _client.Panier.Remove(platVM.Plat);
-        
-        // Réaffiche le plat dans la liste disponible
+
         if (_client.PlatsVue is PlatsView vue && vue.DataContext is PlatsViewModel platsVM)
         {
             platsVM.FiltrerEtTrierPlats();
@@ -80,6 +104,10 @@ public class PanierViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(PrixTotal));
     }
 
+    /// <summary>
+    /// Valide la commande : vérifie chaque adresse, enregistre la commande et les lignes dans la base,
+    /// puis met à jour les vues.
+    /// </summary>
     private async Task PasserCommandeAsync()
     {
         if (!Panier.Any())
@@ -144,8 +172,14 @@ public class PanierViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(PrixTotal));
     }
 
-
+    /// <summary>
+    /// Événement déclenché lorsqu'une propriété change (pour le binding).
+    /// </summary>
     public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// Notifie le changement d’une propriété.
+    /// </summary>
     protected void OnPropertyChanged([CallerMemberName] string name = null)
         => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

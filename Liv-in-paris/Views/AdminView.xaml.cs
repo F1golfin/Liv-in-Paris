@@ -1,30 +1,39 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
-using Liv_in_paris.Core.Models;
-using Liv_in_paris.Core.Services;
 using SkiaSharp;
 using SkiaSharp.Views.Desktop;
 
 namespace Liv_in_paris.Views;
 
+/// <summary>
+/// Vue administrative permettant la gestion des utilisateurs et la visualisation graphique des données dans l'application Liv'in Paris.
+/// </summary>
 public partial class AdminView : UserControl
 {
     private AdminViewModel _viewModel;
 
+    /// <summary>
+    /// Initialise la vue AdminView avec le ViewModel parent.
+    /// </summary>
+    /// <param name="parent">ViewModel principal de l'application.</param>
     public AdminView(AppViewModel parent) 
     {
         InitializeComponent();
         _viewModel = new AdminViewModel(parent);
         DataContext = _viewModel;
-        
     }
 
-
+    /// <summary>
+    /// Gère le clic sur le bouton "Supprimer" pour supprimer un utilisateur sélectionné.
+    /// </summary>
     private void Supprimer_Click(object sender, RoutedEventArgs e)
     {
         _viewModel.SupprimerUtilisateur();
     }
-    
+
+    /// <summary>
+    /// Gère l'export des utilisateurs au format JSON.
+    /// </summary>
     private void ExporterJson_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.SaveFileDialog
@@ -36,6 +45,9 @@ public partial class AdminView : UserControl
             _viewModel.ExportUsersToJson(dialog.FileName);
     }
 
+    /// <summary>
+    /// Gère l'export des utilisateurs au format XML.
+    /// </summary>
     private void ExporterXml_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.SaveFileDialog
@@ -47,6 +59,9 @@ public partial class AdminView : UserControl
             _viewModel.ExportUsersToXml(dialog.FileName);
     }
 
+    /// <summary>
+    /// Gère l'importation de données utilisateurs à partir d’un fichier JSON.
+    /// </summary>
     private void ImporterJson_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
@@ -57,6 +72,9 @@ public partial class AdminView : UserControl
             _viewModel.ImportUsersFromJson(dialog.FileName);
     }
 
+    /// <summary>
+    /// Gère l'importation de données utilisateurs à partir d’un fichier XML.
+    /// </summary>
     private void ImporterXml_Click(object sender, RoutedEventArgs e)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
@@ -66,6 +84,10 @@ public partial class AdminView : UserControl
         if (dialog.ShowDialog() == true)
             _viewModel.ImportUsersFromXml(dialog.FileName);
     }
+
+    /// <summary>
+    /// Gère le dessin du graphe coloré via SkiaSharp sur le canvas.
+    /// </summary>
     private void GraphCanvas_PaintSurface(object sender, SKPaintSurfaceEventArgs e)
     {
         var canvas = e.Surface.Canvas;
@@ -74,9 +96,8 @@ public partial class AdminView : UserControl
         if (_viewModel.GrapheColoration == null)
             return;
 
-        // Récupère les nœuds et leurs couleurs
         var graphe = _viewModel.GrapheColoration;
-        var couleurs = _viewModel.DerniereColoration; // Dictionnaire<int, int>
+        var couleurs = _viewModel.DerniereColoration;
 
         var radius = 20;
         var centerX = e.Info.Width / 2;
@@ -87,7 +108,6 @@ public partial class AdminView : UserControl
         var positions = new Dictionary<int, SKPoint>();
         var paint = new SKPaint { IsAntialias = true, Style = SKPaintStyle.Fill };
 
-        // Positionne les nœuds en cercle
         foreach (var noeud in graphe.Noeuds.Values)
         {
             var x = (float)(centerX + 150 * Math.Cos(angle * Math.PI / 180));
@@ -96,7 +116,6 @@ public partial class AdminView : UserControl
             angle += angleStep;
         }
 
-        // Dessine les liens
         paint.Color = SKColors.Gray;
         paint.StrokeWidth = 2;
         foreach (var lien in graphe.Liens)
@@ -104,20 +123,21 @@ public partial class AdminView : UserControl
             canvas.DrawLine(positions[lien.Origine.Id], positions[lien.Destination.Id], paint);
         }
 
-        // Dessine les nœuds colorés
         foreach (var noeud in graphe.Noeuds.Values)
         {
             int colorIndex = couleurs[noeud.Id];
             paint.Color = GetColorForIndex(colorIndex);
             canvas.DrawCircle(positions[noeud.Id], radius, paint);
 
-            // Ajoute l’ID
             paint.Color = SKColors.Black;
             paint.TextSize = 14;
             canvas.DrawText(noeud.Id.ToString(), positions[noeud.Id].X - 5, positions[noeud.Id].Y + 5, paint);
         }
     }
 
+    /// <summary>
+    /// Retourne une couleur SkiaSharp à partir d'un index entier.
+    /// </summary>
     private SKColor GetColorForIndex(int i)
     {
         var palette = new[] {
@@ -128,14 +148,14 @@ public partial class AdminView : UserControl
         return i < palette.Length ? palette[i] : SKColors.Black;
     }
 
-
-
+    /// <summary>
+    /// Analyse et applique la coloration du graphe, puis redessine le canvas.
+    /// </summary>
     private void AnalyserColoration_Click(object sender, RoutedEventArgs e)
     {
         _viewModel.AnalyserColoration();
-        GraphCanvas.InvalidateVisual(); // <- très important pour forcer le redraw SkiaSharp
+        GraphCanvas.InvalidateVisual();
     }
-
 
     private void AfficherLivraisonsParCuisinier(object sender, RoutedEventArgs e) =>
         _viewModel.AfficherLivraisonsParCuisinier();
@@ -151,7 +171,4 @@ public partial class AdminView : UserControl
 
     private void AfficherCommandesClientFiltrées(object sender, RoutedEventArgs e) =>
         _viewModel.AfficherCommandesClientFiltrées();
-
-
-
 }

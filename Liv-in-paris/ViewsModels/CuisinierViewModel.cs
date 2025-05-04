@@ -1,28 +1,55 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
 using Liv_in_paris.Core.Services;
-using Liv_in_paris.Core.Utils;
 using Liv_in_paris.Views;
 
 namespace Liv_in_paris
 {
+    /// <summary>
+    /// ViewModel destiné aux cuisiniers, permettant la gestion des plats, des recettes, des commandes, et des évaluations.
+    /// </summary>
     public class CuisinierViewModel : ViewModelBase
     {
         private readonly AppViewModel _app;
         private readonly User _utilisateurConnecte;
 
+        /// <summary>
+        /// Liste observable des plats du cuisinier.
+        /// </summary>
         public ObservableCollection<Plat> Plats { get; set; }
+
+        /// <summary>
+        /// Liste observable des recettes existantes dans la base.
+        /// </summary>
         public ObservableCollection<Recette> RecettesExistantes { get; set; }
 
+        /// <summary>
+        /// Nom du nouveau plat à ajouter.
+        /// </summary>
         public string NewNomPlat { get; set; }
+
+        /// <summary>
+        /// Prix par personne du nouveau plat.
+        /// </summary>
         public string NewPrixPlat { get; set; }
+
+        /// <summary>
+        /// Type du plat (entrée, plat principal, dessert...).
+        /// </summary>
         public string NewTypePlat { get; set; }
+
+        /// <summary>
+        /// Recette sélectionnée pour le nouveau plat.
+        /// </summary>
         public Recette RecetteSelectionnee { get; set; }
+
         private string _newNbParts;
+
+        /// <summary>
+        /// Nombre de parts du plat à ajouter.
+        /// </summary>
         public string NewNbParts
         {
             get => _newNbParts;
@@ -32,21 +59,52 @@ namespace Liv_in_paris
                 OnPropertyChanged(nameof(NewNbParts));
             }
         }
-        
+
+        /// <summary>
+        /// Liste des évaluations reçues par le cuisinier.
+        /// </summary>
         public ObservableCollection<Evaluation> EvaluationsRecues { get; set; }
 
+        /// <summary>
+        /// Liste des commandes à livrer ou déjà livrées.
+        /// </summary>
+        public ObservableCollection<Commande> Commandes { get; set; }
+
+        /// <summary>
+        /// Commande pour ajouter un plat.
+        /// </summary>
         public ICommand AjouterPlatCommand { get; }
+
+        /// <summary>
+        /// Commande pour ouvrir la fenêtre de création de recette.
+        /// </summary>
         public ICommand AjouterNouvelleRecetteCommand { get; }
+
+        /// <summary>
+        /// Commande pour se déconnecter.
+        /// </summary>
         public ICommand DeconnexionCommand { get; }
+
+        /// <summary>
+        /// Commande pour mettre à jour le statut d'une ligne de commande.
+        /// </summary>
         public ICommand MettreAJourStatutCommand { get; }
+
+        /// <summary>
+        /// Commande pour supprimer un plat existant.
+        /// </summary>
         public ICommand SupprimerPlatCommand { get; }
 
-        
+        /// <summary>
+        /// Initialise une nouvelle instance du <see cref="CuisinierViewModel"/>.
+        /// </summary>
+        /// <param name="parent">ViewModel principal de l'application.</param>
+        /// <param name="utilisateur">Utilisateur connecté (doit être cuisinier).</param>
         public CuisinierViewModel(AppViewModel parent, User utilisateur)
         {
             _app = parent;
             _utilisateurConnecte = utilisateur;
-            
+
             if (!_utilisateurConnecte.Role.ToLower().Contains("cuisinier"))
             {
                 MessageBox.Show("Accès réservé aux cuisiniers.");
@@ -57,15 +115,15 @@ namespace Liv_in_paris
             AjouterNouvelleRecetteCommand = new RelayCommand(AjouterNouvelleRecette);
             DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
 
-            var db = Database.Instance;
             ChargerDonnees();
+
             MettreAJourStatutCommand = new RelayCommand<LigneCommande>(ligne =>
             {
                 var db = Database.Instance;
-                ligne.MettreAJourStatut(db, ligne.Statut); // statut déjà sélectionné dans ComboBox
-                ChargerCommandes(); // refresh
+                ligne.MettreAJourStatut(db, ligne.Statut);
+                ChargerCommandes();
             });
-            
+
             SupprimerPlatCommand = new RelayCommand<Plat>(plat =>
             {
                 var result = MessageBox.Show($"Supprimer le plat « {plat.NomPlat} » ?", "Confirmation", MessageBoxButton.YesNo, MessageBoxImage.Warning);
@@ -76,27 +134,31 @@ namespace Liv_in_paris
                     ChargerDonnees();
                 }
             });
-
         }
 
+        /// <summary>
+        /// Charge tous les plats, recettes et évaluations du cuisinier depuis la base de données.
+        /// </summary>
         private void ChargerDonnees()
         {
             var db = Database.Instance;
-            
+
             Plats = new ObservableCollection<Plat>(Plat.GetAllByCuisinier(db, _utilisateurConnecte.UserId));
             RecettesExistantes = new ObservableCollection<Recette>(Recette.GetAll(db));
             OnPropertyChanged(nameof(Plats));
             OnPropertyChanged(nameof(RecettesExistantes));
-            
+
             EvaluationsRecues = new ObservableCollection<Evaluation>(
                 Evaluation.GetByCuisinier(db, _utilisateurConnecte.UserId)
             );
             OnPropertyChanged(nameof(EvaluationsRecues));
 
             ChargerCommandes();
-
         }
 
+        /// <summary>
+        /// Tente d’ajouter un nouveau plat à la base de données après validation des champs saisis.
+        /// </summary>
         private void AjouterPlat()
         {
             if (string.IsNullOrWhiteSpace(NewNomPlat) || string.IsNullOrWhiteSpace(NewPrixPlat) || string.IsNullOrWhiteSpace(NewTypePlat))
@@ -110,7 +172,7 @@ namespace Liv_in_paris
                 MessageBox.Show("Prix invalide.");
                 return;
             }
-            
+
             if (!int.TryParse(NewNbParts, out int nbParts) || nbParts <= 0)
             {
                 MessageBox.Show("Nombre de parts invalide.");
@@ -134,15 +196,19 @@ namespace Liv_in_paris
             ChargerDonnees();
         }
 
+        /// <summary>
+        /// Ouvre la fenêtre de création d’une nouvelle recette.
+        /// </summary>
         private void AjouterNouvelleRecette()
         {
             var fenetre = new NouvelleRecetteWindow();
             fenetre.ShowDialog();
             ChargerDonnees();
         }
-        
-        public ObservableCollection<Commande> Commandes { get; set; }
 
+        /// <summary>
+        /// Recharge les commandes associées au cuisinier.
+        /// </summary>
         private void ChargerCommandes()
         {
             var db = Database.Instance;
@@ -151,6 +217,5 @@ namespace Liv_in_paris
             );
             OnPropertyChanged(nameof(Commandes));
         }
-
     }
 }
