@@ -58,7 +58,7 @@ public class PanierViewModel : INotifyPropertyChanged
         };
 
         RetirerDuPanierCommand = new RelayCommand<PlatCommandeViewModel>(RetirerDuPanier);
-        PasserCommandeCommand = new RelayCommand(PasserCommande);
+        PasserCommandeCommand = new RelayCommand(async () => await PasserCommandeAsync());
 
         _panier.CollectionChanged += (_, _) => OnPropertyChanged(nameof(PrixTotal));
     }
@@ -80,7 +80,7 @@ public class PanierViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(PrixTotal));
     }
 
-    private void PasserCommande()
+    private async Task PasserCommandeAsync()
     {
         if (!Panier.Any())
         {
@@ -88,11 +88,22 @@ public class PanierViewModel : INotifyPropertyChanged
             return;
         }
 
+        var service = new AdresseService();
+
+        foreach (var platVM in Panier)
+        {
+            bool estValide = await service.EstAdresseValideAsync(platVM.AdresseLivraison);
+            if (!estValide)
+            {
+                MessageBox.Show($"L'adresse suivante n'est pas valide :\n{platVM.AdresseLivraison}");
+                return;
+            }
+        }
+
         try
         {
             var db = Database.Instance;
 
-            //Créer la commande
             var commande = new Commande
             {
                 HeureCommande = DateTime.Now,
@@ -101,9 +112,8 @@ public class PanierViewModel : INotifyPropertyChanged
                 ClientId = _utilisateur.UserId,
                 AdresseDepart = Commande.GetAdresseUser(db, Panier.First().Plat.CuisinierId)
             };
-            commande.AjouterCommande(db); // récupère CommandeId
+            commande.AjouterCommande(db);
 
-            //Mettre à jour les lignes existantes
             foreach (var platVM in Panier)
             {
                 LigneCommande ligne = LigneCommande.GetByPlatId(db, platVM.Plat.PlatId);
@@ -120,6 +130,11 @@ public class PanierViewModel : INotifyPropertyChanged
             MessageBox.Show("✅ Commande enregistrée !");
             Panier.Clear();
             _client.Panier.Clear();
+
+            if (_client.CommandesVue is CommandesView commandesView && commandesView.DataContext is CommandesViewModel commandesVM)
+            {
+                commandesVM.RechargerCommandes();
+            }
         }
         catch (Exception ex)
         {
@@ -127,12 +142,8 @@ public class PanierViewModel : INotifyPropertyChanged
         }
 
         OnPropertyChanged(nameof(PrixTotal));
-        
-        if (_client.CommandesVue is CommandesView commandesView && commandesView.DataContext is CommandesViewModel commandesVM)
-        {
-            commandesVM.RechargerCommandes();
-        }
     }
+
 
     public event PropertyChangedEventHandler? PropertyChanged;
     protected void OnPropertyChanged([CallerMemberName] string name = null)

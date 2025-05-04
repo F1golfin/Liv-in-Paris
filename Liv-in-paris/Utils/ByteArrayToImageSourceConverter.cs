@@ -23,7 +23,7 @@ namespace Liv_in_paris
                 }
                 catch
                 {
-                    // fallback en cas d'erreur
+                    // erreur si ici
                 }
             }
 

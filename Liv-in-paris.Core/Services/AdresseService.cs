@@ -37,14 +37,14 @@ namespace Liv_in_paris.Core.Services
 
                 foreach (var feature in jsonDoc.RootElement.GetProperty("features").EnumerateArray())
                 {
-                    string context = feature.GetProperty("properties").GetProperty("context").GetString();
-                    string label = feature.GetProperty("properties").GetProperty("label").GetString();
+                    var properties = feature.GetProperty("properties");
 
-                    if (!context.Contains("Paris") || !context.Contains("75"))
-                        continue;
+                    string label = properties.GetProperty("label").GetString();
+                    string postcode = properties.GetProperty("postcode").GetString();
 
-                    if (!Regex.IsMatch(label, @"^\d+"))  // Doit commencer par un numéro
-                        continue;
+                    // On garde uniquement les adresses à Paris (code postal commence par 75) et qui ont un numéro
+                    if (!postcode.StartsWith("75")) continue;
+                    if (!Regex.IsMatch(label, @"^\d+")) continue;
 
                     results.Add(label);
                 }
@@ -97,5 +97,40 @@ namespace Liv_in_paris.Core.Services
                 return null;
             }
         }
+        
+        public async Task<bool> EstAdresseValideAsync(string adresse)
+        {
+            if (string.IsNullOrWhiteSpace(adresse))
+                return false;
+
+            string url = $"https://api-adresse.data.gouv.fr/search/?q={Uri.EscapeDataString(adresse)}&limit=1&autocomplete=0";
+
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                using var stream = await response.Content.ReadAsStreamAsync();
+                using var jsonDoc = await JsonDocument.ParseAsync(stream);
+
+                var features = jsonDoc.RootElement.GetProperty("features");
+
+                if (features.GetArrayLength() == 0)
+                    return false;
+
+                var properties = features[0].GetProperty("properties");
+
+                string label = properties.GetProperty("label").GetString();
+                string postcode = properties.GetProperty("postcode").GetString();
+
+                // Vérifie que le code postal commence bien par "75"
+                return postcode.StartsWith("75") && Regex.IsMatch(label, @"^\d+");
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
     }
 }
