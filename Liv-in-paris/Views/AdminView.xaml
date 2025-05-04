@@ -7,41 +7,61 @@
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+        <TabControl>
+            <!-- Onglet Utilisateurs -->
+            <TabItem Header="Utilisateurs">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
 
-        <DataGrid ItemsSource="{Binding Users}"
-                  SelectedItem="{Binding SelectedUser}"
-                  AutoGenerateColumns="False"
-                  Grid.Row="0" Margin="0 0 0 10">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" />
-                <DataGridTextColumn Header="Prénom" Binding="{Binding Prenom}" />
-                <DataGridTextColumn Header="Email" Binding="{Binding Email}" />
-                <DataGridTextColumn Header="Rôle" Binding="{Binding Role}" />
-            </DataGrid.Columns>
-        </DataGrid>
+                    <DataGrid ItemsSource="{Binding Users}"
+                              SelectedItem="{Binding SelectedUser}"
+                              AutoGenerateColumns="False"
+                              Grid.Row="0" Margin="0 0 0 10">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Nom" Binding="{Binding Nom}" />
+                            <DataGridTextColumn Header="Prénom" Binding="{Binding Prenom}" />
+                            <DataGridTextColumn Header="Email" Binding="{Binding Email}" />
+                            <DataGridTextColumn Header="Rôle" Binding="{Binding Role}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
 
-        <!-- ZONE BOUTONS -->
-        <StackPanel Grid.Row="1" Orientation="Vertical">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 0 0 10">
-                <Button Content="Exporter JSON" Margin="5" Click="ExporterJson_Click"/>
-                <Button Content="Exporter XML" Margin="5" Click="ExporterXml_Click"/>
-                <Button Content="Importer JSON" Margin="5" Click="ImporterJson_Click"/>
-                <Button Content="Importer XML" Margin="5" Click="ImporterXml_Click"/>
-            </StackPanel>
+                    <!-- ZONE BOUTONS -->
+                    <StackPanel Grid.Row="1" Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 0 0 10">
+                            <Button Content="Exporter JSON" Margin="5" Click="ExporterJson_Click"/>
+                            <Button Content="Exporter XML" Margin="5" Click="ExporterXml_Click"/>
+                            <Button Content="Importer JSON" Margin="5" Click="ImporterJson_Click"/>
+                            <Button Content="Importer XML" Margin="5" Click="ImporterXml_Click"/>
+                        </StackPanel>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Content="Se déconnecter"
-                        Command="{Binding DeconnexionCommand}"
-                        Background="LightGray"
-                        Padding="10,5" FontWeight="Bold" Margin="5"/>
-                <Button Content="Supprimer l'utilisateur sélectionné"
-                        Click="Supprimer_Click"
-                        Padding="10,5" FontWeight="Bold" Margin="5"/>
-            </StackPanel>
-            </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button Content="Se déconnecter"
+                                    Command="{Binding DeconnexionCommand}"
+                                    Background="LightGray"
+                                    Padding="10,5" FontWeight="Bold" Margin="5"/>
+                            <Button Content="Supprimer l'utilisateur sélectionné"
+                                    Click="Supprimer_Click"
+                                    Padding="10,5" FontWeight="Bold" Margin="5"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Onglet Statistiques -->
+            <TabItem Header="Statistiques">
+                <StackPanel Margin="20" Orientation="Vertical" >
+                    <Button Content="Livraisons par cuisinier" Click="AfficherLivraisonsParCuisinier" Margin="5"/>
+                    <Button Content="Commandes par période" Click="AfficherCommandesParPeriode" Margin="5"/>
+                    <Button Content="Moyenne des prix de commandes" Click="AfficherMoyennePrixCommandes" Margin="5"/>
+                    <Button Content="Moyenne des comptes clients" Click="AfficherMoyenneComptesClients" Margin="5"/>
+                    <Button Content="Commandes filtrées d’un client" Click="AfficherCommandesClientFiltrées" Margin="5"/>
+            
+                    <TextBlock Text="{Binding StatistiquesResultat}" Margin="10" TextWrapping="Wrap"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </Grid>
 </UserControl>

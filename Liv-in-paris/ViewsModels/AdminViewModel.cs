@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris.Core.Models;
@@ -104,6 +106,120 @@ public class AdminViewModel : INotifyPropertyChanged
             user.CreerUser(_db);
         }
         LoadUsers(); // Recharge après import
+    }
+
+    private string _statistiquesResultat;
+    public string StatistiquesResultat
+    {
+        get => _statistiquesResultat;
+        set
+        {
+            _statistiquesResultat = value;
+            OnPropertyChanged(nameof(StatistiquesResultat));
+        }
+    }
+    
+    public void AfficherLivraisonsParCuisinier()
+    {
+        var table = _db.ExecuteQuery(@"
+        SELECT u.prenom, COUNT(*) AS livraisons
+        FROM commandes c
+        JOIN users u ON c.cuisinier_id = u.user_id
+        GROUP BY cuisinier_id;
+    ");
+
+        var sb = new StringBuilder("📦 Livraisons par cuisinier :\n");
+        foreach (DataRow row in table.Rows)
+            sb.AppendLine($"{row["prenom"]} : {row["livraisons"]} livraisons");
+
+        StatistiquesResultat = sb.ToString();
+    }
+    
+    public void AfficherCommandesParPeriode()
+    {
+        var table = _db.ExecuteQuery(@"
+        SELECT COUNT(*) AS total, MIN(heure_commande) AS debut, MAX(heure_commande) AS fin
+        FROM commandes
+        WHERE heure_commande >= DATE_SUB(NOW(), INTERVAL 30 DAY);
+    ");
+
+        var row = table.Rows[0];
+
+        int total = Convert.ToInt32(row["total"]);
+        string debut = row["debut"] != DBNull.Value ? Convert.ToDateTime(row["debut"]).ToShortDateString() : "n/a";
+        string fin = row["fin"] != DBNull.Value ? Convert.ToDateTime(row["fin"]).ToShortDateString() : "n/a";
+
+        StatistiquesResultat =
+            $"📅 Commandes sur les 30 derniers jours :\n" +
+            $"Total : {total}\n" +
+            $"Période : du {debut} au {fin}";
+    }
+
+    
+    public void AfficherMoyennePrixCommandes()
+    {
+        var table = _db.ExecuteQuery(@"
+        SELECT AVG(prix_total) AS moyenne
+        FROM commandes;
+    ");
+
+        var moyenne = table.Rows[0]["moyenne"];
+    
+        if (moyenne == DBNull.Value)
+        {
+            StatistiquesResultat = "Aucune commande enregistrée.";
+        }
+        else
+        {
+            StatistiquesResultat = $"💰 Prix moyen des commandes : {Convert.ToDouble(moyenne):0.00} €";
+        }
+    }
+
+    
+    public void AfficherMoyenneComptesClients()
+    {
+        var table = _db.ExecuteQuery(@"
+        SELECT AVG(total) AS moyenne
+        FROM (
+            SELECT client_id, SUM(prix_total) AS total
+            FROM commandes
+            GROUP BY client_id
+        ) AS sous_table;
+    ");
+
+        var moyenne = table.Rows[0]["moyenne"];
+
+        if (moyenne == DBNull.Value)
+        {
+            StatistiquesResultat = "Aucun client n’a encore passé de commande.";
+        }
+        else
+        {
+            StatistiquesResultat = $"📊 Moyenne des comptes clients : {Convert.ToDouble(moyenne):0.00} €";
+        }
+    }
+
+    
+    public void AfficherCommandesClientFiltrées()
+    {
+        var table = _db.ExecuteQuery(@"
+        SELECT c.commande_id, p.nom_plat, c.heure_commande, r.style_cuisine
+        FROM commandes c
+        JOIN lignes_commandes l ON l.commande_id = c.commande_id
+        JOIN plats p ON p.plat_id = l.plat_id
+        JOIN recettes r ON r.recette_id = p.recette_id
+        WHERE r.style_cuisine = 'Française'
+        AND c.heure_commande >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ORDER BY c.heure_commande DESC;
+    ");
+
+        var sb = new StringBuilder("🧾 Commandes avec plats français (30 derniers jours) :\n");
+        foreach (DataRow row in table.Rows)
+        {
+            sb.AppendLine($"Commande #{row["commande_id"]} - {row["nom_plat"]} - {Convert.ToDateTime(row["heure_commande"]):g}");
+        }
+
+        StatistiquesResultat = sb.ToString();
     }
 
 
