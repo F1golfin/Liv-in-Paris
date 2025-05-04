@@ -8,4 +8,16 @@ public partial class PlatsView : UserControl
     {
         InitializeComponent();
     }
+
+    private void RegimeListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (DataContext is PlatsViewModel vm)
+        {
+            vm.RegimesFiltres.Clear();
+            foreach (string selected in RegimeListBox.SelectedItems)
+            {
+                vm.RegimesFiltres.Add(selected);
+            }
+        }
+    }
 }

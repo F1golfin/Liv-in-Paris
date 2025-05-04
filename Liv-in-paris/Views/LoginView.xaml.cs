@@ -25,6 +25,11 @@ public partial class LoginView : UserControl
         if (UserType.SelectedItem is ComboBoxItem selectedItem)
         {
             string selectedContent = selectedItem.Content.ToString();
+            
+            if (DataContext is LoginViewModel vm)
+            {
+                vm.SelectedUserType = selectedContent;
+            }
 
             switch (selectedContent)
             {

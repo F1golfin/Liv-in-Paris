@@ -2,10 +2,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
+using Database = Liv_in_paris.Core.Services.Database;
 
 namespace Liv_in_paris
 {
@@ -30,14 +33,22 @@ namespace Liv_in_paris
             set { _commandesVue = value; OnPropertyChanged(); }
         }
 
+        private string _texteBoutonCompte = "Gérer votre compte";
+        public string TexteBoutonCompte
+        {
+            get => _texteBoutonCompte;
+            set { _texteBoutonCompte = value; OnPropertyChanged(); }
+        }
+        private bool _estDansCompte = false;
 
         private readonly AppViewModel _app;
         public ICommand DeconnexionCommand { get; }
         public ICommand ActualiserCommand { get; }
+        public ICommand GererCompteCommand { get; }
 
-        private User _utilisateur;
+        public readonly User _utilisateur;
 
-        public ObservableCollection<Plat> Panier { get; set; } = new();
+        public ObservableCollection<Plat> Panier { get; } = new();
 
         public string UtilisateurLabel => $"Bonjour {_utilisateur.Prenom}";
         public NClientViewModel(AppViewModel app, User utilisateur)
@@ -46,13 +57,12 @@ namespace Liv_in_paris
             _utilisateur = utilisateur;
             ActualiserCommand = new RelayCommand(ChargerDonnees);
             DeconnexionCommand = new RelayCommand(() => _app.Deconnexion());
+            GererCompteCommand = new RelayCommand(ToggleCompteOuPlats);
 
             ChargerDonnees();
 
         }
-
-
-
+        
         public void ChargerDonnees()
         {
 
@@ -65,34 +75,80 @@ namespace Liv_in_paris
             PanierVue=panierView;
 
             var commandesView = new CommandesView();
-            commandesView.DataContext = new CommandesViewModel(_app, _utilisateur);
+            commandesView.DataContext = new CommandesViewModel(this, _utilisateur);
             CommandesVue=commandesView;
         }
-
+        
 
         public void AjouterAuPanier(Plat plat)
         {
-            if (Panier.Count > 0)
+            if (Panier.Count > 0 && plat.CuisinierId != Panier[0].CuisinierId)
             {
-                var premierCuisinierId = Panier[0].CuisinierId;
-
-                if (plat.CuisinierId != premierCuisinierId)
-                {
-                    //MessageBox.Show("❌ Vous ne pouvez commander que des plats du même cuisinier. Veuillez valider ou vider votre panier.");
-                    return;
-                }
+                MessageBox.Show("❌ Vous ne pouvez commander que des plats du même cuisinier. Veuillez valider ou vider votre panier.");
+                return;
             }
 
-            if (!Panier.Contains(plat))
-                Panier.Add(plat);
+            if (Panier.Any(p => p.PlatId == plat.PlatId))
+                return; // Évite les doublons
 
-            // Retirer le plat de la liste visible
+            Panier.Add(plat);
+
+            try
+            {
+                var db = Database.Instance;
+                var ligne = new LigneCommande
+                {
+                    PlatId = plat.PlatId,
+                    AdresseArrivee = null,
+                    HeureLivraison = null,
+                    Statut = "Panier",
+                    CommandeId = null
+                };
+                ligne.AjouterCommande_tps(db);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erreur lors de l'ajout de la ligne de commande : {ex.Message}");
+            }
+
             if (PlatsVue is PlatsView vue && vue.DataContext is PlatsViewModel platsVM)
             {
-                platsVM.Plats.Remove(plat);
+                platsVM.RetirerPlatDisponible(plat);
             }
-            ChargerDonnees();
+
             OnPropertyChanged(nameof(Panier));
+        }
+        
+        private void AfficherCompte()
+        {
+            var compteView = new CompteView();
+            compteView.DataContext = new CompteViewModel(_utilisateur,this);
+            PlatsVue = compteView;
+        }
+        
+        public void AfficherPlats()
+        {
+            var platsView = new PlatsView();
+            platsView.DataContext = new PlatsViewModel(this);
+            PlatsVue = platsView;
+        }
+        
+        private void ToggleCompteOuPlats()
+        {
+            if (_estDansCompte)
+            {
+                AfficherPlats();
+                TexteBoutonCompte = "Gérer votre compte";
+            }
+            else
+            {
+                var compteView = new CompteView();
+                compteView.DataContext = new CompteViewModel(_utilisateur, this);
+                PlatsVue = compteView;
+                TexteBoutonCompte = "← Revenir aux plats";
+            }
+
+            _estDansCompte = !_estDansCompte;
         }
     }
 }

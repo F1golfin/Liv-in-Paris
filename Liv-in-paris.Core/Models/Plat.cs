@@ -9,10 +9,11 @@ public class Plat
     public DateTime DateFabrication { get; set; }
     public DateTime DatePeremption { get; set; }
     public decimal PrixParPersonne { get; set; }
-    public byte[]? Photo { get; set; } // optionnel
+    public byte[]? Photo { get; set; }
     public ulong CuisinierId { get; set; }
     public ulong RecetteId { get; set; }
     public Recette Recette { get; set; }
+    public bool EstNouveau => (DateTime.Now - DateFabrication).TotalDays < 2;
 
     
     public static Plat? GetById(DatabaseManager db, ulong platId)

@@ -10,16 +10,16 @@ namespace Liv_in_paris;
 
 public class CommandesViewModel : ViewModelBase
 {
-    private readonly AppViewModel _app;
+    private readonly NClientViewModel _clientVM;
     private readonly User _utilisateur;
 
     public ObservableCollection<Commande> CommandesClient { get; set; } = new();
     public ICommand SupprimerCommandeCommand { get; }
     public ICommand NoterCuisinierCommand { get; }
 
-    public CommandesViewModel(AppViewModel app, User utilisateur)
+    public CommandesViewModel(NClientViewModel clientVM, User utilisateur)
     {
-        _app = app;
+        _clientVM = clientVM;
         _utilisateur = utilisateur;
 
         NoterCuisinierCommand = new RelayCommand<Commande>(NoterCuisinier);
@@ -58,12 +58,24 @@ public class CommandesViewModel : ViewModelBase
             commande.SupprimerCommande(db);
 
             MessageBox.Show("✅ Commande supprimée !");
+            
+            _clientVM.AfficherPlats();
         }
         catch (Exception ex)
         {
             MessageBox.Show("❌ Erreur lors de la suppression : " + ex.Message);
         }
-        
+
         ChargerCommandes();
+        
+    }
+    
+    public void RechargerCommandes()
+    {
+        CommandesClient.Clear();
+        foreach (Commande c in Commande.GetByClient(Database.Instance, _utilisateur.UserId))
+        {
+            CommandesClient.Add(c);
+        }
     }
 }
