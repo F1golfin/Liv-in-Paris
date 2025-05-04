@@ -26,8 +26,36 @@ public class PanierViewModel : INotifyPropertyChanged
         _utilisateur = utilisateur;
         _client = clientVM;
 
-        _panier = new ObservableCollection<PlatCommandeViewModel>(
-            panier.Select(p => new PlatCommandeViewModel(p, utilisateur.Adresse)));
+        _panier = new ObservableCollection<PlatCommandeViewModel>();
+
+        foreach (var plat in panier)
+        {
+            _panier.Add(new PlatCommandeViewModel(plat, utilisateur.Adresse));
+        }
+
+        // écoute les ajouts futurs dans le panier du client
+        panier.CollectionChanged += (sender, e) =>
+        {
+            if (e.NewItems != null)
+            {
+                foreach (Plat plat in e.NewItems)
+                {
+                    _panier.Add(new PlatCommandeViewModel(plat, utilisateur.Adresse));
+                }
+            }
+
+            if (e.OldItems != null)
+            {
+                foreach (Plat plat in e.OldItems)
+                {
+                    var toRemove = _panier.FirstOrDefault(vm => vm.Plat.PlatId == plat.PlatId);
+                    if (toRemove != null)
+                        _panier.Remove(toRemove);
+                }
+            }
+
+            OnPropertyChanged(nameof(PrixTotal));
+        };
 
         RetirerDuPanierCommand = new RelayCommand<PlatCommandeViewModel>(RetirerDuPanier);
         PasserCommandeCommand = new RelayCommand(PasserCommande);
@@ -42,6 +70,12 @@ public class PanierViewModel : INotifyPropertyChanged
         var db = Database.Instance;
         LigneCommande.SupprimerParPlatId(db, platVM.Plat.PlatId);
         _client.Panier.Remove(platVM.Plat);
+        
+        // Réaffiche le plat dans la liste disponible
+        if (_client.PlatsVue is PlatsView vue && vue.DataContext is PlatsViewModel platsVM)
+        {
+            platsVM.FiltrerEtTrierPlats();
+        }
 
         OnPropertyChanged(nameof(PrixTotal));
     }

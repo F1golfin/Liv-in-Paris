@@ -92,38 +92,33 @@ public class PlatsViewModel : ViewModelBase
 
     private void ChargerPlatsDepuisBDD()
     {
-        Plats.Clear();
-
-        if (CuisinierSelectionne == null)
-        {
-            Console.WriteLine("Aucun cuisinier sélectionné.");
-            return;
-        }
-
-        var db = Database.Instance;
-        foreach (Plat plat in Plat.GetDisponibles(db, CuisinierSelectionne.UserId))
-        {
-            Plats.Add(plat);
-        }
+        FiltrerEtTrierPlats();
     }
     
-    private void FiltrerEtTrierPlats()
+    public void FiltrerEtTrierPlats()
     {
         Plats.Clear();
 
         var db = Database.Instance;
+
         var tousLesPlats = Plat.GetDisponibles(db, CuisinierSelectionne?.UserId);
 
-        var platsFiltres = tousLesPlats.Where(p =>
-            (TypeFiltre == "Tous" || p.Recette.Type == TypeFiltre) &&
-            (RegimesFiltres.Count == 0 || RegimesFiltres.All(r => p.Recette.RegimesNoms.Contains(r)))
-        );
+        // Exclure les plats déjà présents dans le panier
+        var platsFiltres = tousLesPlats
+            .Where(p => _clientVM.Panier.All(panierPlat => panierPlat.PlatId != p.PlatId))
+            .Where(p =>
+                (TypeFiltre == "Tous" || p.Recette.Type == TypeFiltre) &&
+                (RegimesFiltres.Count == 0 || RegimesFiltres.All(r => p.Recette.RegimesNoms.Contains(r)))
+            );
 
-        platsFiltres = TriPrixCroissant
-            ? platsFiltres.OrderBy(p => p.PrixParPersonne)
-            : platsFiltres.OrderByDescending(p => p.PrixParPersonne);
+        platsFiltres = TriPrixCroissant ? platsFiltres.OrderBy(p => p.PrixParPersonne) : platsFiltres.OrderByDescending(p => p.PrixParPersonne);
 
         foreach (var plat in platsFiltres)
             Plats.Add(plat);
+    }
+    
+    public void RetirerPlatDisponible(Plat plat)
+    {
+        Plats.Remove(plat);
     }
 }

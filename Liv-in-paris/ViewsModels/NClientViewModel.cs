@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace Liv_in_paris
@@ -37,7 +38,7 @@ namespace Liv_in_paris
 
         private User _utilisateur;
 
-        public ObservableCollection<Plat> Panier { get; set; } = new();
+        public ObservableCollection<Plat> Panier { get; } = new();
 
         public string UtilisateurLabel => $"Bonjour {_utilisateur.Prenom}";
         public NClientViewModel(AppViewModel app, User utilisateur)
@@ -50,9 +51,7 @@ namespace Liv_in_paris
             ChargerDonnees();
 
         }
-
-
-
+        
         public void ChargerDonnees()
         {
 
@@ -72,26 +71,22 @@ namespace Liv_in_paris
 
         public void AjouterAuPanier(Plat plat)
         {
-            if (Panier.Count > 0)
+            if (Panier.Count > 0 && plat.CuisinierId != Panier[0].CuisinierId)
             {
-                var premierCuisinierId = Panier[0].CuisinierId;
-
-                if (plat.CuisinierId != premierCuisinierId)
-                {
-                    //MessageBox.Show("❌ Vous ne pouvez commander que des plats du même cuisinier. Veuillez valider ou vider votre panier.");
-                    return;
-                }
+                MessageBox.Show("❌ Vous ne pouvez commander que des plats du même cuisinier. Veuillez valider ou vider votre panier.");
+                return;
             }
 
-            if (!Panier.Contains(plat))
+            if (!Panier.Any(p => p.PlatId == plat.PlatId))
+            {
                 Panier.Add(plat);
+            }
 
-            // Retirer le plat de la liste visible
             if (PlatsVue is PlatsView vue && vue.DataContext is PlatsViewModel platsVM)
             {
-                platsVM.Plats.Remove(plat);
+                platsVM.RetirerPlatDisponible(plat);
             }
-            ChargerDonnees();
+
             OnPropertyChanged(nameof(Panier));
         }
     }
