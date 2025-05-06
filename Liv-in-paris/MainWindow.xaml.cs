@@ -20,6 +20,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        this.WindowState = WindowState.Maximized;
         Accueil_View.Content = new AccueilView();
     }
 }
