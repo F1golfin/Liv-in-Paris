@@ -1,5 +1,6 @@
 ﻿using Liv_in_paris.Core.Models;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
@@ -38,10 +39,13 @@ namespace Liv_in_paris.Views
 
             if (openFileDialog.ShowDialog() == true)
             {
+
+                string imagePath = openFileDialog.FileName;
                 BitmapImage bitmap = new BitmapImage(new Uri(openFileDialog.FileName));
                 ImagePreview.Source = bitmap;
 
-                string imagePath = openFileDialog.FileName;
+                
+
             }
         }
     }

@@ -16,8 +16,8 @@
         <TextBlock Grid.Row="0" Text="➕ Ajouter un nouveau plat" FontWeight="Bold" FontSize="16" Margin="0 0 0 10"/>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="6*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="1" Margin="10 0 0 0">
                 <TextBlock Text="Nom :" Margin="0,0,0,5"/>
@@ -53,10 +53,10 @@
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*"/>
-                    <RowDefinition Height="5*"/>
+                    <RowDefinition Height="6*"/>
                 </Grid.RowDefinitions>
-                <Button x:Name="ChxImg" Content="Choisir une image" Click="Button_Click"/>
-                <Image Grid.Row="1" x:Name="ImagePreview" Width="Auto" Height="Auto" MaxHeight="200" MaxWidth="200" Stretch="Uniform" Margin="10" VerticalAlignment="Top"/>
+                <Button x:Name="ChxImg" Content="Choisir une image" Click="Button_Click" Margin="5"/>
+                <Image Grid.Row="1" x:Name="ImagePreview" Width="Auto" Height="Auto" Stretch="Uniform" Margin="10" VerticalAlignment="Top" Source="{Binding Image}"/>
             </Grid>
 
         </Grid>

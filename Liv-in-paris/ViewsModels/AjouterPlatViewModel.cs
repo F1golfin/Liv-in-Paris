@@ -2,14 +2,18 @@
 using Liv_in_paris.Core.Services;
 using Liv_in_paris.Core.Utils;
 using Liv_in_paris.Views;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace Liv_in_paris
 {
@@ -21,6 +25,16 @@ namespace Liv_in_paris
         public ObservableCollection<Plat> Plats { get; set; }
         public ObservableCollection<Recette> RecettesExistantes { get; set; }
 
+        private ImageSource _image;
+        public ImageSource Image
+        {
+            get => _image;
+            set
+            {
+                _image = value;
+                OnPropertyChanged(nameof(Image));
+            }
+        }
         public string NewNomPlat { get; set; }
         public string NewPrixPlat { get; set; }
         public string NewTypePlat { get; set; }
@@ -58,10 +72,6 @@ namespace Liv_in_paris
             OnPropertyChanged(nameof(Plats));
             OnPropertyChanged(nameof(RecettesExistantes));
 
-            EvaluationsRecues = new ObservableCollection<Evaluation>(
-                Evaluation.GetByCuisinier(db, _utilisateurConnecte.UserId)
-            );
-            OnPropertyChanged(nameof(EvaluationsRecues));
 
         }
 
@@ -86,6 +96,17 @@ namespace Liv_in_paris
             }
 
             var db = Database.Instance;
+            byte[] imageBytes = null;
+            if (Image is BitmapSource bitmapSource)
+            {
+                using (var stream = new MemoryStream())
+                {
+                    BitmapEncoder encoder = new PngBitmapEncoder(); 
+                    encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+                    encoder.Save(stream);
+                    imageBytes = stream.ToArray();
+                }
+            }
             var nouveauPlat = new Plat
             {
                 NomPlat = NewNomPlat,
@@ -94,6 +115,7 @@ namespace Liv_in_paris
                 DateFabrication = DateTime.Now,
                 DatePeremption = DateTime.Now.AddDays(3),
                 CuisinierId = _utilisateurConnecte.UserId,
+                Photo = imageBytes,
                 RecetteId = RecetteSelectionnee?.RecetteId ?? 0
             };
 
