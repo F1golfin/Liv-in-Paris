@@ -28,4 +28,13 @@
       </Page>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="images\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="images\no-image.png" />
+      <Resource Include="images\no-image.png" />
+    </ItemGroup>
+
 </Project>

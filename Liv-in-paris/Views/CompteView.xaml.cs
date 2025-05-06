@@ -2,11 +2,10 @@
 
 namespace Liv_in_paris;
 
-public partial class AppView : UserControl
+public partial class CompteView : UserControl
 {
-    public AppView()
+    public CompteView()
     {
         InitializeComponent();
-        DataContext = new AppViewModel();
     }
 }

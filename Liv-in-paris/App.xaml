@@ -6,5 +6,7 @@
     <Application.Resources>
         <local:AllLivreeVisibilityConverter x:Key="AllLivreeVisibilityConverter"/>
         <local:ListeToStringConverter x:Key="ListeToStringConverter"/>
+        <local:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+        <local:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
     </Application.Resources>
 </Application>

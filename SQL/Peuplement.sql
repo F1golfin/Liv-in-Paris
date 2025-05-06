@@ -2,12 +2,14 @@
 INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise) VALUES
                                                                                                  ('pass123', 'Client', 'Particulier', 'client1@example.com', 'Dupont', 'Alice', '1 rue Paris', '0600000001', NULL),
                                                                                                  ('pass123', 'Cuisinier', 'Particulier', 'cuisinier1@example.com', 'Martin', 'Bob', '2 rue Paris', '0600000002', NULL),
-                                                                                                 ('pass123', 'Client,Cuisinier', 'Entreprise', 'multi@example.com', 'Durand', 'Claire', '3 rue Paris', '0600000003', 'La Bonne Bouffe');
+
+                                                                                                 ('pass123', 'Client', 'Entreprise', 'multi@example.com', 'Durand', 'Claire', '3 rue Paris', '0600000003', 'La Bonne Bouffe');
+-- 👥 Insertion de Maxime, Amandine et Guillaume
 
 INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise) VALUES
                                                                                                  ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'maxime@example.com', 'Rousseau', 'Maxime', '4 rue Paris', '0600000004', NULL),
                                                                                                  ('azerty', 'Client', 'Particulier', 'amandine@example.com', 'Baranger', 'Amandine', '5 rue Paris', '0600000005', NULL),
-                                                                                                 ('azerty', 'Client,Cuisinier', 'Entreprise', 'guillaume@example.com', 'Blain', 'Guillaume', '6 rue Paris', '0600000006', 'Livin Paris');
+                                                                                                 ('azerty', 'Client', 'Entreprise', 'guillaume@example.com', 'Blain', 'Guillaume', '6 rue Paris', '0600000006', 'Livin Paris');
 -- Regime alimentaire
 INSERT INTO regime_alimentaire (regime)
 VALUES
@@ -54,15 +56,6 @@ INSERT INTO respecte (recette_id, regime_id) VALUES
                                                 (6, 7); -- Saumon vapeur → Pescetarien
 
 
--- 📝 Évaluations fictives
-INSERT INTO evaluation (client_id, cuisinier_id, note, commentaire, date_evaluation)
-VALUES
-    (1, 2, 5, 'Plats très savoureux, bien équilibrés.', NOW()),
-    (1, 3, 4, 'Très bon mais un peu trop salé.', NOW()),
-    (1, 4, 5, 'Excellent service et cuisine maison délicieuse !', NOW()),
-    (3, 2, 4, 'Bonne portion, livraison rapide.', NOW()),
-    (5, 3, 3, 'Un peu tiède à l’arrivée mais bon goût.', NOW()),
-    (5, 6, 5, 'Parfait pour un déjeuner rapide et sain.', NOW());
 
 -- 🍽️ Plats associés à des recettes existantes
 INSERT INTO plats (nom_plat, nb_parts, date_fabrication, date_peremption, prix_par_personne, cuisinier_id, recette_id)
@@ -70,15 +63,11 @@ VALUES
 -- Bob Martin
 ('Bœuf bourguignon', 3, '2025-04-20', '2025-04-23', 9.50, 2, 3), -- recette: Poulet Tikka Masala (similaire au niveau Halal)
 ('Tarte aux pommes', 4, '2025-04-20', '2025-04-22', 4.00, 2, 4), -- recette sans gluten
-
--- Claire Durand
-('Couscous végétarien', 2, '2025-04-21', '2025-04-24', 8.00, 3, 1), -- recette: Salade de quinoa (Végétarien)
-('Salade grecque', 2, '2025-04-21', '2025-04-23', 5.00, 3, 1), -- aussi végétarien
+('Couscous végétarien', 2, '2025-04-21', '2025-04-24', 8.00, 2, 1), -- recette: Salade de quinoa (Végétarien)
+('Salade grecque', 2, '2025-04-21', '2025-04-23', 5.00, 2, 1), -- aussi végétarien
 
 -- Maxime Rousseau
 ('Wraps au poulet', 3, '2025-04-22', '2025-04-24', 7.50, 4, 3), -- même recette que poulet tikka (base poulet)
 ('Compote maison', 2, '2025-04-22', '2025-04-23', 3.00, 4, 4), -- recette gâteau sans gluten (sucré)
-
--- Guillaume Blain
-('Gratin de légumes', 4, '2025-04-21', '2025-04-25', 6.50, 6, 1), -- recette salade quinoa (végé, fibre)
-('Riz au lait coco', 3, '2025-04-21', '2025-04-23', 4.50, 6, 5); -- recette soupe miso (vegan)
+('Gratin de légumes', 4, '2025-04-21', '2025-04-25', 6.50, 4, 1), -- recette salade quinoa (végé, fibre)
+('Riz au lait coco', 3, '2025-04-21', '2025-04-23', 4.50, 4, 5); -- recette soupe miso (vegan)

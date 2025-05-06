@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Liv_in_paris.Views"
+             xmlns:skia="clr-namespace:SkiaSharp.Views.WPF;assembly=SkiaSharp.Views.WPF"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid Margin="10">
@@ -61,6 +62,25 @@
             
                     <TextBlock Text="{Binding StatistiquesResultat}" Margin="10" TextWrapping="Wrap"/>
                 </StackPanel>
+            </TabItem>
+            <TabItem Header="Analyse du graphe">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="10">
+                        <Button Content="Analyser la coloration" Click="AnalyserColoration_Click" Margin="5"/>
+                        <TextBlock Text="{Binding ResultatColoration}" Margin="10" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <skia:SKElement x:Name="GraphCanvas"
+                                    Grid.Row="1"
+                                    Height="400"
+                                    PaintSurface="GraphCanvas_PaintSurface"
+                                    Margin="10"/>
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>

@@ -5,16 +5,20 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using Liv_in_paris.Core.Graph;
 using Liv_in_paris.Core.Models;
+using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
-public class AdminViewModel : INotifyPropertyChanged
+public class AdminViewModel : ViewModelBase
 {
     private readonly DatabaseManager _db;
     private readonly AppViewModel _parent;
     public ICommand DeconnexionCommand { get; }
-
+    public Graphe<int> GrapheColoration { get; private set; }
+    public Dictionary<int, int> DerniereColoration { get; private set; }
+    
     public ObservableCollection<User> Users { get; set; } = new();
 
     private User? _selectedUser;
@@ -28,13 +32,13 @@ public class AdminViewModel : INotifyPropertyChanged
         }
     }
 
-    public AdminViewModel(DatabaseManager db)
+    public AdminViewModel(AppViewModel app)
     {
-        _db = db;
+        DeconnexionCommand = new RelayCommand(() => app.Deconnexion());
+        _db = Database.Instance;
         LoadUsers();
         
     }
-    
     
     public void LoadUsers()
     {
@@ -221,9 +225,65 @@ public class AdminViewModel : INotifyPropertyChanged
 
         StatistiquesResultat = sb.ToString();
     }
+    
+    
+    private string _resultatColoration;
+    public string ResultatColoration
+    {
+        get => _resultatColoration;
+        set
+        {
+            _resultatColoration = value;
+            OnPropertyChanged(nameof(ResultatColoration));
+        }
+    }
 
+    /// <summary>
+    /// Analyse les relations client ↔ cuisinier, construit un graphe, applique la coloration
+    /// et génère le résumé affiché dans l’interface admin.
+    /// </summary>
+    public void AnalyserColoration()
+    {
+        // 1. Création du graphe
+        var graphe = new Graphe<int>();
 
+        var table = _db.ExecuteQuery("SELECT client_id, cuisinier_id FROM commandes WHERE client_id IS NOT NULL AND cuisinier_id IS NOT NULL");
+        foreach (DataRow row in table.Rows)
+        {
+            int clientId = Convert.ToInt32(row["client_id"]);
+            int cuisinierId = Convert.ToInt32(row["cuisinier_id"]);
 
+            var noeudClient = new Noeud<int>(clientId);
+            var noeudCuisinier = new Noeud<int>(cuisinierId);
+
+            graphe.ajouterNoeud(noeudClient);
+            graphe.ajouterNoeud(noeudCuisinier);
+
+            // On ajoute les deux sens pour simuler un graphe non orienté
+            graphe.ajouterLien(new Lien<int>(noeudClient, 1, noeudCuisinier));
+            graphe.ajouterLien(new Lien<int>(noeudCuisinier, 1, noeudClient));
+        }
+
+        // 2. Coloration du graphe
+        var coloration = graphe.ColorierWelshPowell();
+        DerniereColoration = coloration;
+        GrapheColoration = graphe;
+
+        // 3. Analyse du résultat
+        int nbCouleurs = coloration.Values.Distinct().Count();
+        bool biparti = nbCouleurs == 2;
+
+        var parGroupe = coloration
+            .GroupBy(kvp => kvp.Value)
+            .OrderBy(g => g.Key)
+            .Select(g => $"Couleur {g.Key} : {string.Join(", ", g.Select(x => x.Key))}");
+
+        // 4. Résumé pour l’interface
+        ResultatColoration = $"🎨 Nombre minimal de couleurs : {nbCouleurs}\n" +
+                             (biparti ? "✅ Le graphe est biparti." : "❌ Le graphe n’est pas biparti.") + "\n\n" +
+                             "📊 Groupes indépendants :\n" + string.Join("\n", parGroupe);
+    }
+    
     public event PropertyChangedEventHandler? PropertyChanged;
     private void OnPropertyChanged(string name) =>
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

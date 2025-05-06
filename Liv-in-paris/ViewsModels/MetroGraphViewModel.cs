@@ -13,16 +13,19 @@ namespace Liv_in_paris;
 public class MetroGraphViewModel : ViewModelBase
 {
     /// <summary>
-    /// Liste des stations disponibles pour sélection (chargée depuis le graphe).
+    /// Liste des stations disponibles pour la sélection.
     /// </summary>
     public ObservableCollection<Station> Stations { get; } = new();
 
     /// <summary>
-    /// Liste des algorithmes disponibles pour le calcul de trajet.
+    /// Liste des algorithmes de calcul de plus court chemin proposés.
     /// </summary>
     public ObservableCollection<string> Algorithmes { get; }
 
     private Station _stationDepart;
+    private Station _stationArrivee;
+    private string _algoSelectionne;
+    private string _resumeTrajet;
 
     /// <summary>
     /// Station de départ sélectionnée par l'utilisateur.
@@ -33,8 +36,6 @@ public class MetroGraphViewModel : ViewModelBase
         set { _stationDepart = value; OnPropertyChanged(); }
     }
 
-    private Station _stationArrivee;
-
     /// <summary>
     /// Station d'arrivée sélectionnée par l'utilisateur.
     /// </summary>
@@ -44,10 +45,18 @@ public class MetroGraphViewModel : ViewModelBase
         set { _stationArrivee = value; OnPropertyChanged(); }
     }
 
-    private string _algoSelectionne;
-    
-    private string _resumeTrajet;
+    /// <summary>
+    /// Algorithme sélectionné pour le calcul du plus court chemin.
+    /// </summary>
+    public string AlgoSelectionne
+    {
+        get => _algoSelectionne;
+        set { _algoSelectionne = value; OnPropertyChanged(); }
+    }
 
+    /// <summary>
+    /// Résumé du trajet calculé (liste des stations + durée).
+    /// </summary>
     public string ResumeTrajet
     {
         get => _resumeTrajet;
@@ -55,50 +64,42 @@ public class MetroGraphViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Algorithme de plus court chemin sélectionné.
-    /// </summary>
-    public string AlgoSelectionne
-    {
-        get => _algoSelectionne;
-        set { _algoSelectionne = value; OnPropertyChanged(); }
-    }
-    
-    /// <summary>
-    /// Action appelée une fois le chemin calculé, pour l'affichage (liaison avec la vue).
+    /// Action déléguée à la vue pour mettre en surbrillance le chemin calculé.
     /// </summary>
     public Action<List<int>>? OnCheminCalcule { get; set; }
 
     /// <summary>
-    /// Commande déclenchée lorsqu'on clique sur "Calculer" (détermine le plus court chemin).
+    /// Commande exécutée lors du clic sur le bouton "Calculer".
     /// </summary>
     public ICommand CalculerCheminCommand { get; }
 
     /// <summary>
-    /// Représente le graphe du métro (chargé à partir des fichiers CSV).
+    /// Graphe du métro de Paris utilisé pour les calculs de trajets.
     /// </summary>
     private readonly Graphe<Station> _graphe;
+
+    /// <summary>
+    /// Expose le graphe au reste de l'application si nécessaire.
+    /// </summary>
     public Graphe<Station> Graphe => _graphe;
 
     /// <summary>
-    /// Initialise le ViewModel : charge le graphe, les stations, et configure la commande.
+    /// Initialise le ViewModel : charge les stations depuis les fichiers CSV,
+    /// configure la liste d'algorithmes et la commande de calcul.
     /// </summary>
     public MetroGraphViewModel()
     {
-        // Liste des algos disponibles
         Algorithmes = new ObservableCollection<string>
         {
             "Bellman-Ford", "Dijkstra", "Floyd-Warshall"
         };
 
-        // Commande bouton "Calculer"
         CalculerCheminCommand = new RelayCommand(CalculerChemin);
 
-        // Chargement du graphe depuis les CSV
         string chemin1 = "../../../../Files/MetroParis_onglet1.csv";
         string chemin2 = "../../../../Files/MetroParis_onglet2.csv";
         _graphe = GrapheMetroBuilder.ConstruireDepuisCSV(chemin1, chemin2);
 
-        // Remplissage de la liste de stations à afficher
         var stationsTriees = _graphe.Noeuds.Values
             .Select(n => n.Data)
             .DistinctBy(s => s.Nom)
@@ -109,28 +110,26 @@ public class MetroGraphViewModel : ViewModelBase
     }
 
     /// <summary>
-    /// Méthode appelée lors du clic sur le bouton "Calculer".
-    /// Permettra d'exécuter l'algorithme sélectionné sur les stations choisies.
+    /// Méthode exécutée lors du clic sur "Calculer".
+    /// Elle applique l'algorithme choisi sur les ID des stations sélectionnées,
+    /// puis envoie le chemin trouvé à la vue et génère un résumé lisible.
     /// </summary>
     private void CalculerChemin()
     {
         if (string.IsNullOrWhiteSpace(AlgoSelectionne))
             return;
 
-        // Trouve les IDs associés aux stations sélectionnées
         var idsDepart = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationDepart.Nom).Select(n => n.Id).ToList();
         var idsArrivee = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationArrivee.Nom).Select(n => n.Id).ToList();
-        
+
         List<int> meilleurChemin = new();
         int meilleurPoids = int.MaxValue;
-
-        List<int> chemin = new List<int>();
+        List<int> chemin = new();
 
         foreach (var dep in idsDepart)
         {
             foreach (var arr in idsArrivee)
             {
-
                 switch (_algoSelectionne)
                 {
                     case "Dijkstra":
@@ -143,7 +142,7 @@ public class MetroGraphViewModel : ViewModelBase
                         chemin = _graphe.CheminLePlusCourt(dep, arr);
                         break;
                 }
-                
+
                 int poids = _graphe.CalculerPoids(chemin);
 
                 if (chemin.Count > 0 && poids < meilleurPoids)
@@ -153,10 +152,9 @@ public class MetroGraphViewModel : ViewModelBase
                 }
             }
         }
-        
-        // Envoie le chemin à la vue
+
         OnCheminCalcule?.Invoke(chemin);
-        
+
         if (meilleurChemin.Count > 0)
         {
             var stations = meilleurChemin
@@ -165,12 +163,11 @@ public class MetroGraphViewModel : ViewModelBase
 
             int poidsTotal = _graphe.CalculerPoids(meilleurChemin);
 
-            ResumeTrajet = $"Trajet : " + string.Join(" → ", stations) + $"\n\nTemps total estimé : {poidsTotal} minutes";
+            ResumeTrajet = $"Trajet : {string.Join(" → ", stations)}\n\nTemps total estimé : {poidsTotal} minutes";
         }
         else
         {
             ResumeTrajet = "Aucun chemin trouvé.";
         }
-        
     }
 }

@@ -37,13 +37,32 @@ class Program
         Console.WriteLine("Appuie sur Entrée pour quitter.");
         Console.ReadLine();
     }
-// Ici est éxécuté uniquement le projet .Core
-static void Main(string[] args)
+    
+    // Ici est éxécuté uniquement le projet .Core
+    static async Task Main(string[] args)
     {
-        int[] tab = new int[5];
-        foreach (int i in tab)
+        var service = new AdresseService();
+
+        Console.Write("Entrez une adresse à Paris : ");
+        string query = Console.ReadLine();
+
+        var suggestions = await service.ObtenirSuggestionsAsync(query);
+        Console.WriteLine("\nSuggestions trouvées :");
+        foreach (var s in suggestions)
+            Console.WriteLine($"- {s}");
+
+        if (suggestions.Count > 0)
         {
-            Console.Write(i);   
+            Console.WriteLine("\nObtention des coordonnées GPS de la première suggestion...");
+            var coords = await service.ObtenirCoordonneesAsync(suggestions[0]);
+
+            if (coords != null)
+                Console.WriteLine($"Latitude : {coords.Value.lat}, Longitude : {coords.Value.lon}");
+            else
+                Console.WriteLine("❌ Impossible de récupérer les coordonnées.");
         }
+
+        Console.WriteLine("\nTest terminé.");
     }
+
 }

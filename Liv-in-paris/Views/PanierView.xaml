@@ -20,10 +20,24 @@
                                 <TextBlock Text="{Binding Plat.NomPlat}" FontWeight="Bold" FontSize="16"/>
                                 <TextBlock Text="{Binding Plat.PrixParPersonne, StringFormat='Prix : {0:C}'}" />
 
-                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                    <TextBlock Text="Adresse :" VerticalAlignment="Center" Margin="0,0,5,0"/>
-                                    <TextBox Text="{Binding AdresseLivraison, UpdateSourceTrigger=PropertyChanged}" Width="250"/>
+                                <StackPanel>
+                                    <TextBlock Text="Adresse de livraison :" FontWeight="SemiBold" Margin="0,5,0,2"/>
+    
+                                    <TextBox Text="{Binding AdresseLivraison, UpdateSourceTrigger=PropertyChanged}" 
+                                             Width="300" 
+                                             Margin="0,0,0,5"/>
+
+                                    <ListBox ItemsSource="{Binding Suggestions}"
+                                             Visibility="{Binding Suggestions.Count, Converter={StaticResource CountToVisibilityConverter}}"
+                                             Width="300"
+                                             Margin="0,0,0,10"
+                                             MaxHeight="100"
+                                             Background="White"
+                                             BorderBrush="Gray"
+                                             BorderThickness="1"
+                                             MouseLeftButtonUp="SuggestionsListBox_MouseLeftButtonUp"/>
                                 </StackPanel>
+
 
                                 <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                                     <TextBlock Text="Heure :" VerticalAlignment="Center" Margin="0,0,5,0"/>

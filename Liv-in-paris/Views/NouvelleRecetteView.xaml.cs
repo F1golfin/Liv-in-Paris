@@ -6,22 +6,29 @@ using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris.Views;
 
+/// <summary>
+/// Fenêtre permettant de créer une nouvelle recette dans l'application Liv'in Paris.
+/// </summary>
 public partial class NouvelleRecetteWindow : Window
 {
     private readonly DatabaseManager _db;
 
-    // Constructeur pour nouvelle recette
+    /// <summary>
+    /// Initialise une nouvelle instance de la fenêtre et charge les régimes alimentaires disponibles.
+    /// </summary>
     public NouvelleRecetteWindow()
     {
         InitializeComponent();
         _db = Database.Instance;
 
-        var regimes = RegimeAlimentaire.GetAll(_db); // récupère tous les régimes existants
+        var regimes = RegimeAlimentaire.GetAll(_db);
         RegimesListBox.ItemsSource = regimes;
     }
-        
-        
 
+    /// <summary>
+    /// Gère le clic sur le bouton de création de recette.
+    /// Vérifie les champs obligatoires, crée l'objet <see cref="Recette"/>, l'enregistre dans la base, puis ferme la fenêtre.
+    /// </summary>
     private void CreerRecette_Click(object sender, RoutedEventArgs e)
     {
         if (string.IsNullOrWhiteSpace(NomTextBox.Text) ||
