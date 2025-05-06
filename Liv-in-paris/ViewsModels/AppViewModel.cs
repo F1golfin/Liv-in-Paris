@@ -101,14 +101,5 @@ namespace Liv_in_paris
             string query = "DELETE FROM lignes_commandes WHERE statut = 'Panier' AND commande_id IS NULL;";
             db.ExecuteNonQuery(query);
         }
-
-        /// <summary>
-        /// Événement déclenché lorsqu'une propriété change.
-        /// Utilisé par le binding WPF.
-        /// </summary>
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

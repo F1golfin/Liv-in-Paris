@@ -283,8 +283,4 @@ public class AdminViewModel : ViewModelBase
                              (biparti ? "✅ Le graphe est biparti." : "❌ Le graphe n’est pas biparti.") + "\n\n" +
                              "📊 Groupes indépendants :\n" + string.Join("\n", parGroupe);
     }
-    
-    public event PropertyChangedEventHandler? PropertyChanged;
-    private void OnPropertyChanged(string name) =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

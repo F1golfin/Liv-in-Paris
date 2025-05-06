@@ -171,15 +171,4 @@ public class PanierViewModel : ViewModelBase
 
         OnPropertyChanged(nameof(PrixTotal));
     }
-
-    /// <summary>
-    /// Événement déclenché lorsqu'une propriété change (pour le binding).
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    /// Notifie le changement d’une propriété.
-    /// </summary>
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

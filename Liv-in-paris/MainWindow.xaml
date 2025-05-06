@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         
         <ContentControl Name="Accueil_View" />
-        <ContentControl Grid.Row="1" Content="{Binding CurrentView}"/>
+        <ContentControl Grid.Row="1" Name="Appli_View"/>
         
 
     </Grid>

@@ -109,16 +109,4 @@ public class EvaluationDialogViewModel : ViewModelBase
         vm.CloseRequested += () => dialog.Close();
         dialog.ShowDialog();
     }
-
-    /// <summary>
-    /// Événement de notification pour la mise à jour d'une propriété (pour le binding).
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    /// Notifie que la propriété a changé de valeur.
-    /// </summary>
-    /// <param name="name">Nom de la propriété (automatique si non précisé).</param>
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

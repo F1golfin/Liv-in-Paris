@@ -93,15 +93,4 @@ public class PlatCommandeViewModel : ViewModelBase
         var coords = await _adresseService.ObtenirCoordonneesAsync(AdresseLivraison);
         return coords != null;
     }
-
-    /// <summary>
-    /// Événement déclenché lorsque la valeur d’une propriété change (nécessaire au binding).
-    /// </summary>
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    /// <summary>
-    /// Déclenche l’événement <see cref="PropertyChanged"/> pour une propriété modifiée.
-    /// </summary>
-    protected void OnPropertyChanged([CallerMemberName] string name = null)
-        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

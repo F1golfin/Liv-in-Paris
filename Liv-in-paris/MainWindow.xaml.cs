@@ -21,5 +21,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         Accueil_View.Content = new AccueilView();
+        Appli_View.Content = new AppView();
     }
 }
