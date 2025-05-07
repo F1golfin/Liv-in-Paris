@@ -80,7 +80,6 @@ namespace Liv_in_paris
             Entreprise = user.Entreprise;
 
             EnregistrerCommand = new RelayCommand(Sauvegarder);
-            RetourCommand = new RelayCommand(() => _cuisinier.AfficherPlats());
         }
 
         /// <summary>
