@@ -11,17 +11,43 @@ using Liv_in_paris.Core.Services;
 
 namespace Liv_in_paris;
 
+/// <summary>
+/// ViewModel de l'interface admin. Permet de gérer les utilisateurs, exporter/importer, afficher des statistiques
+/// et analyser un graphe de relations entre clients et cuisiniers.
+/// </summary>
 public class AdminViewModel : ViewModelBase
 {
     private readonly DatabaseManager _db;
     private readonly AppViewModel _parent;
+    private string _statistiquesResultat;
+    
+    /// <summary>
+    /// Commande de déconnexion.
+    /// </summary>
     public ICommand DeconnexionCommand { get; }
+    
+    
+    /// <summary>
+    /// Graphe construit lors de la dernière analyse de coloration.
+    /// </summary>
     public Graphe<int> GrapheColoration { get; private set; }
+    
+    
+    /// <summary>
+    /// Résultat de la dernière coloration de graphe (clé = id noeud, valeur = couleur).
+    /// </summary>
     public Dictionary<int, int> DerniereColoration { get; private set; }
     
+    /// <summary>
+    /// Liste observable des utilisateurs (clients, cuisiniers, admins).
+    /// </summary>
     public ObservableCollection<User> Users { get; set; } = new();
 
     private User? _selectedUser;
+    
+    /// <summary>
+    /// Utilisateur actuellement sélectionné dans l’interface.
+    /// </summary>
     public User? SelectedUser
     {
         get => _selectedUser;
@@ -32,6 +58,10 @@ public class AdminViewModel : ViewModelBase
         }
     }
 
+    /// <summary>
+    /// Constructeur principal du ViewModel admin.
+    /// </summary>
+    /// <param name="db">Gestionnaire d'accès à la base de données.</param>
     public AdminViewModel(AppViewModel app)
     {
         DeconnexionCommand = new RelayCommand(() => app.Deconnexion());
@@ -40,6 +70,9 @@ public class AdminViewModel : ViewModelBase
         
     }
     
+    /// <summary>
+    /// Recharge tous les utilisateurs depuis la base de données.
+    /// </summary>
     public void LoadUsers()
     {
         Users.Clear();
@@ -48,6 +81,9 @@ public class AdminViewModel : ViewModelBase
             Users.Add(user);
     }
 
+    /// <summary>
+    /// Supprime l’utilisateur sélectionné.
+    /// </summary>
     public void SupprimerUtilisateur()
     {
         if (SelectedUser == null) return;
@@ -55,6 +91,11 @@ public class AdminViewModel : ViewModelBase
         LoadUsers();
     }
     
+    
+    /// <summary>
+    /// Exporte les utilisateurs au format JSON.
+    /// </summary>
+    /// <param name="filePath">Chemin du fichier de destination.</param>
     public void ExportUsersToJson(string filePath)
     {
         var users = User.GetAllUsers(_db);
@@ -62,6 +103,10 @@ public class AdminViewModel : ViewModelBase
         File.WriteAllText(filePath, json);
     }
     
+    /// <summary>
+    /// Exporte les utilisateurs au format XML.
+    /// </summary>
+    /// <param name="filePath">Chemin du fichier de destination.</param>
     public void ExportUsersToXml(string filePath)
     {
         var users = User.GetAllUsers(_db);
@@ -70,6 +115,10 @@ public class AdminViewModel : ViewModelBase
         serializer.Serialize(stream, users);
     }
     
+    /// <summary>
+    /// Importe des utilisateurs depuis un fichier JSON.
+    /// Vérifie les doublons d’email et de téléphone.
+    /// </summary>
     public void ImportUsersFromJson(string filePath)
     {
         var json = File.ReadAllText(filePath);
@@ -100,6 +149,10 @@ public class AdminViewModel : ViewModelBase
         LoadUsers();
     }
     
+    /// <summary>
+    /// Importe des utilisateurs depuis un fichier XML.
+    /// </summary>
+    /// <param name="filePath">Chemin du fichier XML à importer.</param>
     public void ImportUsersFromXml(string filePath)
     {
         var serializer = new System.Xml.Serialization.XmlSerializer(typeof(List<User>));
@@ -109,10 +162,12 @@ public class AdminViewModel : ViewModelBase
         {
             user.CreerUser(_db);
         }
-        LoadUsers(); // Recharge après import
+        LoadUsers();
     }
-
-    private string _statistiquesResultat;
+    
+    /// <summary>
+    /// Résultat formaté des statistiques calculées.
+    /// </summary>
     public string StatistiquesResultat
     {
         get => _statistiquesResultat;
@@ -123,6 +178,10 @@ public class AdminViewModel : ViewModelBase
         }
     }
     
+    
+    /// <summary>
+    /// Affiche le nombre de livraisons effectuées par chaque cuisinier.
+    /// </summary>
     public void AfficherLivraisonsParCuisinier()
     {
         var table = _db.ExecuteQuery(@"
@@ -139,6 +198,10 @@ public class AdminViewModel : ViewModelBase
         StatistiquesResultat = sb.ToString();
     }
     
+    
+    /// <summary>
+    /// Affiche les commandes passées au cours des 30 derniers jours.
+    /// </summary>
     public void AfficherCommandesParPeriode()
     {
         var table = _db.ExecuteQuery(@"
@@ -159,7 +222,9 @@ public class AdminViewModel : ViewModelBase
             $"Période : du {debut} au {fin}";
     }
 
-    
+    /// <summary>
+    /// Calcule et affiche le prix moyen des commandes.
+    /// </summary>
     public void AfficherMoyennePrixCommandes()
     {
         var table = _db.ExecuteQuery(@"
@@ -180,6 +245,9 @@ public class AdminViewModel : ViewModelBase
     }
 
     
+    /// <summary>
+    /// Calcule la moyenne des dépenses par client.
+    /// </summary>
     public void AfficherMoyenneComptesClients()
     {
         var table = _db.ExecuteQuery(@"
@@ -204,6 +272,9 @@ public class AdminViewModel : ViewModelBase
     }
 
     
+    /// <summary>
+    /// Affiche les commandes de plats français passées récemment.
+    /// </summary>
     public void AfficherCommandesClientFiltrées()
     {
         var table = _db.ExecuteQuery(@"
@@ -228,6 +299,11 @@ public class AdminViewModel : ViewModelBase
     
     
     private string _resultatColoration;
+    
+    
+    /// <summary>
+    /// Résultat de la dernière analyse de coloration du graphe.
+    /// </summary>
     public string ResultatColoration
     {
         get => _resultatColoration;
@@ -244,7 +320,6 @@ public class AdminViewModel : ViewModelBase
     /// </summary>
     public void AnalyserColoration()
     {
-        // 1. Création du graphe
         var graphe = new Graphe<int>();
 
         var table = _db.ExecuteQuery("SELECT client_id, cuisinier_id FROM commandes WHERE client_id IS NOT NULL AND cuisinier_id IS NOT NULL");
@@ -258,18 +333,15 @@ public class AdminViewModel : ViewModelBase
 
             graphe.ajouterNoeud(noeudClient);
             graphe.ajouterNoeud(noeudCuisinier);
-
-            // On ajoute les deux sens pour simuler un graphe non orienté
+            
             graphe.ajouterLien(new Lien<int>(noeudClient, 1, noeudCuisinier));
             graphe.ajouterLien(new Lien<int>(noeudCuisinier, 1, noeudClient));
         }
-
-        // 2. Coloration du graphe
+        
         var coloration = graphe.ColorierWelshPowell();
         DerniereColoration = coloration;
         GrapheColoration = graphe;
-
-        // 3. Analyse du résultat
+        
         int nbCouleurs = coloration.Values.Distinct().Count();
         bool biparti = nbCouleurs == 2;
 
@@ -277,8 +349,7 @@ public class AdminViewModel : ViewModelBase
             .GroupBy(kvp => kvp.Value)
             .OrderBy(g => g.Key)
             .Select(g => $"Couleur {g.Key} : {string.Join(", ", g.Select(x => x.Key))}");
-
-        // 4. Résumé pour l’interface
+        
         ResultatColoration = $"🎨 Nombre minimal de couleurs : {nbCouleurs}\n" +
                              (biparti ? "✅ Le graphe est biparti." : "❌ Le graphe n’est pas biparti.") + "\n\n" +
                              "📊 Groupes indépendants :\n" + string.Join("\n", parGroupe);
