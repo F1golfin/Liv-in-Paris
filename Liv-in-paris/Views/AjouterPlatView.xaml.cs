@@ -8,16 +8,31 @@ using Microsoft.Win32;
 namespace Liv_in_paris.Views
 {
     /// <summary>
-    /// Logique d'interaction pour AjouterPlatView.xaml
+    /// Interaction logic for AjouterPlatView.xaml
+    /// Cette vue permet à un cuisinier d’ajouter un nouveau plat à l’application.
+    /// Elle est associée au ViewModel AjouterPlatViewModel.
     /// </summary>
     public partial class AjouterPlatView : UserControl
     {
+        /// <summary>
+        /// Constructeur de la vue d’ajout de plat.
+        /// Initialise le DataContext avec un AjouterPlatViewModel.
+        /// </summary>
+        /// <param name="utilisateur">Utilisateur courant (cuisinier connecté).</param>
+        /// <param name="parent">ViewModel principal de l'application.</param>
         public AjouterPlatView(User utilisateur, AppViewModel parent)
         {
             InitializeComponent();
             DataContext = new AjouterPlatViewModel(utilisateur, parent);
         }
 
+        /// <summary>
+        /// Méthode appelée lorsqu’on clique sur le bouton pour choisir une image.
+        /// Ouvre une boîte de dialogue pour sélectionner un fichier image, l’affiche dans l’UI,
+        /// et transmet le chemin de l’image au ViewModel.
+        /// </summary>
+        /// <param name="sender">Le bouton cliqué.</param>
+        /// <param name="e">Événement de clic.</param>
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog

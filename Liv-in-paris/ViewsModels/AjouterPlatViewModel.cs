@@ -19,6 +19,9 @@ namespace Liv_in_paris
         public ObservableCollection<Recette> RecettesExistantes { get; set; }
 
         private ImageSource _image;
+        /// <summary>
+        /// Image à afficher dans la vue, et potentiellement à sauvegarder.
+        /// </summary>
         public ImageSource Image
         {
             get => _image;
@@ -33,6 +36,10 @@ namespace Liv_in_paris
         public string NewTypePlat { get; set; }
         public Recette RecetteSelectionnee { get; set; }
         private string _newNbParts;
+        
+        /// <summary>
+        /// Nombre de parts du plat à ajouter.
+        /// </summary>
         public string NewNbParts
         {
             get => _newNbParts;
@@ -45,9 +52,21 @@ namespace Liv_in_paris
 
         public ObservableCollection<Evaluation> EvaluationsRecues { get; set; }
 
+        /// <summary>
+        /// Commande liée au bouton "Ajouter le plat".
+        /// </summary>
         public ICommand AjouterPlatCommand { get; }
         public ICommand SupprimerPlatCommand { get; }
+        /// <summary>
+        /// Commande pour ajouter une nouvelle recette.
+        /// </summary>
         public ICommand AjouterNouvelleRecetteCommand { get; }
+        
+        /// <summary>
+        /// Constructeur du ViewModel. Initialise les commandes et charge les données.
+        /// </summary>
+        /// <param name="utilisateur">Utilisateur cuisinier connecté</param>
+        /// <param name="parent">ViewModel principal</param>
         public AjouterPlatViewModel(User utilisateur, AppViewModel parent)
         {
             _app = parent;
@@ -56,6 +75,10 @@ namespace Liv_in_paris
             AjouterNouvelleRecetteCommand = new RelayCommand(AjouterNouvelleRecette);
             ChargerDonnees();
         }
+        
+        /// <summary>
+        /// Charge les plats et recettes depuis la base de données.
+        /// </summary>
         private void ChargerDonnees()
         {
             var db = Database.Instance;
@@ -68,6 +91,9 @@ namespace Liv_in_paris
 
         }
 
+        /// <summary>
+        /// Ajoute un nouveau plat à la base de données après validation des champs.
+        /// </summary>
         private void AjouterPlat()
         {
             if (string.IsNullOrWhiteSpace(NewNomPlat) || string.IsNullOrWhiteSpace(NewPrixPlat) || string.IsNullOrWhiteSpace(NewTypePlat))
@@ -116,6 +142,10 @@ namespace Liv_in_paris
             MessageBox.Show("Plat ajouté !");
             ChargerDonnees();
         }
+        
+        /// <summary>
+        /// Ouvre une nouvelle fenêtre pour créer une recette personnalisée.
+        /// </summary>
         private void AjouterNouvelleRecette()
         {
             var fenetre = new NouvelleRecetteWindow();
@@ -123,6 +153,10 @@ namespace Liv_in_paris
             ChargerDonnees();
         }
         
+        /// <summary>
+        /// Charge une image à partir d’un chemin local (utilisé par l’UI).
+        /// </summary>
+        /// <param name="path">Chemin d'accès à l'image</param>
         public void SetImageFromPath(string path)
         {
             if (!File.Exists(path)) return;
