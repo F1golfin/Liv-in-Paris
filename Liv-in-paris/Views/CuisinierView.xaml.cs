@@ -9,6 +9,9 @@ public partial class CuisinierView : UserControl
 {
     public User _utilisateur;
     public AppViewModel _model;
+    private UserControl _vuePlats;
+    private UserControl _vueMetro;
+    private bool _estVueSecondaireAffichee = false;
     public CuisinierView(User utilisateur, AppViewModel parent)
     {
         _utilisateur = utilisateur;
@@ -16,6 +19,8 @@ public partial class CuisinierView : UserControl
         
         InitializeComponent();
         ContentBox.Content = new ListePlatsView(_utilisateur, _model);
+        _vuePlats = new ListePlatsView(utilisateur, parent);
+        _vueMetro = new MetroGraphView();
         MesPlats.Background = Brushes.LightGray;
         AjouterPlat.Background = Brushes.Gray;
         DataContext = new CuisinierViewModel(parent, utilisateur);
@@ -34,5 +39,23 @@ public partial class CuisinierView : UserControl
         AjouterPlat.Background = Brushes.LightGray;
         MesPlats.Background = Brushes.Gray;
     }
-    
+
+    private void Button_Click_2(object sender, System.Windows.RoutedEventArgs e)
+    {
+        
+        if (_estVueSecondaireAffichee)
+        {
+            ContentBox.Content = _vuePlats;
+            _estVueSecondaireAffichee = false;
+            AjouterPlat.Visibility = System.Windows.Visibility.Hidden;
+            MesPlats.Visibility = System.Windows.Visibility.Hidden;
+        }
+        else
+        {
+            ContentBox.Content = _vueMetro;
+            _estVueSecondaireAffichee = true;
+            AjouterPlat.Visibility = System.Windows.Visibility.Visible;
+            MesPlats.Visibility = System.Windows.Visibility.Visible;
+        }
+    }
 }

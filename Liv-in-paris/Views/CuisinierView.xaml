@@ -31,21 +31,22 @@
                                 <ItemsControl ItemsSource="{Binding LignesCommandes}" Margin="10,10,0,0">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                                <TextBlock Text="{Binding Plat.NomPlat}" Width="150"/>
-                                                <TextBlock Text="{Binding AdresseArrivee}" Width="200"/>
-                                                <ComboBox ItemsSource="{Binding StatutsDisponibles}"
+                                            <StackPanel Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding Plat.NomPlat}" Width="150" HorizontalAlignment="Left"/>
+                                                <TextBlock Text="{Binding AdresseArrivee}" Width="200" HorizontalAlignment="Left"/>
+                                                <ComboBox ItemsSource="{Binding StatutsDisponibles}" HorizontalAlignment="Left"
                                                     SelectedItem="{Binding Statut, Mode=TwoWay}"
                                                     Width="150"/>
-                                                <Button Content="✅"
-                                                    Margin="10,0,0,0"
+                                                <Button Content="✅" HorizontalAlignment="Left" Background="LightGreen" 
+                                                    Margin="0,0,0,0"
                                                     Command="{Binding DataContext.MettreAJourStatutCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                     CommandParameter="{Binding}" />
+                                                
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
-
+                                <Button Content="Itinéraire" Margin="10 0 0 0" Click="Button_Click_2"/>
                             </StackPanel>
                         </Border>
                     </DataTemplate>
