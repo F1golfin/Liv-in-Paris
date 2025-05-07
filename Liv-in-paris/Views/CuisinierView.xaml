@@ -83,7 +83,7 @@
                 <Button Content="👨‍🍳 Mes plats" x:Name="MesPlats" FontSize="20" FontWeight="Bold" Margin="0 0 0 20" Padding="5 0 5 2" Click="Button_Click"/>
                 <Button Grid.Column="1" x:Name="AjouterPlat" Margin="0 0 0 20" Content="➕ Ajouter un plat" FontSize="20" FontWeight="Bold" Padding="5 0 5 2" Click="Button_Click_1"/>
             </Grid>
-            <ContentControl x:Name="ContentBox"/>
+            <ContentControl x:Name="ContentBox" HorizontalAlignment="Left" />
 
             
         </StackPanel>
@@ -92,9 +92,10 @@
         <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
             
             <Button Content="Gérer le compte"
-        Background="LightGray"
-        Padding="10,5"
-        FontWeight="Bold"/>
+                    Click="GérerCompte_Click"
+                    Background="LightGray"
+                    Padding="10,5"
+                    FontWeight="Bold"/>
             <Button Content="Se déconnecter"
         Command="{Binding DeconnexionCommand}"
         Background="LightGray"

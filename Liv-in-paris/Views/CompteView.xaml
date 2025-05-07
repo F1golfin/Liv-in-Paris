@@ -18,8 +18,14 @@
         <TextBlock Text="Email"/>
         <TextBox Text="{Binding Email}" Margin="0,0,0,10"/>
 
-        <TextBlock Text="Adresse"/>
-        <TextBox Text="{Binding Adresse}" Margin="0,0,0,10"/>
+        <TextBlock Text="Adresse" />
+        <TextBox x:Name="IDAdresse"
+                 Text="{Binding AdresseSaisie, UpdateSourceTrigger=PropertyChanged}" 
+                 Margin="0 5" />
+        <ListBox ItemsSource="{Binding Suggestions}"
+                 Visibility="{Binding Suggestions.Count, Converter={StaticResource IntToVisibilityConverter}}"
+                 SelectionChanged="Suggestions_SelectionChanged"
+                 Height="100" />
 
         <TextBlock Text="Téléphone"/>
         <TextBox Text="{Binding Telephone}" Margin="0,0,0,10"/>

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Collections.ObjectModel;
+using System.Windows;
 using System.Windows.Input;
 using Liv_in_paris;
 using Liv_in_paris.Core.Models;
@@ -11,6 +12,29 @@ namespace Liv_in_paris
     /// </summary>
     public class CompteViewModel : ViewModelBase
     {
+        private readonly AdresseService _adresseService = new();
+
+        private string _adresseSaisie;
+
+        /// <summary>
+        /// Propriété liée à la TextBox pour saisir l’adresse avec suggestions.
+        /// </summary>
+        public string AdresseSaisie
+        {
+            get => _adresseSaisie;
+            set
+            {
+                _adresseSaisie = value;
+                OnPropertyChanged();
+                _ = ChargerSuggestionsAsync(value);
+            }
+        }
+
+        /// <summary>
+        /// Liste des suggestions d'adresse proposées dynamiquement.
+        /// </summary>
+        public ObservableCollection<string> Suggestions { get; set; } = new();
+        
         private readonly User _user;
         private readonly DatabaseManager _db = Database.Instance;
         private readonly NClientViewModel _client;
@@ -81,6 +105,8 @@ namespace Liv_in_paris
             Adresse = user.Adresse;
             Telephone = user.Telephone;
             Entreprise = user.Entreprise;
+            
+            AdresseSaisie = Adresse;
 
             EnregistrerCommand = new RelayCommand(Sauvegarder);
             RetourCommand = new RelayCommand(() => _client.AfficherPlats());
@@ -95,12 +121,26 @@ namespace Liv_in_paris
             _user.Prenom = Prenom;
             _user.Nom = Nom;
             _user.Email = Email;
-            _user.Adresse = Adresse;
+            _user.Adresse = AdresseSaisie;
             _user.Telephone = Telephone;
             _user.Entreprise = EstEntreprise ? Entreprise : null;
 
             _user.ModifierUser(_db);
             MessageBox.Show("✅ Informations mises à jour !");
+        }
+        
+        /// <summary>
+        /// Appelle le service d'adresse pour récupérer dynamiquement des suggestions
+        /// en fonction de la saisie utilisateur (auto-complétion d'adresse).
+        /// </summary>
+        /// <param name="saisie">Texte saisi dans le champ d'adresse.</param>
+        public async Task ChargerSuggestionsAsync(string saisie)
+        {
+            var resultats = await _adresseService.ObtenirSuggestionsAsync(saisie);
+
+            Suggestions.Clear();
+            foreach (var suggestion in resultats)
+                Suggestions.Add(suggestion);
         }
     }
 }

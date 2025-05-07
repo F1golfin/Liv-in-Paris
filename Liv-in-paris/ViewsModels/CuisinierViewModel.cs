@@ -217,5 +217,9 @@ namespace Liv_in_paris
             );
             OnPropertyChanged(nameof(Commandes));
         }
+        public void AfficherVuePlats()
+        {
+            ChargerDonnees();
+        }
     }
 }

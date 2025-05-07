@@ -12,6 +12,7 @@ public partial class CuisinierView : UserControl
     private UserControl _vuePlats;
     private UserControl _vueMetro;
     private bool _estVueSecondaireAffichee = false;
+    private UserControl _vueCompte;
     
     /// <summary>
     /// Vue principale pour un utilisateur cuisinier.
@@ -91,4 +92,25 @@ public partial class CuisinierView : UserControl
             MesPlats.Visibility = System.Windows.Visibility.Visible;
         }
     }
+    
+    /// <summary>
+    /// Gère l'affichage de la vue de gestion du compte cuisinier.
+    /// Remplace le contenu actuel (liste de plats ou autre) par la vue CompteView.
+    /// </summary>
+    private void GérerCompte_Click(object sender, System.Windows.RoutedEventArgs e)
+    {
+        if (DataContext is not CuisinierViewModel viewModel)
+            return;
+
+        _vueCompte = new CompteView
+        {
+            DataContext = new CompteCuisinierViewModel(_utilisateur, viewModel)
+        };
+
+        ContentBox.Content = _vueCompte;
+
+        MesPlats.Background = Brushes.Gray;
+        AjouterPlat.Background = Brushes.Gray;
+    }
+
 }
