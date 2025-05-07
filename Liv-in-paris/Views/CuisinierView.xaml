@@ -52,28 +52,6 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-        </StackPanel>
-        
-        <!-- Contenu principal défilable -->
-        <StackPanel Margin="20">
-
-            <!-- TITRE -->
-
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Button Content="👨‍🍳 Mes plats" x:Name="MesPlats" FontSize="20" FontWeight="Bold" Margin="0 0 0 20" Padding="5 0 5 2" Click="Button_Click"/>
-                <Button Grid.Column="1" x:Name="AjouterPlat" Margin="0 0 0 20" Content="➕ Ajouter un plat" FontSize="20" FontWeight="Bold" Padding="5 0 5 2" Click="Button_Click_1"/>
-            </Grid>
-            <ContentControl x:Name="ContentBox"/>
-            <!-- LISTE DES PLATS -->
-
-
-
-
-
             <TextBlock Text="📝 Avis reçus" FontWeight="Bold" FontSize="16" Margin="0 0 0 10"/>
             <ItemsControl ItemsSource="{Binding EvaluationsRecues}">
                 <ItemsControl.ItemTemplate>
@@ -91,6 +69,23 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+        </StackPanel>
+        
+        <!-- Contenu principal défilable -->
+        <StackPanel Margin="20">
+
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="👨‍🍳 Mes plats" x:Name="MesPlats" FontSize="20" FontWeight="Bold" Margin="0 0 0 20" Padding="5 0 5 2" Click="Button_Click"/>
+                <Button Grid.Column="1" x:Name="AjouterPlat" Margin="0 0 0 20" Content="➕ Ajouter un plat" FontSize="20" FontWeight="Bold" Padding="5 0 5 2" Click="Button_Click_1"/>
+            </Grid>
+            <ContentControl x:Name="ContentBox"/>
+
+            
         </StackPanel>
 
         <!-- Bouton de déconnexion -->
