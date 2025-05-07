@@ -99,6 +99,6 @@ CREATE TABLE evaluation
     FOREIGN KEY (cuisinier_id) REFERENCES users (user_id)
 );
 INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise) VALUES
-                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'maxime@example.com', 'Rousseau', 'Maxime', '4 rue Paris', '0600000004', NULL),
-                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'amandine@example.com', 'Baranger', 'Amandine', '5 rue Paris', '0600000005', NULL),
-                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'guillaume@example.com', 'Blain', 'Guillaume', '6 rue Paris', '0600000006', 'Livin Paris');
+                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'maxime@example.com', 'Rousseau', 'Maxime', '56 Impasse Marty 75017 Paris', '0600000004', NULL),
+                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'amandine@example.com', 'Baranger', 'Amandine', '18 Boulevard Victor 75015 Paris', '0600000005', NULL),
+                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'guillaume@example.com', 'Blain', 'Guillaume', '194 Avenue Daumesnil 75012 Paris', '0600000006', NULL);
