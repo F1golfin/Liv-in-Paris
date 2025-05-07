@@ -6,10 +6,12 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0" Text="Bienvenue dans Liv'in Paris !" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
             <TextBlock Grid.Row="1" Text="Amandine Baranger - Guillaume Blain - Maxime Rousseau" FontSize="15" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Text="Compte Admin : maxime@example.com | Mot de passe : azerty" FontSize="14" HorizontalAlignment="Center" Margin="0,10,0,0"/>
         </Grid>
     </Grid>
 </UserControl>

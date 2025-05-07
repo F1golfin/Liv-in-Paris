@@ -98,3 +98,7 @@ CREATE TABLE evaluation
     FOREIGN KEY (client_id) REFERENCES users (user_id),
     FOREIGN KEY (cuisinier_id) REFERENCES users (user_id)
 );
+INSERT INTO users (password, role, type, email, nom, prenom, adresse, telephone, entreprise) VALUES
+                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'maxime@example.com', 'Rousseau', 'Maxime', '4 rue Paris', '0600000004', NULL),
+                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'amandine@example.com', 'Baranger', 'Amandine', '5 rue Paris', '0600000005', NULL),
+                                                                                                 ('azerty', 'Client,Cuisinier,Admin', 'Particulier', 'guillaume@example.com', 'Blain', 'Guillaume', '6 rue Paris', '0600000006', 'Livin Paris');
