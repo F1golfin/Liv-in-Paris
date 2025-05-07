@@ -12,6 +12,11 @@ public partial class CuisinierView : UserControl
     private UserControl _vuePlats;
     private UserControl _vueMetro;
     private bool _estVueSecondaireAffichee = false;
+    
+    /// <summary>
+    /// Vue principale pour un utilisateur cuisinier.
+    /// Permet de naviguer entre la liste des plats, l’ajout de plat, et la visualisation des trajets de livraison.
+    /// </summary>
     public CuisinierView(User utilisateur, AppViewModel parent)
     {
         _utilisateur = utilisateur;
@@ -26,6 +31,12 @@ public partial class CuisinierView : UserControl
         DataContext = new CuisinierViewModel(parent, utilisateur);
     }
 
+    /// <summary>
+    /// Constructeur de la vue Cuisinier.
+    /// Initialise les sous-vues et met la liste des plats comme vue par défaut.
+    /// </summary>
+    /// <param name="utilisateur">Utilisateur cuisinier connecté</param>
+    /// <param name="parent">ViewModel principal</param>
     private void Button_Click(object sender, System.Windows.RoutedEventArgs e)
     {
         ContentBox.Content = new ListePlatsView(_utilisateur, _model);
@@ -33,6 +44,9 @@ public partial class CuisinierView : UserControl
         AjouterPlat.Background = Brushes.Gray;
     }
 
+    /// <summary>
+    /// Bouton pour afficher la vue "Mes Plats".
+    /// </summary>
     private void Button_Click_1(object sender, System.Windows.RoutedEventArgs e)
     {
         ContentBox.Content = new AjouterPlatView(_utilisateur, _model);
@@ -40,6 +54,9 @@ public partial class CuisinierView : UserControl
         MesPlats.Background = Brushes.Gray;
     }
 
+    /// <summary>
+    /// Bouton pour afficher la vue "Ajouter un plat".
+    /// </summary>
     private async void Button_Click_2(object sender, System.Windows.RoutedEventArgs e)
     {
         var viewModel = DataContext as CuisinierViewModel;

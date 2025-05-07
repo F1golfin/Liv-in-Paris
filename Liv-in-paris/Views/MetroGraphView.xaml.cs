@@ -11,6 +11,10 @@ using SkiaSharp.Views.WPF;
 
 namespace Liv_in_paris;
 
+/// <summary>
+/// Vue graphique du plan de métro.
+/// Affiche le graphe des stations avec dessin dynamique (SkiaSharp) et permet l’animation des trajets.
+/// </summary>
 public partial class MetroGraphView : UserControl
 {
     private MetroGraphViewModel _viewModel;
@@ -25,7 +29,9 @@ public partial class MetroGraphView : UserControl
     private List<Noeud<Station>> _trajet = new();
     private DispatcherTimer _animationTimer;
     
-    
+    /// <summary>
+    /// Constructeur. Initialise la vue, le ViewModel et le callback de calcul de chemin.
+    /// </summary>
     public MetroGraphView()
     {
         InitializeComponent();
@@ -40,6 +46,9 @@ public partial class MetroGraphView : UserControl
         };
     }
     
+    /// <summary>
+    /// Récupère les stations sans doublons à partir du graphe.
+    /// </summary>
     private List<Station> GetStationsUniques()
     {
         return _viewModel.Graphe.Noeuds
@@ -50,6 +59,9 @@ public partial class MetroGraphView : UserControl
             .ToList();
     }
     
+    /// <summary>
+    /// Convertit une liste d’identifiants en une liste de nœuds correspondants.
+    /// </summary>
     private List<Noeud<Station>> ConvertirEnCheminNoeuds(List<int> ids)
     {
         return ids
@@ -58,6 +70,9 @@ public partial class MetroGraphView : UserControl
             .ToList();
     }
     
+    /// <summary>
+    /// Regroupe les lignes associées à chaque station.
+    /// </summary>
     private Dictionary<(string nom, double lat, double lon), HashSet<string>> GetLignesParStation()
     {
         return _viewModel.Graphe.Noeuds
@@ -83,6 +98,10 @@ public partial class MetroGraphView : UserControl
         IsAntialias = true
     };
 
+    /// <summary>
+    /// Méthode de dessin principale appelée par SkiaSharp à chaque rafraîchissement.
+    /// Affiche les stations, les lignes et le trajet animé.
+    /// </summary>
     private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
     {
         var canvas = e.Surface.Canvas;
@@ -247,34 +266,10 @@ public partial class MetroGraphView : UserControl
             }
         }
     }
-
-    private void ReinitialiserVue_Click(object sender, RoutedEventArgs e)
-    {
-        _scale = 0.9f;
-        
-        var stations = GetStationsUniques();
-        if (stations.Count == 0) return;
-        
-        double minLat = stations.Min(s => s.Latitude);
-        double maxLat = stations.Max(s => s.Latitude);
-        double minLon = stations.Min(s => s.Longitude);
-        double maxLon = stations.Max(s => s.Longitude);
-        
-        int width = (int)skElement.ActualWidth;
-        int height = (int)skElement.ActualHeight;
-        
-        float marge = 40f;
-        
-        float graphWidth = (float)((maxLon - minLon) / (maxLon - minLon) * (width - 2 * marge));
-        float graphHeight = (float)((maxLat - minLat) / (maxLat - minLat) * (height - 2 * marge));
-        
-        float offsetX = (width - graphWidth * _scale) / 2f;
-        float offsetY = (height - graphHeight * _scale) / 2f;
-
-        _offset = new SKPoint(offsetX, offsetY);
-        skElement.InvalidateVisual();
-    }
     
+    /// <summary>
+    /// Lance une animation visuelle du trajet calculé.
+    /// </summary>
     private void LancerAnimationTrajet(List<Noeud<Station>> chemin)
     {
         _trajet = chemin;
@@ -295,6 +290,9 @@ public partial class MetroGraphView : UserControl
         _animationTimer.Start();
     }
 
+    /// <summary>
+    /// Réinitialise le trajet affiché et stoppe l’animation.
+    /// </summary>
     private void ReinitialiserTrajet_Click(object sender, RoutedEventArgs e)
     {
         _trajet.Clear();

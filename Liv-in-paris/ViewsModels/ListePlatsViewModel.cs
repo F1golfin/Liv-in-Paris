@@ -6,6 +6,10 @@ using System.Windows.Input;
 
 namespace Liv_in_paris
 {
+    /// <summary>
+    /// ViewModel de la vue ListePlatsView.
+    /// Permet au cuisinier connecté de visualiser, modifier et supprimer ses plats, et de gérer les commandes.
+    /// </summary>
     public class ListePlatsViewModel : ViewModelBase
     {
         private readonly AppViewModel _app;
@@ -31,9 +35,14 @@ namespace Liv_in_paris
             }
             
         }
-
-
+        
         public ObservableCollection<Evaluation> EvaluationsRecues { get; set; }
+        /// <summary>
+        /// Constructeur du ViewModel.
+        /// Initialise les commandes et charge les données nécessaires à l'affichage.
+        /// </summary>
+        /// <param name="parent">ViewModel principal</param>
+        /// <param name="utilisateur">Utilisateur connecté (cuisinier)</param>
         public ListePlatsViewModel(AppViewModel parent, User utilisateur)
         {
             _app = parent;
@@ -57,7 +66,14 @@ namespace Liv_in_paris
                 }
             });
         }
+        /// <summary>
+        /// Liste des commandes associées au cuisinier.
+        /// </summary>
         public ObservableCollection<Commande> Commandes { get; set; }
+        
+        /// <summary>
+        /// Charge les plats du cuisinier depuis la base de données.
+        /// </summary>
         private void ChargerCommandes()
         {
             var db = Database.Instance;
@@ -67,6 +83,9 @@ namespace Liv_in_paris
             OnPropertyChanged(nameof(Commandes));
         }
 
+        /// <summary>
+        /// Charge les plats du cuisinier depuis la base de données.
+        /// </summary>
         private void ChargerDonnees()
         {
             var db = Database.Instance;
