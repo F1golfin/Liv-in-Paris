@@ -64,23 +64,26 @@ public class Plat
     }
 
     /// <summary>Ajoute ce plat à la base de données.</summary>
-    public void AjouterPlat(DatabaseManager database)
+    public void AjouterPlat(DatabaseManager db)
     {
+        string photoBase64 = Photo != null ? Convert.ToBase64String(Photo) : null;
+
         string query = $@"
-            INSERT INTO plats (
-                nom_plat, nb_parts, date_fabrication, date_peremption, prix_par_personne, photo,
-                cuisinier_id, recette_id
-            ) VALUES (
-                '{NomPlat}',
-                {NbParts},
-                '{DateFabrication:yyyy-MM-dd}',
-                '{DatePeremption:yyyy-MM-dd}',
-                {PrixParPersonne.ToString(System.Globalization.CultureInfo.InvariantCulture)},
-                NULL,
-                {CuisinierId},
-                {RecetteId}
-            );";
-        database.ExecuteNonQuery(query);
+    INSERT INTO plats (
+        nom_plat, nb_parts, date_fabrication, date_peremption, prix_par_personne, photo,
+        cuisinier_id, recette_id
+    ) VALUES (
+        '{NomPlat.Replace("'", "''")}',
+        {NbParts},
+        '{DateFabrication:yyyy-MM-dd}',
+        '{DatePeremption:yyyy-MM-dd}',
+        {PrixParPersonne.ToString(System.Globalization.CultureInfo.InvariantCulture)},
+        {(photoBase64 != null ? $"FROM_BASE64('{photoBase64}')" : "NULL")},
+        {CuisinierId},
+        {(RecetteId != 0 ? RecetteId.ToString() : "NULL")}
+    );";
+
+        db.ExecuteNonQuery(query);
     }
 
     /// <summary>Met à jour les informations du plat dans la base de données.</summary>

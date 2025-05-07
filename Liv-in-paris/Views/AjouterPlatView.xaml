@@ -37,7 +37,7 @@
                         </x:Array>
                     </ComboBox.ItemsSource>
                 </ComboBox>
-                <TextBlock Text="Recette associée (facultatif) :" Margin="10,10,0,5"/>
+                <TextBlock Text="Recette associée :" Margin="10,10,0,5"/>
                 <ComboBox Width="300"
                     ItemsSource="{Binding RecettesExistantes}"
                     DisplayMemberPath="NomRecette"

@@ -186,4 +186,9 @@ CREATE TABLE evaluation
         using var cmd = new MySqlCommand(query, connection);
         return cmd.ExecuteNonQuery();
     }
+    
+    public MySqlCommand CreateCommand(string query)
+    {
+        return new MySqlCommand(query);
+    }
 }

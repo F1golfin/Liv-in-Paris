@@ -122,5 +122,18 @@ namespace Liv_in_paris
             fenetre.ShowDialog();
             ChargerDonnees();
         }
+        
+        public void SetImageFromPath(string path)
+        {
+            if (!File.Exists(path)) return;
+
+            var bitmap = new BitmapImage();
+            bitmap.BeginInit();
+            bitmap.CacheOption = BitmapCacheOption.OnLoad;
+            bitmap.UriSource = new Uri(path);
+            bitmap.EndInit();
+
+            Image = bitmap;
+        }
     }
 }

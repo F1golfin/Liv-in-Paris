@@ -1,22 +1,9 @@
 ﻿using Liv_in_paris.Core.Models;
-using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Win32;
-using System.Windows.Media.Imaging;
+
 
 namespace Liv_in_paris.Views
 {
@@ -33,19 +20,23 @@ namespace Liv_in_paris.Views
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Title = "Sélectionnez une image";
-            openFileDialog.Filter = "Fichiers image (*.jpg;*.png;*.jpeg)|*.jpg;*.png;*.jpeg";
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Sélectionnez une image",
+                Filter = "Fichiers image (*.jpg;*.png;*.jpeg)|*.jpg;*.png;*.jpeg"
+            };
 
             if (openFileDialog.ShowDialog() == true)
             {
-
                 string imagePath = openFileDialog.FileName;
-                BitmapImage bitmap = new BitmapImage(new Uri(openFileDialog.FileName));
-                ImagePreview.Source = bitmap;
-
                 
-
+                BitmapImage bitmap = new BitmapImage(new Uri(imagePath));
+                ImagePreview.Source = bitmap;
+                
+                if (DataContext is AjouterPlatViewModel vm)
+                {
+                    vm.SetImageFromPath(imagePath);
+                }
             }
         }
     }

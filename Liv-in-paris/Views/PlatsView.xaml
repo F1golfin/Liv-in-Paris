@@ -2,23 +2,18 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Liv_in_paris">
-    
+
     <UserControl.Resources>
         <local:ListeToStringConverter x:Key="ListeToStringConverter"/>
         <local:ByteArrayToImageSourceConverter x:Key="PhotoConverter"/>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     </UserControl.Resources>
 
-    <Grid Background="#FFF">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <DockPanel Background="White">
 
-        <!-- 🔍 Filtres -->
-        <Border Margin="10" Background="#FFFDFDFD" Padding="10" CornerRadius="8">
+        <!-- 🎛 Filtres en haut -->
+        <Border DockPanel.Dock="Top" Margin="10" Background="#FFFDFDFD" Padding="10" CornerRadius="8">
             <StackPanel>
-                <!-- Ligne 1 -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
                     <Button Content="🔄 Réinitialiser les filtres"
                             Command="{Binding ResetFiltresCommand}"
@@ -33,7 +28,6 @@
                               DisplayMemberPath="Prenom"/>
                 </StackPanel>
 
-                <!-- Ligne 2 -->
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <TextBlock Text="Type :" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <ComboBox Width="100"
@@ -56,15 +50,21 @@
                 </StackPanel>
             </StackPanel>
         </Border>
-        
-        <!-- 🍽️ Résultats -->
-        <ScrollViewer Grid.Row="1" Margin="10">
+
+        <!-- 📜 Résultats scrollables -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}, Path=ActualHeight}">
             <ItemsControl ItemsSource="{Binding Plats}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Border BorderBrush="LightGray" BorderThickness="1" Margin="0,0,0,15" Padding="10" CornerRadius="10" Background="#FAFAFA">
                             <DockPanel>
-                                <!-- 📸 Image à gauche -->
                                 <Border Width="120" Height="120" CornerRadius="8" Margin="0,0,10,0" BorderBrush="Gray" BorderThickness="1">
                                     <Image Source="{Binding Photo, Converter={StaticResource PhotoConverter}}"
                                            Stretch="UniformToFill"
@@ -72,7 +72,6 @@
                                            Width="120" Height="120"/>
                                 </Border>
 
-                                <!-- 📝 Infos plat à droite -->
                                 <StackPanel>
                                     <Border Background="OrangeRed"
                                             CornerRadius="6"
@@ -85,6 +84,7 @@
                                                    FontWeight="Bold"
                                                    FontSize="12"/>
                                     </Border>
+
                                     <TextBlock Text="{Binding NomPlat}" FontWeight="Bold" FontSize="16" Foreground="#333"/>
                                     <TextBlock Text="{Binding PrixParPersonne, StringFormat='Prix : {0} €'}" Foreground="Gray"/>
                                     <TextBlock Text="{Binding NbParts, StringFormat='Parts : {0}'}" Foreground="Gray"/>
@@ -110,5 +110,5 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-    </Grid>
+    </DockPanel>
 </UserControl>
