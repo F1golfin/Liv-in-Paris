@@ -12,25 +12,8 @@
 
         <!-- Barre de contrôle -->
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 10" VerticalAlignment="Top">
-            <ComboBox Width="200"
-                      IsEditable="True"
-                      ItemsSource="{Binding Stations}"
-                      SelectedItem="{Binding StationDepart}"
-                      DisplayMemberPath="Nom"
-                      IsTextSearchEnabled="True"
-                      StaysOpenOnEdit="True"
-                      Margin="5"/>
-            <ComboBox Width="200"
-                      IsEditable="True"
-                      ItemsSource="{Binding Stations}"
-                      SelectedItem="{Binding StationArrivee}"
-                      DisplayMemberPath="Nom"
-                      IsTextSearchEnabled="True"
-                      StaysOpenOnEdit="True"
-                      Margin="5"/>
             <ComboBox Width="200" ItemsSource="{Binding Algorithmes}" SelectedItem="{Binding AlgoSelectionne}"/>
             <Button Content="Calculer" Command="{Binding CalculerCheminCommand}" Margin="10" />
-            <Button Content="Réinitialiser la vue" Click="ReinitialiserVue_Click" HorizontalAlignment="Right" VerticalAlignment="Top" Width="150" Margin="10" />
             <Button Content="Réinitialiser le trajet" Click="ReinitialiserTrajet_Click" Width="150" Margin="10"/>
         </StackPanel>
         <TextBox Grid.Row="1"
@@ -43,11 +26,9 @@
                  VerticalScrollBarVisibility="Auto" />
         
         <!-- Zone de dessin du graphe -->
-        <skia:SKElement Grid.Row="2" x:Name="skElement"
-                        PaintSurface="OnPaintSurface"
-                        MouseWheel="SKElement_OnMouseWheel"
-                        MouseDown="SKElement_OnMouseDown"
-                        MouseMove="SKElement_OnMouseMove"
-                        MouseUp="SKElement_OnMouseUp" />
+        <skia:SKElement Grid.Row="2"
+                        x:Name="skElement"
+                        Height="500"
+                        PaintSurface="OnPaintSurface"/>
     </Grid>
 </UserControl>

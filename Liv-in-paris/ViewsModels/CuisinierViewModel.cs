@@ -13,7 +13,7 @@ namespace Liv_in_paris
     public class CuisinierViewModel : ViewModelBase
     {
         private readonly AppViewModel _app;
-        private readonly User _utilisateurConnecte;
+        public readonly User _utilisateurConnecte;
 
         /// <summary>
         /// Liste observable des plats du cuisinier.

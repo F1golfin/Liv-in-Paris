@@ -12,6 +12,8 @@ namespace Liv_in_paris;
 /// </summary>
 public class MetroGraphViewModel : ViewModelBase
 {
+    private readonly AdresseService _adresseService = new();
+    
     /// <summary>
     /// Liste des stations disponibles pour la sélection.
     /// </summary>
@@ -22,28 +24,13 @@ public class MetroGraphViewModel : ViewModelBase
     /// </summary>
     public ObservableCollection<string> Algorithmes { get; }
 
-    private Station _stationDepart;
-    private Station _stationArrivee;
+    public string AdresseDepart { get; set; } = "";
+    public List<string> AdressesLivraison { get; set; } = new();
     private string _algoSelectionne;
     private string _resumeTrajet;
-
-    /// <summary>
-    /// Station de départ sélectionnée par l'utilisateur.
-    /// </summary>
-    public Station StationDepart
-    {
-        get => _stationDepart;
-        set { _stationDepart = value; OnPropertyChanged(); }
-    }
-
-    /// <summary>
-    /// Station d'arrivée sélectionnée par l'utilisateur.
-    /// </summary>
-    public Station StationArrivee
-    {
-        get => _stationArrivee;
-        set { _stationArrivee = value; OnPropertyChanged(); }
-    }
+    
+    public Station? StationDepartCalculee { get; private set; }
+    public List<Station> StationsLivraisonCalculees { get; private set; } = new();
 
     /// <summary>
     /// Algorithme sélectionné pour le calcul du plus court chemin.
@@ -109,65 +96,150 @@ public class MetroGraphViewModel : ViewModelBase
             Stations.Add(station);
     }
 
+    public void InitialiserAdresses(string depart, List<string> livraisons)
+    {
+        AdresseDepart = depart;
+        AdressesLivraison = livraisons;
+    }
+    
     /// <summary>
     /// Méthode exécutée lors du clic sur "Calculer".
     /// Elle applique l'algorithme choisi sur les ID des stations sélectionnées,
     /// puis envoie le chemin trouvé à la vue et génère un résumé lisible.
     /// </summary>
-    private void CalculerChemin()
+    private async void CalculerChemin()
     {
         if (string.IsNullOrWhiteSpace(AlgoSelectionne))
             return;
 
-        var idsDepart = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationDepart.Nom).Select(n => n.Id).ToList();
-        var idsArrivee = _graphe.Noeuds.Values.Where(n => n.Data.Nom == StationArrivee.Nom).Select(n => n.Id).ToList();
+        var stationDepart = await TrouverStationLaPlusProche(AdresseDepart);
+        var stationsLivraison = new List<Station>();
 
-        List<int> meilleurChemin = new();
-        int meilleurPoids = int.MaxValue;
-        List<int> chemin = new();
-
-        foreach (var dep in idsDepart)
+        foreach (var adresse in AdressesLivraison)
         {
-            foreach (var arr in idsArrivee)
+            var s = await TrouverStationLaPlusProche(adresse);
+            if (s != null)
+                stationsLivraison.Add(s);
+        }
+
+        if (stationDepart == null || stationsLivraison.Count == 0)
+        {
+            ResumeTrajet = "Impossible de géocoder les adresses.";
+            return;
+        }
+        
+        var cheminComplet = new List<int>();
+        var idsNonVisites = new HashSet<int>(
+            Graphe.Noeuds
+                .Where(kvp => stationsLivraison.Contains(kvp.Value.Data))
+                .Select(kvp => kvp.Key)
+        );
+        var currentId = Graphe.Noeuds.First(n => n.Value.Data.Nom == stationDepart.Nom).Key;
+
+        while (idsNonVisites.Count > 0)
+        {
+            int prochainId = -1;
+            List<int> meilleurChemin = new();
+            int meilleurPoids = int.MaxValue;
+
+            foreach (var cible in idsNonVisites)
             {
-                switch (_algoSelectionne)
+                List<int> chemin = AlgoSelectionne switch
                 {
-                    case "Dijkstra":
-                        chemin = _graphe.Dijkstra(dep, arr);
-                        break;
-                    case "Bellman-Ford":
-                        chemin = _graphe.BellmanFord(dep, arr);
-                        break;
-                    case "Floyd-Warshall":
-                        chemin = _graphe.CheminLePlusCourt(dep, arr);
-                        break;
-                }
+                    "Dijkstra" => Graphe.Dijkstra(currentId, cible),
+                    "Bellman-Ford" => Graphe.BellmanFord(currentId, cible),
+                    "Floyd-Warshall" => Graphe.CheminLePlusCourt(currentId, cible),
+                    _ => new List<int>()
+                };
 
-                int poids = _graphe.CalculerPoids(chemin);
-
+                int poids = Graphe.CalculerPoids(chemin);
                 if (chemin.Count > 0 && poids < meilleurPoids)
                 {
                     meilleurPoids = poids;
                     meilleurChemin = chemin;
+                    prochainId = cible;
                 }
             }
+
+            if (meilleurChemin.Count == 0)
+                break;
+
+            // Ne répète pas les doublons
+            if (cheminComplet.Count > 0 && meilleurChemin[0] == cheminComplet.Last())
+                meilleurChemin.RemoveAt(0);
+
+            cheminComplet.AddRange(meilleurChemin);
+            idsNonVisites.Remove(prochainId);
+            currentId = prochainId;
         }
 
-        OnCheminCalcule?.Invoke(chemin);
-
-        if (meilleurChemin.Count > 0)
+        if (cheminComplet.Count > 0)
         {
-            var stations = meilleurChemin
-                .Select(id => _graphe.Noeuds[id].Data.ToString())
-                .ToList();
+            OnCheminCalcule?.Invoke(cheminComplet);
 
-            int poidsTotal = _graphe.CalculerPoids(meilleurChemin);
+            var noms = cheminComplet.Select(id => Graphe.Noeuds[id].Data.ToString()).ToList();
+            int total = Graphe.CalculerPoids(cheminComplet);
 
-            ResumeTrajet = $"Trajet : {string.Join(" → ", stations)}\n\nTemps total estimé : {poidsTotal} minutes";
+            ResumeTrajet = $" Itinéraire :\n{string.Join(" → ", noms)}\n\nDurée estimée : {total} min";
         }
         else
         {
             ResumeTrajet = "Aucun chemin trouvé.";
         }
+        
+        StationDepartCalculee = stationDepart;
+        StationsLivraisonCalculees = stationsLivraison;
     }
+    
+    /// <summary>
+    /// Renvoie la station de métro la plus proche des coordonnées GPS données.
+    /// </summary>
+    public Station? TrouverStationLaPlusProche(double latitude, double longitude)
+    {
+        Station? stationProche = null;
+        double distanceMin = double.MaxValue;
+
+        foreach (var station in Stations)
+        {
+            double dist = DistanceHaversine(latitude, longitude, station.Latitude, station.Longitude);
+            if (dist < distanceMin)
+            {
+                distanceMin = dist;
+                stationProche = station;
+            }
+        }
+
+        return stationProche;
+    }
+
+    /// <summary>
+    /// Calcule la distance entre deux points GPS avec la formule de Haversine (en km).
+    /// </summary>
+    private double DistanceHaversine(double lat1, double lon1, double lat2, double lon2)
+    {
+        const double R = 6371;
+        double dLat = (lat2 - lat1) * Math.PI / 180;
+        double dLon = (lon2 - lon1) * Math.PI / 180;
+
+        double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                   Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180) *
+                   Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+        double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+        return R * c;
+    }
+    
+    /// <summary>
+    /// Géocode une adresse et retourne la station de métro la plus proche.
+    /// </summary>
+    public async Task<Station?> TrouverStationLaPlusProche(string adresse)
+    {
+        var coord = await _adresseService.ObtenirCoordonneesAsync(adresse);
+        if (coord == null)
+            return null;
+
+        return TrouverStationLaPlusProche(coord.Value.lat, coord.Value.lon);
+    }
+
+    
 }

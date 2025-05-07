@@ -40,8 +40,24 @@ public partial class CuisinierView : UserControl
         MesPlats.Background = Brushes.Gray;
     }
 
-    private void Button_Click_2(object sender, System.Windows.RoutedEventArgs e)
+    private async void Button_Click_2(object sender, System.Windows.RoutedEventArgs e)
     {
+        var viewModel = DataContext as CuisinierViewModel;
+        if (viewModel == null)
+            return;
+        
+        string adresseDepart = viewModel._utilisateurConnecte.Adresse;
+        
+        var adressesLivraison = viewModel.Commandes
+            .SelectMany(c => c.LignesCommandes)
+            .Select(l => l.AdresseArrivee)
+            .Distinct()
+            .ToList();
+        
+        if (_vueMetro is MetroGraphView metroView && metroView.DataContext is MetroGraphViewModel metroVM)
+        {
+            metroVM.InitialiserAdresses(adresseDepart, adressesLivraison);
+        }
         
         if (_estVueSecondaireAffichee)
         {

@@ -82,15 +82,15 @@ public partial class MetroGraphView : UserControl
         Color = SKColors.Black,
         IsAntialias = true
     };
-    
+
     private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
     {
         var canvas = e.Surface.Canvas;
         canvas.Clear(SKColors.White);
-        
+
         canvas.Scale(_scale);
         canvas.Translate(_offset.X / _scale, _offset.Y / _scale);
-        
+
         Dictionary<string, SKColor> ligneCouleurs = new()
         {
             ["1"] = SKColors.Gold,
@@ -116,7 +116,7 @@ public partial class MetroGraphView : UserControl
 
         var graphe = _viewModel.Graphe;
         var stations = GetStationsUniques();
-        
+
         // Trouve les limites géographiques
         double minLat = stations.Min(s => s.Latitude);
         double maxLat = stations.Max(s => s.Latitude);
@@ -185,10 +185,9 @@ public partial class MetroGraphView : UserControl
         {
             var point = ConvertirCoord(station);
             canvas.DrawCircle(point, 6, stationPaint);
-            
+
             canvas.DrawText(station.Nom, point.X + 6, point.Y - 6, textPaint);
             
-            // Affiche les lignes associées (L1, L4, L7...)
             var key = (station.Nom, station.Latitude, station.Longitude);
             if (lignesParStation.ContainsKey(key))
             {
@@ -196,7 +195,7 @@ public partial class MetroGraphView : UserControl
                 canvas.DrawText($"({lignes})", point.X + 8, point.Y + 10, textPaint);
             }
         }
-        
+
         if (_trajet != null && _trajet.Count > 1)
         {
             using var trajetPaint = new SKPaint
@@ -214,76 +213,67 @@ public partial class MetroGraphView : UserControl
                 canvas.DrawLine(p1, p2, trajetPaint);
             }
         }
-    }
-    
-    // Gérer la molette de la souris
-    private void SKElement_OnMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-        var skElement = (SKElement)sender;
-        var position = e.GetPosition(skElement).ToSKPoint();
-
-        float oldScale = _scale;
-        float zoomFactor = (e.Delta > 0) ? 1.1f : 0.9f;
-
-        _scale *= zoomFactor;
-        _scale = Math.Clamp(_scale, 0.9f, 3f);
-
-        // Ajustement de l'offset pour centrer le zoom autour de la souris
-        _offset = new SKPoint(
-            (position.X - _offset.X) - (position.X - _offset.X) * (_scale / oldScale) + _offset.X,
-            (position.Y - _offset.Y) - (position.Y - _offset.Y) * (_scale / oldScale) + _offset.Y
-        );
-        LimiterOffset((int)skElement.ActualWidth, (int)skElement.ActualHeight);
-        skElement.InvalidateVisual();
-    }
-    
-    private void SKElement_OnMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        _isDragging = true;
-        _lastTouch = e.GetPosition((IInputElement)sender).ToSKPoint();
-    }
-
-    private void SKElement_OnMouseMove(object sender, MouseEventArgs e)
-    {
-        if (_isDragging)
+        
+        // 🔵 Dessin station de départ
+        if (_viewModel.StationDepartCalculee is { } departStation)
         {
-            var current = e.GetPosition((IInputElement)sender).ToSKPoint();
-            _offset += current - _lastTouch;
-            _lastTouch = current;
-
-            LimiterOffset((int)skElement.ActualWidth, (int)skElement.ActualHeight);
-            skElement.InvalidateVisual();
+            var p = ConvertirCoord(departStation);
+            using var paint = new SKPaint { Color = SKColors.Blue, IsAntialias = true };
+            canvas.DrawCircle(p, 8, paint);
+            canvas.DrawText("Départ", p.X + 10, p.Y, textPaint);
+        }
+        
+        int numero = 1;
+        foreach (var noeud in _trajet)
+        {
+            var station = noeud.Data;
+            
+            if (_viewModel.StationDepartCalculee != null &&
+                station.Nom == _viewModel.StationDepartCalculee.Nom &&
+                Math.Abs(station.Latitude - _viewModel.StationDepartCalculee.Latitude) < 0.0001 &&
+                Math.Abs(station.Longitude - _viewModel.StationDepartCalculee.Longitude) < 0.0001)
+                continue;
+            
+            if (_viewModel.StationsLivraisonCalculees.Any(s =>
+                    s.Nom == station.Nom &&
+                    Math.Abs(s.Latitude - station.Latitude) < 0.0001 &&
+                    Math.Abs(s.Longitude - station.Longitude) < 0.0001))
+            {
+                var point = ConvertirCoord(station);
+                using var paint = new SKPaint { Color = SKColors.Red, IsAntialias = true };
+                canvas.DrawCircle(point, 8, paint);
+                canvas.DrawText(numero.ToString(), point.X - 5, point.Y - 12, textPaint);
+                numero++;
+            }
         }
     }
 
-    private void SKElement_OnMouseUp(object sender, MouseButtonEventArgs e)
-    {
-        _isDragging = false;
-    }
-    
     private void ReinitialiserVue_Click(object sender, RoutedEventArgs e)
     {
-        _scale = 0.9f; 
-        _offset = new SKPoint(0, 0); 
+        _scale = 0.9f;
+        
+        var stations = GetStationsUniques();
+        if (stations.Count == 0) return;
+        
+        double minLat = stations.Min(s => s.Latitude);
+        double maxLat = stations.Max(s => s.Latitude);
+        double minLon = stations.Min(s => s.Longitude);
+        double maxLon = stations.Max(s => s.Longitude);
+        
+        int width = (int)skElement.ActualWidth;
+        int height = (int)skElement.ActualHeight;
+        
+        float marge = 40f;
+        
+        float graphWidth = (float)((maxLon - minLon) / (maxLon - minLon) * (width - 2 * marge));
+        float graphHeight = (float)((maxLat - minLat) / (maxLat - minLat) * (height - 2 * marge));
+        
+        float offsetX = (width - graphWidth * _scale) / 2f;
+        float offsetY = (height - graphHeight * _scale) / 2f;
+
+        _offset = new SKPoint(offsetX, offsetY);
         skElement.InvalidateVisual();
     }
-    
-    private void LimiterOffset(int canvasWidth, int canvasHeight)
-    {
-        float marge = 1200f;
-
-        float minX = -canvasWidth * (_scale - 1) - marge;
-        float maxX = canvasWidth - marge;
-
-        float minY = -canvasHeight * (_scale - 1) - marge;
-        float maxY = canvasHeight - marge;
-
-        _offset = new SKPoint(
-            Math.Clamp(_offset.X, minX, maxX),
-            Math.Clamp(_offset.Y, minY, maxY)
-        );
-    }
-    
     
     private void LancerAnimationTrajet(List<Noeud<Station>> chemin)
     {
@@ -291,7 +281,7 @@ public partial class MetroGraphView : UserControl
         _trajetStep = 1;
 
         _animationTimer = new DispatcherTimer();
-        _animationTimer.Interval = TimeSpan.FromMilliseconds(500); // vitesse animation
+        _animationTimer.Interval = TimeSpan.FromMilliseconds(500);
         _animationTimer.Tick += (s, e) =>
         {
             _trajetStep++;
@@ -304,7 +294,7 @@ public partial class MetroGraphView : UserControl
 
         _animationTimer.Start();
     }
-    
+
     private void ReinitialiserTrajet_Click(object sender, RoutedEventArgs e)
     {
         _trajet.Clear();
@@ -312,4 +302,5 @@ public partial class MetroGraphView : UserControl
         _animationTimer?.Stop();
         skElement.InvalidateVisual();
     }
+    
 }
